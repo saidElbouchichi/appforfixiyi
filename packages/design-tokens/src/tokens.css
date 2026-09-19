@@ -1,0 +1,52 @@
+/**
+ * CSS custom properties mirroring tokens.ts, for Tailwind v4 `@theme inline`
+ * consumption in apps/web and apps/admin. Kept in sync by hand for now
+ * (Phase 1); revisit with a generator if drift becomes a real problem.
+ */
+:root {
+  --fixiyi-color-primary-50: #eef7f7;
+  --fixiyi-color-primary-100: #d3ebea;
+  --fixiyi-color-primary-200: #a7d7d5;
+  --fixiyi-color-primary-300: #79c0bd;
+  --fixiyi-color-primary-400: #4ba7a3;
+  --fixiyi-color-primary-500: #2f8b87;
+  --fixiyi-color-primary-600: #256f6c;
+  --fixiyi-color-primary-700: #1d5754;
+  --fixiyi-color-primary-800: #153e3c;
+  --fixiyi-color-primary-900: #0d2726;
+
+  --fixiyi-color-neutral-0: #ffffff;
+  --fixiyi-color-neutral-50: #f7f8f8;
+  --fixiyi-color-neutral-100: #eceeee;
+  --fixiyi-color-neutral-200: #d7dbdb;
+  --fixiyi-color-neutral-300: #b8bfbf;
+  --fixiyi-color-neutral-400: #8f9898;
+  --fixiyi-color-neutral-500: #6b7373;
+  --fixiyi-color-neutral-600: #4f5656;
+  --fixiyi-color-neutral-700: #383e3e;
+  --fixiyi-color-neutral-800: #232727;
+  --fixiyi-color-neutral-900: #141717;
+  --fixiyi-color-neutral-1000: #000000;
+
+  --fixiyi-color-success-500: #2e9e5b;
+  --fixiyi-color-success-700: #1f7042;
+  --fixiyi-color-warning-500: #c98a1c;
+  --fixiyi-color-warning-700: #8f6212;
+  --fixiyi-color-danger-500: #c94c2f;
+  --fixiyi-color-danger-700: #8f351f;
+  --fixiyi-color-info-500: #2f7cc9;
+  --fixiyi-color-info-700: #1f588f;
+
+  --fixiyi-radius-sm: 4px;
+  --fixiyi-radius-md: 8px;
+  --fixiyi-radius-lg: 12px;
+  --fixiyi-radius-xl: 16px;
+  --fixiyi-radius-full: 9999px;
+
+  --fixiyi-font-sans:
+    Inter, "Noto Sans Arabic", -apple-system, "Segoe UI", system-ui, sans-serif;
+
+  --fixiyi-motion-fast: 120ms;
+  --fixiyi-motion-normal: 200ms;
+  --fixiyi-motion-slow: 320ms;
+}

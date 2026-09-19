@@ -1,0 +1,4 @@
+{
+  "extends": "@fixiyi/tsconfig/nestjs.json",
+  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.mts"]
+}

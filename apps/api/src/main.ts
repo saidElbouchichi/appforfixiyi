@@ -1,0 +1,37 @@
+import "reflect-metadata";
+
+import { loadEnv } from "@fixiyi/config";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+
+import { AppModule } from "./app.module.js";
+import { ProblemDetailsFilter } from "./common/filters/problem-details.filter.js";
+
+async function bootstrap(): Promise<void> {
+  // Loaded first, outside of Nest's DI graph: dotenv must populate process.env
+  // before anything else runs, and a bad config must fail loudly right here.
+  const env = loadEnv();
+
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule.forRoot(env), new FastifyAdapter(), {
+    bufferLogs: true,
+  });
+
+  app.setGlobalPrefix("api/v1", { exclude: ["health"] });
+  app.useGlobalFilters(new ProblemDetailsFilter());
+  app.enableCors();
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle(env.APP_NAME)
+    .setDescription("Fixiyi API")
+    .setVersion(env.API_VERSION)
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup("api/docs", app, document);
+
+  const apiUrl = new URL(env.API_URL);
+  const port = apiUrl.port ? Number(apiUrl.port) : 4000;
+  await app.listen(port, "0.0.0.0");
+}
+
+void bootstrap();

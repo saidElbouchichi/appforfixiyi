@@ -1,0 +1,8 @@
+{
+  "common.appName": "Fixiyi",
+  "common.tagline": "Services et interventions a domicile",
+  "common.loading": "Chargement...",
+  "common.error": "Une erreur est survenue",
+  "common.retry": "Reessayer",
+  "common.status.underConstruction": "En construction"
+}
