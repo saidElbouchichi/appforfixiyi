@@ -8,6 +8,7 @@
 5. 01_SPEC_PRODUCT.md
 6. 02_SPEC_ENGINEERING.md
 7. 07_EXAMPLES.md
+8. 08_ECC_INTEGRATION.md
 
 ## Regle d''or
 Ne JAMAIS coder sans avoir :
