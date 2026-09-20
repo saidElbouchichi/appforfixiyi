@@ -27,6 +27,8 @@ export const EnvSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(16, "JWT_REFRESH_SECRET must be at least 16 characters"),
   JWT_ACCESS_TTL: z.string().min(1).default("15m"),
   JWT_REFRESH_TTL: z.string().min(1).default("30d"),
+  OTP_SECRET: z.string().min(16, "OTP_SECRET must be at least 16 characters"),
+  MIN_PROVIDER_AGE: z.coerce.number().int().min(0).default(18),
 
   SMS_PROVIDER: z.string().min(1).default("dev"),
   SMS_PROVIDER_KEY: z.string().default(""),

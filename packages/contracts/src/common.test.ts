@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { IdSchema, IsoDateTimeSchema, MoneySchema, ProblemDetailsSchema } from "./common.js";
+import { IdSchema, IsoDateTimeSchema, MoneySchema, PhoneE164Schema, ProblemDetailsSchema } from "./common.js";
 
 describe("common schemas", () => {
   it("IdSchema accepts a UUID and rejects arbitrary strings", () => {
@@ -17,6 +17,13 @@ describe("common schemas", () => {
     expect(MoneySchema.safeParse({ amountMinor: 30000, currency: "MAD" }).success).toBe(true);
     expect(MoneySchema.safeParse({ amountMinor: 300.5, currency: "MAD" }).success).toBe(false);
     expect(MoneySchema.safeParse({ amountMinor: 30000, currency: "DH" }).success).toBe(false);
+  });
+
+  it("PhoneE164Schema accepts a valid E.164 number and rejects a local/malformed one", () => {
+    expect(PhoneE164Schema.safeParse("+212612345678").success).toBe(true);
+    expect(PhoneE164Schema.safeParse("0612345678").success).toBe(false);
+    expect(PhoneE164Schema.safeParse("+0612345678").success).toBe(false);
+    expect(PhoneE164Schema.safeParse("not-a-phone").success).toBe(false);
   });
 
   it("ProblemDetailsSchema matches the 02_SPEC_ENGINEERING.md #62 error format", () => {

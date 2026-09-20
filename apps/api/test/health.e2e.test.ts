@@ -8,6 +8,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { AppModule } from "../src/app.module.js";
+import { ProblemDetailsFilter } from "../src/common/filters/problem-details.filter.js";
 
 /**
  * Real integration test: boots the full Nest app and hits it against the
@@ -20,6 +21,7 @@ describe("Health (e2e)", () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule.forRoot(loadEnv())] }).compile();
     app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
     app.setGlobalPrefix("api/v1", { exclude: ["health"] });
+    app.useGlobalFilters(new ProblemDetailsFilter());
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   }, 30_000);

@@ -6,6 +6,14 @@ export const IdSchema = z.uuid();
 /** ISO-4217 3-letter currency code. */
 export const CurrencySchema = z.string().length(3);
 
+/**
+ * E.164 phone number (leading `+`, no leading zero on the country code, max
+ * 15 digits total) — syntactic contract-level check only. Deeper validation
+ * (real country/number-plan) is done where a phone is actually dialled, e.g.
+ * `apps/api`'s OTP service via `libphonenumber-js`.
+ */
+export const PhoneE164Schema = z.string().regex(/^\+[1-9]\d{1,14}$/, "Phone number must be in E.164 format");
+
 /** Timestamps are always stored/exchanged in UTC — 01_SPEC_PRODUCT.md #44. */
 export const IsoDateTimeSchema = z.iso.datetime();
 

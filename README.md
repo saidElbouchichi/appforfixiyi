@@ -4,7 +4,7 @@ Marketplace de services et interventions a domicile.
 
 ## Statut
 
-En construction - Phase 1 (Foundation)
+En construction - Phase 2 (Auth) terminee
 
 ## Stack
 
@@ -34,9 +34,10 @@ En construction - Phase 1 (Foundation)
     git clone <repo-url>
     cd fixiyi
     cp .env.example .env
-    # editer .env : remplir JWT_SECRET/JWT_REFRESH_SECRET et les cles des
-    # providers externes reellement utilises (les valeurs "dev"/"fake" par
-    # defaut suffisent pour du developpement local sans providers reels).
+    # editer .env : remplir JWT_SECRET/JWT_REFRESH_SECRET/OTP_SECRET (par
+    # exemple via `openssl rand -hex 32`) et les cles des providers externes
+    # reellement utilises (les valeurs "dev"/"fake" par defaut suffisent
+    # pour du developpement local sans providers reels).
     pnpm install
     docker compose up -d
     docker compose ps
@@ -87,11 +88,24 @@ completent l'infrastructure existante (`docker-compose.yml`) via
     docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
     curl http://localhost:4000/health
 
+## Auth (Phase 2)
+
+`apps/api` expose desormais un module `auth` complet sous `/api/v1/auth` :
+OTP telephone (provider `dev`/`fake`, jamais un vrai SMS), sessions +
+rotation des refresh tokens (detection de reutilisation -> revocation),
+logout/logout-all, gestion des appareils/sessions, RBAC (roles), auto-
+attribution du role `PROVIDER` (regle d'age configurable via
+`MIN_PROVIDER_AGE`), email + verification. Le detail complet est dans
+`docs/phases/PHASE_2_REPORT.md`. En dev, `POST /auth/otp/request` renvoie
+le code dans le corps de la reponse (`devCode`) - jamais logue, jamais
+envoye par un vrai SMS.
+
 ## Structure
 
     fixiyi/
     |-- apps/
-    |   |-- api/            NestJS + Fastify (Mongo, Redis, health check, OpenAPI)
+    |   |-- api/            NestJS + Fastify (Mongo, Redis, health check,
+    |   |                   OpenAPI, module auth complet)
     |   |-- worker/         BullMQ (queue de diagnostic system/ping)
     |   |-- web/            Next.js (site public)
     |   `-- admin/          Next.js (back-office)
@@ -112,6 +126,7 @@ completent l'infrastructure existante (`docker-compose.yml`) via
 | MinIO Console | http://localhost:9001 | minioadmin / minioadmin |
 | API (health) | http://localhost:4000/health | - |
 | API (docs) | http://localhost:4000/api/docs | - |
+| API (auth) | http://localhost:4000/api/v1/auth/* | voir `docs/phases/PHASE_2_REPORT.md` |
 | Web | http://localhost:3000 | - |
 | Admin | http://localhost:3001 (via Docker) / :3000 (dev local, voir plus haut) | - |
 

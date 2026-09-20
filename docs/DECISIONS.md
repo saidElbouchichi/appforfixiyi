@@ -393,3 +393,273 @@ Journal des decisions techniques et produit.
   garde les deux telemetries actives sur sa machine (pas bloquant, juste
   documente).
 - Date : 2026-09-20
+
+---
+
+## Decision 16 - Sessions : refresh token = JWT + `tokenVersion` en Mongo
+  (pas de hash de token stocke)
+
+- Contexte : la rotation des refresh tokens (01_SPEC_PRODUCT.md #68) exige
+  de detecter la reutilisation d'un token deja rote (signe probable de
+  vol). Pattern classique : stocker un hash du refresh token courant en
+  base, comparer a chaque refresh.
+- Options : A. Stocker un hash du refresh token courant par session,
+  comparer a chaque refresh / B. Ne stocker qu'un entier `tokenVersion`
+  par session (incremente a chaque rotation) et l'inclure comme claim
+  `rtv` dans le JWT signe ; comparer l'entier plutot qu'un hash
+- Choix : B.
+- Raison : Le JWT est deja auto-verifiant (signature HMAC) - le hash
+  n'apporterait de securite que contre un token *falsifie*, deja exclu
+  par la verification de signature. Un entier suffit a detecter la
+  reutilisation d'un token *legitime mais perime* (deja rote). Simplicite
+  > mecanisme redondant (05_DECISION_POLICY.md).
+- Trade-offs : Aucune revocation cote token lui-meme (le JWT reste
+  cryptographiquement valide jusqu'a expiration) - la revocation reelle
+  passe par la verification du statut de la session (`ACTIVE`/`REVOKED`)
+  en base a chaque requete authentifiee (voir `AuthGuard`), pas par le
+  token seul.
+- Date : 2026-09-20
+
+---
+
+## Decision 17 - Rate limiting OTP : IP via guard generique, telephone/email
+  via `OtpService`
+
+- Contexte : 02_SPEC_ENGINEERING.md #152 demande un rate limiting par IP
+  ET par utilisateur/telephone. L'IP est disponible pour toute route sans
+  connaitre le corps de la requete (adapte a un Guard generique) ; le
+  telephone/email n'est connu qu'apres validation du DTO (adapte a un
+  service qui connait deja le sujet valide).
+- Options : A. Tout dans un seul Guard (dupliquer l'extraction du corps
+  dans le Guard, avant la validation Zod) / B. Deux mecanismes
+  complementaires : `RateLimitGuard` (decorateur `@RateLimit`, cle = IP)
+  au niveau route + verification telephone/email integree a
+  `OtpService.issueCode` (cle = sujet)
+- Choix : B.
+- Raison : Chaque verification reste au niveau ou sa donnee est deja
+  naturellement disponible et validee, sans dupliquer le parsing du
+  corps de requete hors du pipeline Nest standard.
+- Trade-offs : Deux points de configuration au lieu d'un (constantes
+  dans `auth.constants.ts` + `@RateLimit(...)` sur chaque route
+  publique) - acceptable, peu de routes concernees en Phase 2.
+- Date : 2026-09-20
+
+---
+
+## Decision 18 - Cookies et CSRF ecrits a la main (pas de
+  `@fastify/cookie`, pas de librairie CSRF)
+
+- Contexte : 01_SPEC_PRODUCT.md #69 exige des cookies web
+  HttpOnly/Secure/SameSite + protection CSRF pour l'auth.
+- Verification faite : Fastify gere nativement plusieurs en-tetes
+  `Set-Cookie` (appels repetes a `reply.header("set-cookie", ...)`
+  s'accumulent au lieu de s'ecraser - confirme dans
+  `fastify/lib/reply.js`), donc aucune dependance n'est necessaire pour
+  *emettre* des cookies. La *lecture* du header `Cookie` est un simple
+  split sur `;`/`=`.
+- Options : A. `@fastify/cookie` + une librairie CSRF (ex.
+  `@fastify/csrf-protection`) / B. Parsing/serialisation cookie maison
+  (`common/http/cookie.util.ts`, ~40 lignes, teste) + double-submit CSRF
+  maison (`CsrfService`/`CsrfGuard`, cle secrete non necessaire - la
+  securite vient de la Same-Origin Policy, pas d'un secret serveur)
+- Choix : B.
+- Raison : Coherent avec les Decisions 6/7 (prefere une petite piece
+  d'infra maison, testee, a une dependance supplementaire quand le
+  besoin reel est simple et precis). Aucune dependance supplementaire a
+  maintenir/mettre a jour pour un mecanisme de securite critique dont on
+  veut comprendre exactement le comportement.
+- Trade-offs : Pas de gestion des cas exotiques de cookies (attributs
+  `Domain`, cookies chunkes) - non necessaire pour les 3 cookies
+  first-party de ce depot.
+- Date : 2026-09-20
+
+---
+
+## Decision 19 - Nouvelles dependances `apps/api` : `jsonwebtoken` et
+  `libphonenumber-js`
+
+- Contexte : signature/verification JWT (aucune librairie JWT presente
+  dans le monorepo) et validation E.164 reelle des numeros de telephone
+  (le produit est centre sur le SMS).
+- Verification faite (`npm view`) : `jsonwebtoken@9.0.3` et
+  `libphonenumber-js@1.13.13`, aucune des deux ne declare de
+  `peerDependencies` -> aucun risque de conflit du type Decision 4/6.
+- Choix : les deux ajoutees telles quelles (`jsonwebtoken`,
+  `@types/jsonwebtoken`, `libphonenumber-js`).
+- Raison : Decision autonome de l'agent (05_DECISION_POLICY.md) -
+  librairies secondaires, tres maintenues, sans alternative deja presente
+  dans le monorepo. Pas de bcrypt/argon2 : aucun mot de passe dans ce MVP
+  (authentification principale = Phone OTP, 01_SPEC_PRODUCT.md #68).
+- Trade-offs : Aucun connu.
+- Date : 2026-09-20
+
+---
+
+## Decision 20 - `RolesGuard`/`ResourceOwnerGuard` prets et testes, non
+  branches sur une route en Phase 2
+
+- Contexte : le RBAC (roles) et la base ABAC (proprietaire/participant,
+  01_SPEC_PRODUCT.md #66/#67) sont des livrables Phase 2
+  (`docs/IMPLEMENTATION_PLAN.md`), mais aucune ressource "possedee"
+  (Request/Offer/Intervention) n'existe avant la Phase 4+, et aucune
+  route admin-only n'existe avant la Phase 12.
+- Options : A. Ne pas ecrire ces guards avant qu'une route en ait
+  reellement besoin / B. Ecrire et tester unitairement `RolesGuard`
+  (`@Roles(...)`) et `ResourceOwnerGuard` (`@OwnedBy(...)`) maintenant,
+  sans les appliquer a une route qui n'existe pas encore
+- Choix : B.
+- Raison : Meme statut que `ZodValidationPipe` (Decision 6) - une piece
+  d'infra generique, reelle et testee, prete a etre branchee par les
+  phases suivantes, pas une verification factice branchee sur rien
+  (03_AGENT_PROTOCOL.md #2 interdit le decoratif, pas l'anticipe-mais-non-
+  cache). Documente explicitement ici et dans le rapport de phase pour
+  ne pas etre confondu avec un oubli.
+- Trade-offs : Deux fichiers sans consommateur reel jusqu'a une phase
+  ulterieure - risque mineur qu'ils divergent du besoin reel quand ce
+  moment arrivera (a revalider a ce moment-la).
+- Date : 2026-09-20
+
+---
+
+## Decision 21 - Regle d'age (#71) appliquee uniquement au seul point
+  reel d'attribution de role en Phase 2
+
+- Contexte : aucune Phase 2 n'a d'ecran/agregat "profil" (`ProviderProfile`
+  arrive en Phase 3) - `dateOfBirth` n'a donc de sens que sur `User`
+  lui-meme pour l'instant.
+- Options : A. Attendre la Phase 3 pour implementer la regle d'age (le
+  livrable Phase 2 resterait non rempli) / B. Ajouter `dateOfBirth` a
+  `User`, `PATCH /auth/me` pour le renseigner, et un endpoint self-service
+  reel `POST /auth/roles/provider` qui applique reellement la regle
+  (`MIN_PROVIDER_AGE`, configurable) avant d'accorder le role `PROVIDER`
+- Choix : B.
+- Raison : Seul moyen d'honorer le livrable Phase 2 (`docs/IMPLEMENTATION_PLAN.md`)
+  sans inventer un agregat "profil" premature. L'action qui existe
+  reellement en Phase 2 (attribuer un role a soi-meme) est exactement
+  celle ou la regle d'age doit s'appliquer.
+- Trade-offs : `dateOfBirth` n'est pas verifie contre un document
+  d'identite (verification reelle = Phase 3, agent de verification) ;
+  pas immuable (peut etre corrige librement) - documente comme
+  limitation, pas cache.
+- Date : 2026-09-20
+
+---
+
+## Decision 22 - `verification-code.ts` vit dans `apps/api`, pas dans
+  `@fixiyi/shared-utils`
+
+- Contexte : generation/hash de code a 6 chiffres, partage entre l'OTP
+  telephone et la verification email - deux points d'appel reels au sein
+  du meme module.
+- Verification faite : premiere tentative dans `packages/shared-utils`
+  (comme `id.ts`/`money.ts`/`time.ts`) - `tsup`/`rollup-plugin-dts` echoue
+  reellement a generer les `.d.ts` (`Cannot find name 'node:crypto'`/
+  `'Buffer'`) tant qu'aucun fichier du package ne touchait `node:crypto`
+  auparavant. Corrige localement avec `/// <reference types="node" />`,
+  mais le probleme sous-jacent (package `shared-utils` aussi consomme par
+  les apps Next.js **navigateur**) demeure : `node:crypto` n'existe pas
+  cote navigateur.
+- Options : A. Garder dans `shared-utils` avec la reference `node` /
+  B. Deplacer dans `apps/api/src/auth/` (seul consommateur reel, Node
+  uniquement)
+- Choix : B.
+- Raison : Coherent avec la Decision 6 (code specifique a un runtime
+  reste local jusqu'a un second consommateur reel dans un AUTRE
+  app/package, pas seulement un second point d'appel dans le meme
+  module). Evite aussi de faire fuiter une dependance Node-only dans un
+  package importe par des bundles navigateur.
+- Trade-offs : Si un futur module Node (ex. `apps/worker`) a besoin de la
+  meme logique, il faudra soit la dupliquer soit creer un package
+  `@fixiyi/node-utils` dedie - pas de besoin reel aujourd'hui.
+- Date : 2026-09-20
+
+---
+
+## Decision 23 - `OTP_MAX_REQUESTS_PER_IP_PER_HOUR` = 60 (revise depuis 20)
+
+- Contexte : premiere valeur choisie (20/heure/IP) inspiree de pratiques
+  anti-abus courantes. Verifie reellement en ecrivant la suite
+  d'integration e2e (`test/auth.e2e.test.ts`, ~20 connexions OTP
+  legitimes et distinctes necessaires pour couvrir le module) : une seule
+  adresse IP partagee (loopback des tests, mais representatif de tout
+  NAT/wifi partage/CGNAT mobile reel) atteignait la limite avec un trafic
+  entierement legitime.
+- Options : A. Garder 20/heure (rejette du trafic legitime derriere une
+  IP partagee) / B. Remonter a 60/heure (toujours strict contre du
+  bombing OTP reel - un attaquant qui martele depasse 60 en quelques
+  secondes - mais tolerant a une connexion partagee moderement active)
+- Choix : B.
+- Raison : Un test d'integration reel a mis en evidence qu'un seuil bas
+  par IP (sans distinction d'utilisateur) punit surtout les reseaux
+  partages, pas les attaquants (le plafond par telephone,
+  `OTP_MAX_REQUESTS_PER_PHONE_PER_HOUR = 5`, reste le vrai frein anti-abus
+  cible sur un numero). Exactement le type de correction que
+  l'integration reelle (02_SPEC_ENGINEERING.md - "aucune donnee simulee")
+  est censee reveler.
+- Trade-offs : Un attaquant disposant de nombreux numeros de telephone
+  derriere une seule IP dispose d'un budget plus large qu'avant (60 au
+  lieu de 20) - attenue par le plafond par telephone qui, lui, n'a pas
+  change.
+- Date : 2026-09-20
+
+---
+
+## Decision 24 - TTL index MongoDB sur `user_sessions.expiresAt`
+
+- Contexte : la collection `user_sessions` grossit indefiniment (une
+  session par login/refresh) - rien ne supprimait les sessions expirees
+  ou revoquees, ni les documents `Device` inactifs.
+- Options : A. Nettoyage manuel via un job cron dedie / B. TTL index
+  MongoDB natif (`expireAfterSeconds`)
+- Choix : B.
+- Raison : MongoDB supprime automatiquement les documents expires en
+  arriere-plan (thread TTL Monitor, verification ~60s) - aucun code
+  applicatif, aucun cron, aucune tache de maintenance a operer. Coherent
+  avec 05_DECISION_POLICY.md (simplicite > mecanisme custom).
+- Implementation : `UserSessionEntitySchema.index({ expiresAt: 1 },
+  { expireAfterSeconds: 0 })` (`expireAfterSeconds: 0` = "expire exactement
+  au timestamp stocke", pas N secondes apres) dans
+  `apps/api/src/auth/schemas/user-session.schema.ts`. Remplace l'index
+  simple qui existait deja sur ce champ (meme cle, un seul index -
+  double usage : TTL + lookup pour `findActiveById`/`rotate`).
+- Trade-offs : Perte de l'historique des sessions expirees/revoquees
+  (acceptable - aucune valeur metier a les conserver en Phase 2 ; a
+  revisiter si un futur besoin d'audit/analytics de connexion apparait,
+  auquel cas archiver avant suppression plutot que retirer le TTL).
+- Date : 2026-09-20
+
+---
+
+## Decision 25 - TTL index MongoDB sur `devices.lastSeenAt` (90 jours) ;
+  pas de TTL sur `User`
+
+- Contexte : meme question posee pour les deux autres schemas du module
+  auth (`Device`, `User`).
+- `Device` : un appareil inactif depuis longtemps (l'utilisateur a
+  change de telephone, desinstalle l'app, etc.) n'a plus de valeur et
+  grossit la collection indefiniment (un document par appareil distinct
+  jamais reutilise).
+  - Choix : TTL de 90 jours sur `lastSeenAt` (`DeviceEntitySchema.index({
+    lastSeenAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 })`,
+    `apps/api/src/auth/schemas/device.schema.ts`). `lastSeenAt` est mis a
+    jour a chaque connexion (`SessionService.upsertDevice`), donc le
+    compte a rebours redemarre a chaque usage reel - un appareil actif
+    n'expire jamais.
+  - Verification de securite faite : une `UserSession` reference un
+    `deviceId`, mais la duree de vie max d'une session
+    (`expiresAt`, plafonnee par `JWT_REFRESH_TTL`, 30 jours par defaut)
+    est toujours strictement inferieure aux 90 jours du device - une
+    session ne peut donc jamais survivre a la suppression de son
+    device. Si `JWT_REFRESH_TTL` etait un jour configure au-dela de 90
+    jours, le pire cas reste sans crash : `SessionService.listActiveForUser`
+    degrade proprement (`devices.get(...)?.name ?? null`), a
+    revalider si ce scenario devient reel.
+- `User` : pas de TTL. Les champs temporaires (`pendingEmail`) ne causent
+  pas de croissance non bornee - c'est un champ sur un document `User`
+  existant (une collection qui ne grossit qu'avec le nombre reel
+  d'utilisateurs, pas avec le nombre de tentatives de verification email),
+  ecrase en place a chaque nouvelle tentative, pas un document separe qui
+  s'accumule. Aucune date de reference exploitable pour un TTL n'existe
+  ni n'est necessaire (le code OTP email lui-meme expire deja via Redis,
+  independamment de ce champ Mongo).
+- Date : 2026-09-20

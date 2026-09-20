@@ -9,6 +9,7 @@ const validEnv = {
   REDIS_URL: "redis://localhost:6379",
   JWT_SECRET: "a-secret-that-is-long-enough",
   JWT_REFRESH_SECRET: "another-secret-that-is-long-enough",
+  OTP_SECRET: "a-third-secret-that-is-long-enough",
   STORAGE_ENDPOINT: "http://localhost:9000",
   STORAGE_BUCKET: "fixiyi-dev",
   STORAGE_ACCESS_KEY: "minioadmin",
@@ -22,6 +23,7 @@ describe("loadEnv", () => {
     expect(env.API_VERSION).toBe("v1");
     expect(env.FF_AI_ENABLED).toBe(true);
     expect(env.FF_ONLINE_PAYMENT_ENABLED).toBe(false);
+    expect(env.MIN_PROVIDER_AGE).toBe(18);
   });
 
   it("coerces feature flag strings to real booleans, not truthy strings", () => {
@@ -37,6 +39,15 @@ describe("loadEnv", () => {
 
   it("rejects a JWT secret that is too short", () => {
     expect(() => loadEnv({ ...validEnv, JWT_SECRET: "short" })).toThrow(InvalidEnvironmentError);
+  });
+
+  it("rejects an OTP secret that is too short", () => {
+    expect(() => loadEnv({ ...validEnv, OTP_SECRET: "short" })).toThrow(InvalidEnvironmentError);
+  });
+
+  it("coerces MIN_PROVIDER_AGE to a number", () => {
+    const env = loadEnv({ ...validEnv, MIN_PROVIDER_AGE: "21" });
+    expect(env.MIN_PROVIDER_AGE).toBe(21);
   });
 
   it("never invents a default for secrets or credentials (04_ENVIRONMENT.md)", () => {
