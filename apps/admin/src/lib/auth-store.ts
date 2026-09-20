@@ -1,4 +1,5 @@
 import type { User } from "@fixiyi/contracts";
+import { useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -29,6 +30,19 @@ export const useAuthStore = create<AuthState>()(
     { name: "fixiyi-admin-auth" },
   ),
 );
+
+/**
+ * Whether the persisted session has been read back from localStorage yet —
+ * without it, refreshing an authenticated page redirects a valid session to
+ * /login before hydration completes (same fix as apps/web).
+ */
+export function useAuthHydrated(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => useAuthStore.persist.onFinishHydration(onStoreChange),
+    () => useAuthStore.persist.hasHydrated(),
+    () => false,
+  );
+}
 
 export function isAdminOrManager(user: User | null): boolean {
   return user !== null && (user.roles.includes("ADMIN") || user.roles.includes("MANAGER") || user.roles.includes("SUPER_ADMIN"));

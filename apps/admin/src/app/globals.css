@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "@fixiyi/design-tokens/css";
+/* Must come after the tokens: every rule in it resolves --fixiyi-* variables. */
+@import "@fixiyi/ui/css";
 
 body {
   font-family: var(--fixiyi-font-sans);

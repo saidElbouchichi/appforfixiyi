@@ -11,7 +11,10 @@ export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const required = this.reflector.get<UserRole[] | undefined>(ROLES_KEY, context.getHandler());
+    // Handler AND class: `@Roles` on a controller gates every route in it.
+    // Reading only the handler would silently ignore a class-level decorator
+    // and leave such an endpoint open to any authenticated user.
+    const required = this.reflector.getAllAndOverride<UserRole[] | undefined>(ROLES_KEY, [context.getHandler(), context.getClass()]);
     if (!required || required.length === 0) {
       return true;
     }

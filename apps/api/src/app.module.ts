@@ -4,10 +4,13 @@ import { Module, type DynamicModule } from "@nestjs/common";
 import { AuthModule } from "./auth/auth.module.js";
 import { CatalogModule } from "./catalog/catalog.module.js";
 import { CompanyModule } from "./companies/company.module.js";
+import { ConfigurationModule } from "./configuration/configuration.module.js";
+import { GeoModule } from "./geo/geo.module.js";
 import { HealthModule } from "./health/health.module.js";
 import { DatabaseModule } from "./infrastructure/database/database.module.js";
 import { EnvModule } from "./infrastructure/env.module.js";
 import { RedisModule } from "./infrastructure/redis/redis.module.js";
+import { MatchingModule } from "./matching/matching.module.js";
 import { MediaModule } from "./media/media.module.js";
 import { ProviderModule } from "./providers/provider.module.js";
 import { RequestModule } from "./requests/request.module.js";
@@ -30,6 +33,9 @@ export class AppModule {
         VerificationModule,
         MediaModule,
         RequestModule,
+        ConfigurationModule,
+        GeoModule,
+        MatchingModule,
       ],
     };
   }

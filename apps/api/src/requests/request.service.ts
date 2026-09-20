@@ -18,7 +18,8 @@ import { MediaService } from "../media/media.service.js";
 import { ServiceRequestEntity, type ServiceRequestDocument } from "./schemas/service-request.schema.js";
 
 const EDITABLE_STATUSES: RequestStatus[] = ["DRAFT"];
-const CANCELLABLE_STATUSES: RequestStatus[] = ["DRAFT", "REQUESTED"];
+/** 01_SPEC_PRODUCT.md — a client may still pull out while the search is running; the dispatch loop notices and stops. */
+const CANCELLABLE_STATUSES: RequestStatus[] = ["DRAFT", "REQUESTED", "MATCHING"];
 
 /**
  * `ServiceRequest` state machine, narrowed for Phase 4 (Decision 35):
@@ -47,6 +48,33 @@ export class RequestService {
   async getById(id: string, clientUserId: string): Promise<ServiceRequest> {
     const doc = await this.requireOwned(id, clientUserId);
     return this.toServiceRequest(doc);
+  }
+
+  /** Reusable by other modules (the matching engine acts for the system, not for an owner) — `null`, not a throw, when absent. */
+  async findById(id: string): Promise<ServiceRequest | null> {
+    const doc = await this.model.findById(id);
+    return doc ? this.toServiceRequest(doc) : null;
+  }
+
+  /**
+   * `REQUESTED -> MATCHING` — the transition Phase 4 deliberately left
+   * unwired (Decision 35). Only the matching engine calls it, and only when
+   * it really starts dispatching.
+   */
+  async markMatching(id: string): Promise<void> {
+    const doc = await this.model.findById(id);
+    if (!doc) {
+      throw new NotFoundException("Request not found");
+    }
+    if (doc.status !== "REQUESTED") {
+      throw new DomainHttpException(
+        HttpStatus.BAD_REQUEST,
+        "REQUEST_NOT_MATCHABLE",
+        `Only a REQUESTED request can enter matching (current status: ${doc.status}).`,
+      );
+    }
+    doc.status = "MATCHING";
+    await doc.save();
   }
 
   async update(id: string, clientUserId: string, input: UpdateServiceRequestInput): Promise<ServiceRequest> {

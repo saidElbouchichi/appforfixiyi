@@ -144,6 +144,15 @@ export class VerificationService {
     return toVerificationCase(kase);
   }
 
+  /** Reusable by other modules (e.g. the matching engine's `verificationLevel` signal) — which of these targets are currently VERIFIED. */
+  async findVerifiedTargetIds(targetType: VerificationTargetType, targetIds: string[]): Promise<Set<string>> {
+    if (targetIds.length === 0) {
+      return new Set();
+    }
+    const cases = await this.caseModel.find({ targetType, targetId: { $in: targetIds }, status: "VERIFIED" }).select("targetId");
+    return new Set(cases.map((kase) => kase.targetId));
+  }
+
   private async requireCase(caseId: string): Promise<VerificationCaseDocument> {
     const kase = await this.caseModel.findById(caseId);
     if (!kase) {

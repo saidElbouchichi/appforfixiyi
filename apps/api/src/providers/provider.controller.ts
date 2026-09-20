@@ -1,8 +1,10 @@
 import {
   CreateProviderProfileInputSchema,
+  UpdateProviderAvailabilityInputSchema,
   UpdateProviderProfileInputSchema,
   type CreateProviderProfileInput,
   type ProviderProfile,
+  type UpdateProviderAvailabilityInput,
   type UpdateProviderProfileInput,
 } from "@fixiyi/contracts";
 import { Body, Controller, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
@@ -51,6 +53,17 @@ export class ProviderController {
     @Body(new ZodValidationPipe(UpdateProviderProfileInputSchema)) body: UpdateProviderProfileInput,
   ): Promise<ProviderProfile> {
     return this.providers.update(user.id, body);
+  }
+
+  /** 01_SPEC_PRODUCT.md #16 — the provider drives their own work status; the matching engine only reads it. */
+  @Patch("me/availability")
+  @UseGuards(AuthGuard, RolesGuard, CsrfGuard)
+  @Roles("PROVIDER")
+  updateAvailability(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body(new ZodValidationPipe(UpdateProviderAvailabilityInputSchema)) body: UpdateProviderAvailabilityInput,
+  ): Promise<ProviderProfile> {
+    return this.providers.updateAvailability(user.id, body);
   }
 
   @Get(":id")

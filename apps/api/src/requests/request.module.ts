@@ -18,5 +18,6 @@ import { ServiceRequestEntity, ServiceRequestEntitySchema } from "./schemas/serv
   ],
   controllers: [RequestController],
   providers: [RequestService],
+  exports: [RequestService],
 })
 export class RequestModule {}

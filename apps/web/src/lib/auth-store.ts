@@ -1,4 +1,5 @@
 import type { User } from "@fixiyi/contracts";
+import { useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -27,3 +28,21 @@ export const useAuthStore = create<AuthState>()(
     { name: "fixiyi-web-auth" },
   ),
 );
+
+/**
+ * Whether the persisted session has been read back from localStorage yet.
+ *
+ * Without this, an authenticated page renders once with `user === null`
+ * (the server-rendered snapshot) and its redirect effect fires before
+ * hydration completes — so refreshing any authenticated page bounced a
+ * perfectly valid session back to /login. `useSyncExternalStore` rather
+ * than `useState` + effect: no state is set during an effect, and the
+ * server snapshot is explicit.
+ */
+export function useAuthHydrated(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => useAuthStore.persist.onFinishHydration(onStoreChange),
+    () => useAuthStore.persist.hasHydrated(),
+    () => false,
+  );
+}

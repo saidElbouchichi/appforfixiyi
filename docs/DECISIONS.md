@@ -1118,3 +1118,222 @@ Journal des decisions techniques et produit.
 - Trade-offs : Aucun — corrections strictement additives/correctives,
   aucun comportement existant valide par un test ne change.
 - Date : 2026-09-20
+
+---
+
+## Decision 40 - Signaux de ranking sans donnees reelles : poids a 0,
+  jamais de valeur inventee
+
+- Contexte : `01_SPEC_PRODUCT.md` #14 liste 13 signaux de matching. Neuf
+  ont une donnee reelle en Phase 5 (competences, services, zone,
+  distance, urgence, experience, niveau de verification, disponibilite,
+  exposition passee). Quatre n'en ont aucune : **reputation**,
+  **fiabilite** et **historique** dependent de `Review`/
+  `ReputationSnapshot` (Phase 10), **charge actuelle** depend
+  d'`Intervention` (Phase 8).
+- Options : A. Fabriquer une valeur plausible (note par defaut, charge
+  estimee) pour que les 13 signaux "fonctionnent" / B. Retirer les 4
+  signaux du schema jusqu'a la Phase 8/10 / C. Les garder dans
+  `MatchingWeightsSchema` et `ScoreBreakdownSchema`, avec un poids **0**
+  dans la configuration semee et un commentaire explicite
+- Choix : C (valide explicitement par l'utilisateur avant le "GO PHASE 5").
+- Raison : A serait exactement la donnee fabriquee interdite par
+  03_AGENT_PROTOCOL.md #2 - et un score de reputation invente
+  influencerait de vraies mises en relation. B obligerait a modifier le
+  contrat ET la configuration en Phase 8/10. Avec C, activer la
+  reputation sera un simple `PATCH /configuration`, sans changement de
+  code ni de contrat. Le calcul les multiplie deja : `0 x signal = 0`,
+  aucun cas particulier.
+- Trade-offs : Quatre cles toujours nulles dans chaque `scoreBreakdown`
+  stocke - bruit assume, verifie par un test dedie qui echouerait si une
+  valeur non nulle y apparaissait.
+- Date : 2026-09-20
+
+---
+
+## Decision 41 - `requiredSkillIds` d'une complexite : filtre dur, donc
+  aucun poids "couverture de competences"
+
+- Contexte : `01_SPEC_PRODUCT.md` #8 attache des `requiredSkillIds` a une
+  `Complexity` (ex. "Certification haute tension"), et #14 cite les
+  competences parmi les criteres de matching - ce qui laisse le choix
+  entre un filtre et un critere de classement.
+- Options : A. Couverture partielle autorisee, ponderee dans le score (un
+  fournisseur a qui il manque une certification reste contactable, moins
+  bien classe) / B. Filtre dur : le fournisseur doit detenir **toutes**
+  les competences requises
+- Choix : B.
+- Raison : Une competence declaree "requise" pour une intervention
+  electrique complexe est une question de securite, pas de preference -
+  la degrader en penalite de classement reviendrait a envoyer quand meme
+  la demande a quelqu'un de non qualifie si personne d'autre n'est
+  disponible. Consequence directe : un poids "couverture de competences"
+  vaudrait toujours 1 chez les candidats eligibles ; il a donc ete retire
+  du schema plutot que de laisser un poids decoratif. Les 5 poids reels
+  restants somment a 1.
+- Trade-offs : Marche mince = moins de candidats eligibles ; c'est
+  l'expansion de rayon (#18) qui sert de soupape, pas l'assouplissement
+  des competences. Teste reellement (`matching.e2e.test.ts` : un
+  fournisseur sans la competence requise n'est jamais contacte).
+- Date : 2026-09-20
+
+---
+
+## Decision 42 - `ProviderAvailabilityStatus` : les 7 statuts au contrat,
+  4 seulement reglables par le fournisseur
+
+- Contexte : `01_SPEC_PRODUCT.md` #16 definit 7 statuts (`OFFLINE`,
+  `AVAILABLE`, `BUSY`, `ON_THE_WAY`, `ARRIVED`, `IN_SERVICE`, `PAUSED`)
+  et precise que "lorsqu'une intervention active existe, le systeme peut
+  modifier automatiquement l'etat". Aucune `Intervention` n'existe avant
+  la Phase 8.
+- Choix : les 7 statuts sont dans le contrat
+  (`ProviderAvailabilityStatusSchema`), mais
+  `PATCH /providers/me/availability` n'accepte que
+  `PROVIDER_SELF_SETTABLE_STATUSES` = `OFFLINE`/`AVAILABLE`/`BUSY`/
+  `PAUSED`. Les trois autres sont pilotes par l'intervention en Phase 8.
+- Raison : Meme logique que la Decision 35 - laisser un fournisseur se
+  declarer `IN_SERVICE` sans aucune intervention reelle serait un etat
+  mensonger. L'eligibilite du matching ne retient que `AVAILABLE` : tout
+  autre statut signifie "pas maintenant".
+- Trade-offs : Le statut par defaut est `OFFLINE`, donc un fournisseur
+  cree en Phase 3 n'est pas matchable tant qu'il ne s'est pas declare
+  disponible - voulu (ne jamais dispatcher vers quelqu'un qui n'a rien
+  demande), mais a rendre visible dans l'onboarding fournisseur d'une
+  phase ulterieure.
+- Date : 2026-09-20
+
+---
+
+## Decision 43 - La queue BullMQ `matching` tourne dans `apps/api`, pas
+  dans `apps/worker`
+
+- Contexte : le dispatch progressif (#15) a besoin d'un vrai minuteur
+  "attendre, puis envoyer la vague suivante". `apps/worker` existe depuis
+  la Phase 1 mais n'a **que** Redis : aucune connexion Mongo, aucun acces
+  au catalogue, aux profils fournisseur ni a la verification.
+- Options : A. Donner Mongoose a `apps/worker` (duplication des schemas
+  ou extraction d'un package de persistance partage) / B. Heberger le
+  `Worker` BullMQ dans `apps/api`, aux cotes du domaine qu'il pilote
+- Choix : B (valide explicitement par l'utilisateur avant le "GO PHASE 5").
+- Raison : A serait de l'infrastructure prematuree (Decision 1 :
+  monolithe modulaire, "extraction future possible") pour deplacer un
+  simple declencheur. Le processeur ne fait qu'appeler
+  `DispatchService.runBatch` - le jour ou un package de persistance
+  partage sera justifie (Phase 9+), le deplacer vers `apps/worker` ne
+  changera pas cette logique. `apps/worker` garde donc sa seule queue de
+  diagnostic (Decision 9) ; `matching` est la **premiere vraie queue
+  metier** du projet.
+- Trade-offs : L'horloge du dispatch vit dans le processus HTTP -
+  plusieurs instances d'API consommeraient la meme queue (BullMQ le
+  gere), mais le decouplage "API scalable independamment du travail de
+  fond" reste a faire en Phase 15.
+- Date : 2026-09-20
+
+---
+
+## Decision 44 - Configuration metier en base (`SystemConfiguration`) +
+  endpoint ADMIN/MANAGER, sans ecran
+
+- Contexte : `01_SPEC_PRODUCT.md` #97 exige que rayons, ponderations,
+  seuils et regles de transport soient **administrables** et "ne pas
+  hardcoder ces regles dans les composants". La Phase 5 introduit les
+  premieres vraies regles reglables du produit.
+- Options : A. Variables d'environnement (comme `MIN_PROVIDER_AGE`) /
+  B. Collection Mongo `system_configuration` (agregat prevu par #98),
+  semee via `SeedLockService` (Decision 31), lue de maniere typee par le
+  moteur, modifiable par `PATCH /configuration` derriere
+  `@Roles("ADMIN","MANAGER")`
+- Choix : B (valide explicitement par l'utilisateur avant le "GO PHASE 5").
+- Raison : Une variable d'environnement n'est pas administrable a chaud
+  et impose un redeploiement pour ajuster un rayon. La configuration est
+  **revalidee par Zod a chaque lecture et avant chaque ecriture** : un
+  document modifie a la main ne peut pas injecter des poids absurdes dans
+  le moteur silencieusement. Pas d'ecran d'administration : le dashboard
+  complet reste la Phase 12 (06_SCOPE.md).
+- Trade-offs : Tracabilite minimale (`updatedBy`/`updatedAt` sur le
+  document) plutot qu'un vrai `AuditLog` - cet agregat arrive en Phase
+  10/12, et #97 demande un audit des modifications importantes ; a
+  completer a ce moment-la.
+- Date : 2026-09-20
+
+---
+
+## Decision 45 - `packages/ui` : design system maison, style par feuille
+  CSS a tokens plutot que par classes Tailwind
+
+- Contexte : `01_SPEC_PRODUCT.md` #82 demande un design system partage
+  entre `apps/web` et `apps/admin`. Les presets `react-library.json`
+  (tsconfig) et `react` (eslint) existaient depuis la Phase 1 sans aucun
+  consommateur ; `packages/ui` est le premier.
+- Options (style) : A. Classes Tailwind dans les composants (chaque app
+  doit alors declarer le package comme source a scanner) / B. Feuille de
+  style `@fixiyi/ui/css` exportee, ecrite avec les variables
+  `--fixiyi-*` de `@fixiyi/design-tokens` - meme mecanisme d'export que
+  ce package
+- Choix : B.
+- Raison : Le design system ne depend d'aucun framework CSS cote
+  consommateur, et les pseudo-classes indispensables a l'accessibilite
+  (`:focus-visible`) ne sont pas exprimables en styles inline. Trois
+  contraintes sont **verifiees par un test** (`styles.test.ts`) plutot
+  que promises : aucune couleur codee en dur (tout vient des tokens),
+  aucune propriete directionnelle physique (donc RTL correct par
+  construction), et les invariants WCAG 2.2 AA (focus visible >= 2px,
+  cibles >= 24px, `prefers-reduced-motion`).
+- Autres choix notables : le bundle porte une directive `"use client"`
+  ajoutee par `tsup` (esbuild supprime les directives par fichier lors
+  du bundling, et tous ces composants sont interactifs) ; pas de
+  `@testing-library/jest-dom` (assertions DOM natives, une dependance et
+  un fichier de setup en moins) ; Testing Library ne s'auto-nettoyant pas
+  sans `globals: true`, le `cleanup()` est enregistre explicitement dans
+  `src/test-setup.ts` - sans lui chaque rendu fuyait dans le test suivant.
+- Trade-offs : Pas d'utilitaires Tailwind courts dans les composants du
+  DS (les apps continuent d'utiliser Tailwind pour leur mise en page) ;
+  8 composants seulement (Button, Input, Card, Badge, Loading,
+  EmptyState, ErrorState, Modal), volontairement le strict necessaire
+  aux ecrans existants. `Modal` est rendu en place plutot que dans un
+  portail : l'overlay est `position: fixed`, et un portail exigerait des
+  gardes client-only pour rester compatible SSR.
+- Date : 2026-09-20
+
+---
+
+## Decision 46 - Quatre bugs reels de la Phase 5, dont trois invisibles
+  hors execution reelle
+
+- Contexte : comme en Phase 4 (Decision 39), les bugs les plus couteux
+  n'ont ete reveles que par de l'execution reelle - infrastructure reelle
+  et navigateur reel.
+  1. **`RolesGuard` ignorait un `@Roles` pose au niveau classe**. Le
+     garde ne lisait que `context.getHandler()` ; un controleur entier
+     decore `@Roles("ADMIN","MANAGER")` aurait donc ete **ouvert a tout
+     utilisateur authentifie**. Revele par TypeScript en posant le
+     decorateur sur `ConfigurationController` (le type `MethodDecorator`
+     a refuse l'usage au niveau classe), pas par un test. Corrige :
+     `getAllAndOverride([getHandler(), getClass()])`, type du decorateur
+     elargi, et test de non-regression dedie.
+  2. **BullMQ refuse un id de job contenant `:`** ("Custom Id cannot
+     contain :"). L'id deterministe `${matchId}:${batchIndex}` faisait
+     echouer CHAQUE dispatch AUTO avec une 500 - apres insertion des
+     candidats, donc invisible pour les tests qui ne verifiaient que les
+     candidats. Corrige en `${matchId}-batch-${index}`.
+  3. **Les pages authentifiees redirigeaient vers `/login` avant
+     l'hydratation de zustand**. L'effet de redirection s'executait sur
+     le premier rendu, avant que `persist` n'ait relu `localStorage` :
+     tout rafraichissement d'une page authentifiee deconnectait une
+     session parfaitement valide. Invisible jusqu'ici car la Phase 4 ne
+     naviguait qu'apres login dans la meme session. Corrige par un hook
+     `useAuthHydrated()` (`useSyncExternalStore` sur
+     `persist.onFinishHydration`, sans `setState` dans un effet), dans
+     `apps/web` **et** `apps/admin`.
+  4. **Interference de donnees entre tests e2e** : les fournisseurs
+     etant globaux et persistants dans la base de test partagee, ceux
+     d'un test remplissaient le batch du suivant. Meme classe de probleme
+     que la Decision 32, mais par les donnees et non par des compteurs.
+     Corrige en donnant a chaque test **son propre sous-arbre catalogue**
+     (cree via la vraie API admin) : un fournisseur d'un autre test
+     n'offre alors tout simplement pas le service concerne.
+- Trade-offs : Aucun - corrections strictement correctives. (1) et (3)
+  sont des corrections de securite/experience qui depassent le perimetre
+  de la Phase 5 mais touchaient du code existant.
+- Date : 2026-09-20

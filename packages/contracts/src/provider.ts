@@ -6,6 +6,34 @@ import { GeoPointSchema, IdSchema, IsoDateTimeSchema } from "./common.js";
 export const ProviderTypeSchema = z.enum(["BRICOLEUR", "TECHNICIEN", "EXPERT"]);
 export type ProviderType = z.infer<typeof ProviderTypeSchema>;
 
+/**
+ * 01_SPEC_PRODUCT.md #16 — availability is distinct from GPS: a provider can
+ * be AVAILABLE without streaming their position.
+ */
+export const ProviderAvailabilityStatusSchema = z.enum([
+  "OFFLINE",
+  "AVAILABLE",
+  "BUSY",
+  "ON_THE_WAY",
+  "ARRIVED",
+  "IN_SERVICE",
+  "PAUSED",
+]);
+export type ProviderAvailabilityStatus = z.infer<typeof ProviderAvailabilityStatusSchema>;
+
+/**
+ * The subset a provider may set on themselves. `ON_THE_WAY`/`ARRIVED`/
+ * `IN_SERVICE` are driven by an active intervention — #16 says the system
+ * sets them automatically — and no `Intervention` exists before Phase 8, so
+ * nothing may claim them today (Decision 42).
+ */
+export const PROVIDER_SELF_SETTABLE_STATUSES = ["OFFLINE", "AVAILABLE", "BUSY", "PAUSED"] as const;
+
+export const UpdateProviderAvailabilityInputSchema = z.object({
+  status: z.enum(PROVIDER_SELF_SETTABLE_STATUSES),
+});
+export type UpdateProviderAvailabilityInput = z.infer<typeof UpdateProviderAvailabilityInputSchema>;
+
 /** 01_SPEC_PRODUCT.md #98 — `ProviderServiceArea`, embedded (see Decision). Not yet queried by proximity — Phase 5. */
 export const ServiceAreaSchema = z.object({
   center: GeoPointSchema,
@@ -28,6 +56,7 @@ export const ProviderProfileSchema = z.object({
   id: IdSchema,
   userId: IdSchema,
   type: ProviderTypeSchema,
+  availabilityStatus: ProviderAvailabilityStatusSchema,
   displayName: z.string().min(1),
   bio: z.string().nullable(),
   languages: z.array(z.string()),

@@ -133,9 +133,11 @@
 
 ## Tests
 
-- `packages/contracts` : 57 -> 65 tests (+8 : `location`, `media`,
-  `request`).
-- `packages/shared-utils` : 22 -> 25 tests (+3 : `geo`).
+- `packages/contracts` : 46 -> 58 tests (+12 : `location`, `media`,
+  `request`). [Chiffres corriges en Phase 5 : le rapport annoncait
+  initialement 57 -> 65, un comptage errone.]
+- `packages/shared-utils` : 19 -> 22 tests (+3 : `geo`). [Idem : le
+  rapport annoncait 22 -> 25.]
 - `apps/api` : 114 -> 121 tests apres ajout de `media-signature.test.ts`
   (13 tests) et `request.e2e.test.ts` (7 tests reels, incluant un vrai
   upload/rejet MinIO).

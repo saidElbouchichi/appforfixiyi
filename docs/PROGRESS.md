@@ -2,11 +2,11 @@
 
 ## Derniere mise a jour
 
-2026-09-20 - Phase 4 (Requests) TERMINEE
+2026-09-20 - Phase 5 (Matching) TERMINEE
 
 ## Phase actuelle
 
-Phase 4 - Requests - **TERMINEE**. STOP, en attente de "GO PHASE 5".
+Phase 5 - Matching - **TERMINEE**. STOP, en attente de "GO PHASE 6".
 
 ## Phases terminees
 
@@ -20,67 +20,77 @@ Phase 4 - Requests - **TERMINEE**. STOP, en attente de "GO PHASE 5".
   fournisseur, entreprises, verification (upload MinIO reel),
   back-office minimal (`apps/admin`)
 - Phase 4 - Requests (2026-09-20) - voir `docs/phases/PHASE_4_REPORT.md` :
-  creation de demande client (catalogue, description, urgence,
-  localisation exacte), pipeline media generique reel (upload MinIO,
-  scan de signature binaire, extraction de dimensions image), machine a
-  etats volontairement reduite (`DRAFT -> REQUESTED`, `MATCHING`
-  prepare non exploite), premier ecran client reel (`apps/web` : login
-  OTP + creation de demande), nouveau workspace `tests/browser`
-  (Playwright installe et pilote reellement contre la stack Docker
-  complete, avec captures d'ecran).
+  creation de demande client, pipeline media generique reel, machine a
+  etats reduite, premier ecran client (`apps/web`), workspace
+  `tests/browser` (Playwright)
+- Phase 5 - Matching (2026-09-20) - voir `docs/phases/PHASE_5_REPORT.md` :
+  dispatch progressif reel (eligibility -> ranking -> batch borne ->
+  attente par job BullMQ differe -> expansion de rayon), ponderations
+  administrables en base, services geo/transport, matching hybride
+  AUTO/DIRECT, localisation approximative cote fournisseur, suivi client
+  et **premier ecran fournisseur**, plus le design system partage
+  `packages/ui` (bonus).
 
-## Etat detaille de la phase actuelle (Phase 4 - Requests - TERMINEE)
+## Etat detaille de la phase actuelle (Phase 5 - Matching - TERMINEE)
 
-121 tests `apps/api` (21 fichiers, dont une nouvelle suite e2e reelle
-`request.e2e.test.ts` — 7 tests, incluant un vrai upload/rejet MinIO),
-65 tests `packages/contracts` (+8), 25 tests `packages/shared-utils`
-(+3). `pnpm lint && pnpm typecheck && pnpm test && pnpm build` : 13/13,
-13/13, 11/11, 9/9 taches, 0 erreur, 0 warning sur tout le monorepo.
+**320 tests** sur le monorepo : 153 `apps/api` (23 fichiers, dont
+`matching.e2e.test.ts` — 11 tests d'integration reels sur Mongo/Redis,
+index `2dsphere` et BullMQ — et `ranking.test.ts` — 19 tests sur la
+fonction de score pure), 69 `packages/contracts`, 52 `packages/ui`
+(nouveau), 27 `shared-utils`, 11 `config`, 3 `i18n`, 3 `design-tokens`,
+2 `worker`. Plus 2 scenarios Playwright reels contre la stack Docker.
+`pnpm lint && pnpm typecheck && pnpm test && pnpm build` : 15/15, 15/15,
+13/13, 10/10 taches, 0 erreur, 0 warning.
 
-3 bugs reels trouves et corriges pendant cette phase, **tous invisibles
-aux tests e2e in-process existants et detectes uniquement par le test
-navigateur reel Playwright** (detail complet dans
-`docs/phases/PHASE_4_REPORT.md` et Decision 39) : `apiFetch`
-(`apps/web`/`apps/admin`) envoyait toujours `Content-Type:
-application/json` meme sans corps (Fastify le rejette) ; CORS
-n'autorisait en pratique que `GET,HEAD,POST` en preflight reel
-(PATCH/DELETE bloques depuis tout navigateur, latent depuis la Phase 3) ;
-les URLs presignees MinIO etaient signees avec le nom de service Docker
-interne (`http://minio:9000`), injoignable depuis le navigateur sur la
-machine hote (nouvelle variable `STORAGE_PUBLIC_ENDPOINT`).
+Le moteur est verifie par la donnee reelle et non par des affirmations :
+sur le match cree par le scenario navigateur, MongoDB montre **3
+candidats exactement** alors que davantage de fournisseurs etaient
+eligibles, et le siege d'exploration est visible (nouveau fournisseur a
+0,78 contre 0,68 pour des fournisseurs identiques par ailleurs mais deja
+exposes).
 
-`apps/web` a maintenant son premier ecran client reel (auparavant une
-simple page de statut Phase 1) : login OTP puis creation complete de
-demande (catalogue en cascade, description, urgence, geolocalisation
-navigateur, upload media reel).
+4 bugs reels trouves et corriges (detail : `docs/phases/PHASE_5_REPORT.md`
+et Decision 46), dont deux qui depassaient le perimetre de la phase :
+`RolesGuard` ignorait silencieusement un `@Roles` pose au niveau classe
+(un controleur entier serait reste ouvert a tout utilisateur
+authentifie) ; les pages authentifiees de `apps/web` **et** `apps/admin`
+redirigeaient vers `/login` avant l'hydratation de zustand, donc tout
+rafraichissement deconnectait une session valide. Les deux autres :
+BullMQ refuse un id de job contenant `:` (chaque dispatch AUTO renvoyait
+une 500), et les fournisseurs globaux d'un test e2e remplissaient le
+batch du test suivant.
 
-`tests/` (reserve depuis la Phase 1) est rempli : nouveau workspace
-`tests/browser/` avec Playwright, verifie reellement contre la stack
-Docker complete (MongoDB/Redis/MinIO reels), avec verification croisee
-manuelle (`mongosh`, `mc stat`).
+**Bonus livre** : `packages/ui`, design system partage
+(01_SPEC_PRODUCT.md #82) — 8 composants accessibles (WCAG 2.2 AA),
+compatibles RTL, bases sur les design tokens, avec 52 tests dont des
+tests d'invariants CSS qui verifient reellement les promesses RTL/tokens/
+accessibilite. Il est consomme par les 5 ecrans existants de `apps/web`
+et `apps/admin`.
 
 Images Docker `api`, `web` et `admin` reconstruites avec le code de la
-Phase 4.
+Phase 5.
+
+> Note d'exactitude : les chiffres de tests annonces en fin de Phase 4
+> pour `packages/contracts` (65) et `shared-utils` (25) etaient errones ;
+> les vrais etaient 58 et 22. `PHASE_4_REPORT.md` a ete corrige.
 
 ## Derniere action effectuee
 
-Verification complete des gates du monorepo (lint/typecheck/test/build,
-tous verts), verification manuelle exhaustive : curl direct contre
-l'API Docker (cycle complet creation -> media -> soumission), inspection
-MongoDB reelle (`mongosh`), inspection MinIO reelle (`mc stat`), et
-scenario Playwright complet avec captures d'ecran. Redaction de
-`docs/phases/PHASE_4_REPORT.md` et des Decisions 35 a 39, mise a jour de
-ce fichier.
+Gates complets du monorepo (tous verts), verification manuelle par
+`mongosh` du match/candidats/batchs/configuration reellement ecrits, deux
+scenarios Playwright reels avec captures d'ecran, redaction de
+`docs/phases/PHASE_5_REPORT.md` et des Decisions 40 a 46, correction des
+chiffres de la Phase 4, mise a jour de ce fichier.
 
 ## Prochaine action exacte
 
-**Aucune** — la Phase 4 est terminee. STOP, attendre `GO PHASE 5` de
-l'utilisateur avant toute nouvelle implementation (Phase 5 = Matching :
-eligibility, ranking, dispatch progressif, expansion rayon).
+**Aucune** — la Phase 5 est terminee. STOP, attendre `GO PHASE 6` de
+l'utilisateur (Phase 6 = Chat : realtime, messages, attachments,
+anti-contact).
 
 ## Blocages
 
-Aucun. Phase 4 terminee sans blocage technique residuel.
+Aucun. Phase 5 terminee sans blocage technique residuel.
 
 ## Validation humaine requise
 
@@ -89,7 +99,8 @@ Aucun. Phase 4 terminee sans blocage technique residuel.
 - [x] pour demarrer Phase 2 ("GO PHASE 2" recu)
 - [x] pour demarrer Phase 3 ("GO PHASE 3" recu)
 - [x] pour demarrer Phase 4 ("GO PHASE 4" recu)
-- [ ] pour demarrer Phase 5 (en attente — Phase 4 terminee, "GO PHASE 5"
+- [x] pour demarrer Phase 5 ("GO PHASE 5" recu)
+- [ ] pour demarrer Phase 6 (en attente — Phase 5 terminee, "GO PHASE 6"
   pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
@@ -99,17 +110,17 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (Decisions 35 a 39 = choix techniques Phase 4)
-3. docs/phases/PHASE_4_REPORT.md
+2. docs/DECISIONS.md (Decisions 40 a 46 = choix techniques Phase 5)
+3. docs/phases/PHASE_5_REPORT.md
 
-Contexte : la Phase 4 (Requests) est TERMINEE : creation de demande
-client, pipeline media generique reel (upload MinIO, scan de signature,
-metadonnees image), machine a etats volontairement reduite, premier
-ecran client reel (apps/web), nouveau workspace tests/browser
-(Playwright, verifie reellement). Tout teste reellement (121 tests
-apps/api, 1 scenario Playwright reel, gates monorepo verts). N'attends
-que "GO PHASE 5" de l'utilisateur ; si ce prompt est relance sans ce
-signal explicite, ne commence PAS la Phase 5 - redemande confirmation.
+Contexte : la Phase 5 (Matching) est TERMINEE : dispatch progressif reel
+(batch borne, attente par job differe, expansion de rayon), ponderations
+administrables en base, services geo/transport, AUTO et DIRECT,
+localisation approximative cote fournisseur, ecrans client et
+fournisseur, design system packages/ui. Tout teste reellement (320 tests,
+2 scenarios Playwright, gates verts). N'attends que "GO PHASE 6" de
+l'utilisateur ; si ce prompt est relance sans ce signal explicite, ne
+commence PAS la Phase 6 - redemande confirmation.
 
 Verifie d'abord que Docker tourne toujours (`docker compose -f
 docker-compose.yml -f docker-compose.dev.yml ps` depuis la racine).

@@ -1,6 +1,7 @@
 "use client";
 
 import { OtpRequestOutputSchema, UserSchema } from "@fixiyi/contracts";
+import { Badge, Button, Card, Input } from "@fixiyi/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -26,7 +27,7 @@ export default function LoginPage(): React.JSX.Element {
       setDevCode(output.devCode ?? null);
       setStep("code");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Unable to request a code — check the phone number.");
+      setError(err instanceof ApiError ? err.message : "Impossible d'envoyer le code — verifiez le numero.");
     } finally {
       setLoading(false);
     }
@@ -43,92 +44,77 @@ export default function LoginPage(): React.JSX.Element {
       setSession({ accessToken: result.accessToken, refreshToken: result.refreshToken, user: UserSchema.parse(result.user) });
       router.push("/requests/new");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Invalid or expired code.");
+      setError(err instanceof ApiError ? err.message : "Code invalide ou expire.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
-      <h1 className="text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Fixiyi</h1>
+    <main className="flex min-h-screen items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        <h1 className="mb-6 text-center text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Fixiyi</h1>
 
-      {step === "phone" ? (
-        <form
-          className="flex w-full max-w-sm flex-col gap-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void requestOtp();
-          }}
-        >
-          <label className="text-sm text-[var(--fixiyi-color-neutral-600)]" htmlFor="phone">
-            Numero de telephone (ex. +212612345678)
-          </label>
-          <input
-            id="phone"
-            data-testid="phone-input"
-            type="tel"
-            required
-            value={phone}
-            onChange={(event) => {
-              setPhone(event.target.value);
-            }}
-            className="rounded border border-[var(--fixiyi-color-neutral-300)] px-3 py-2"
-            placeholder="+212612345678"
-          />
-          <button
-            type="submit"
-            data-testid="request-otp-button"
-            disabled={loading}
-            className="rounded bg-[var(--fixiyi-color-primary-600)] px-3 py-2 font-medium text-white disabled:opacity-50"
-          >
-            {loading ? "Envoi..." : "Recevoir un code"}
-          </button>
-        </form>
-      ) : (
-        <form
-          className="flex w-full max-w-sm flex-col gap-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void verifyOtp();
-          }}
-        >
-          {devCode ? (
-            <p data-testid="dev-code" className="rounded bg-[var(--fixiyi-color-primary-100)] px-3 py-2 text-sm text-[var(--fixiyi-color-primary-700)]">
-              Mode dev — code : <strong>{devCode}</strong>
+        <Card title={step === "phone" ? "Connexion" : "Verification"} headingLevel={2}>
+          {step === "phone" ? (
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void requestOtp();
+              }}
+            >
+              <Input
+                label="Numero de telephone"
+                hint="Format international, par exemple +212612345678"
+                type="tel"
+                value={phone}
+                onChange={setPhone}
+                placeholder="+212612345678"
+                autoComplete="tel"
+                required
+                testId="phone-input"
+              />
+              <Button type="submit" block loading={loading} testId="request-otp-button">
+                Recevoir un code
+              </Button>
+            </form>
+          ) : (
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void verifyOtp();
+              }}
+            >
+              {devCode ? (
+                <p data-testid="dev-code">
+                  <Badge variant="info">Mode dev — code : {devCode}</Badge>
+                </p>
+              ) : null}
+              <Input
+                label="Code recu par SMS"
+                type="text"
+                value={code}
+                onChange={setCode}
+                placeholder="123456"
+                autoComplete="one-time-code"
+                required
+                testId="otp-input"
+              />
+              <Button type="submit" block loading={loading} testId="verify-otp-button">
+                Se connecter
+              </Button>
+            </form>
+          )}
+
+          {error === null ? null : (
+            <p className="fx-field__error mt-4" role="alert" data-testid="login-error">
+              {error}
             </p>
-          ) : null}
-          <label className="text-sm text-[var(--fixiyi-color-neutral-600)]" htmlFor="code">
-            Code recu par SMS
-          </label>
-          <input
-            id="code"
-            data-testid="otp-input"
-            type="text"
-            required
-            value={code}
-            onChange={(event) => {
-              setCode(event.target.value);
-            }}
-            className="rounded border border-[var(--fixiyi-color-neutral-300)] px-3 py-2"
-            placeholder="123456"
-          />
-          <button
-            type="submit"
-            data-testid="verify-otp-button"
-            disabled={loading}
-            className="rounded bg-[var(--fixiyi-color-primary-600)] px-3 py-2 font-medium text-white disabled:opacity-50"
-          >
-            {loading ? "Verification..." : "Se connecter"}
-          </button>
-        </form>
-      )}
-
-      {error ? (
-        <p data-testid="login-error" className="text-sm text-red-600">
-          {error}
-        </p>
-      ) : null}
+          )}
+        </Card>
+      </div>
     </main>
   );
 }

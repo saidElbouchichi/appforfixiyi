@@ -1,0 +1,12 @@
+{
+  "extends": "@fixiyi/tsconfig/react-library.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noEmit": true,
+    // `styles.test.ts` reads the stylesheet from disk; the react-library preset
+    // is otherwise DOM-only, so Node's typings must be opted into explicitly.
+    "types": ["node"]
+  },
+  "include": ["src"]
+}

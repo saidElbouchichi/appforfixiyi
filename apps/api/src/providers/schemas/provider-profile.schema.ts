@@ -1,4 +1,4 @@
-import type { ProviderType } from "@fixiyi/contracts";
+import type { ProviderAvailabilityStatus, ProviderType } from "@fixiyi/contracts";
 import { generateId } from "@fixiyi/shared-utils";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import type { HydratedDocument } from "mongoose";
@@ -57,6 +57,10 @@ export class ProviderProfileEntity {
 
   @Prop({ type: String, required: true })
   type!: ProviderType;
+
+  /** 01_SPEC_PRODUCT.md #16 — real-time work status, distinct from the weekly `availability` schedule and from GPS. */
+  @Prop({ type: String, required: true, default: "OFFLINE", index: true })
+  availabilityStatus!: ProviderAvailabilityStatus;
 
   @Prop({ type: String, required: true })
   displayName!: string;

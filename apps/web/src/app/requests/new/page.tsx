@@ -10,13 +10,14 @@ import {
   type RequestUrgency,
   type ServiceRequest,
 } from "@fixiyi/contracts";
+import { Badge, Button, Card, ErrorState, Input, Skeleton } from "@fixiyi/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { ApiError, apiFetch, uploadFile } from "../../../lib/api-client";
-import { useAuthStore } from "../../../lib/auth-store";
+import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 
 const TreeListSchema = z.array(CatalogTreeNodeSchema);
 const RequestListSchema = z.array(ServiceRequestSchema);
@@ -29,6 +30,14 @@ interface PendingMedia {
   detail: string | null;
 }
 
+const MEDIA_STATUS_VARIANT: Record<MediaUploadStatus, "info" | "success" | "warning" | "error"> = {
+  pending: "info",
+  uploading: "info",
+  ready: "success",
+  rejected: "warning",
+  error: "error",
+};
+
 async function fetchTree(): Promise<CatalogTreeNode[]> {
   return TreeListSchema.parse(await apiFetch("/api/v1/catalog/tree"));
 }
@@ -38,25 +47,25 @@ function childrenOf(nodes: CatalogTreeNode[], id: string): CatalogTreeNode[] {
 }
 
 /**
- * First real client screen (docs/phases/PHASE_4_PLAN.md, Option A) — login
- * OTP + demande creation: service depuis le vrai catalogue (01_SPEC_PRODUCT.md
- * #10), description, urgence, position reelle (Geolocation API du
- * navigateur — pas de carte interactive, `MAP_PROVIDER=dev`), et upload
- * media reel (MinIO) pilote par le vrai pipeline `apps/api/src/media/`.
- * Minimal mais reel, meme esprit que le back-office (Decision 34) : chaque
- * etape appelle une vraie API avec une vraie validation.
+ * First real client screen (docs/phases/PHASE_4_PLAN.md, Option A) — demande
+ * creation: service depuis le vrai catalogue (01_SPEC_PRODUCT.md #10),
+ * description, urgence, position reelle (Geolocation API du navigateur — pas
+ * de carte interactive, `MAP_PROVIDER=dev`), et upload media reel (MinIO)
+ * pilote par le vrai pipeline `apps/api/src/media/`. Construit sur
+ * `@fixiyi/ui` (01_SPEC_PRODUCT.md #82).
  */
 export default function NewRequestPage(): React.JSX.Element | null {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const hydrated = useAuthHydrated();
 
   useEffect(() => {
-    if (!user) {
+    if (hydrated && !user) {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [hydrated, user, router]);
 
-  const treeQuery = useQuery({ queryKey: ["catalog-tree"], queryFn: fetchTree, enabled: user !== null });
+  const treeQuery = useQuery({ queryKey: ["catalog-tree"], queryFn: fetchTree, enabled: hydrated && user !== null });
 
   const [requestId, setRequestId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -193,25 +202,38 @@ export default function NewRequestPage(): React.JSX.Element | null {
     }
   }
 
-  if (!user) {
+  if (!hydrated || !user) {
     return null;
   }
 
   if (submitted) {
     return (
-      <main className="mx-auto max-w-2xl p-8">
-        <h1 className="mb-4 text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Demande envoyee</h1>
-        <p data-testid="submitted-request-id" className="mb-2 text-xs text-[var(--fixiyi-color-neutral-400)]">
-          {submitted.id}
-        </p>
-        <p data-testid="submitted-status" className="mb-2">
-          Statut : <strong>{submitted.status}</strong>
-        </p>
-        <p className="mb-2">Description : {submitted.description}</p>
-        <p className="mb-2">Urgence : {submitted.urgency}</p>
-        <p data-testid="submitted-media-count" className="mb-2">
-          Medias attaches : {submitted.mediaIds.length.toString()}
-        </p>
+      <main className="mx-auto max-w-2xl p-6">
+        <h1 className="mb-6 text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Demande envoyee</h1>
+        <Card title="Recapitulatif" headingLevel={2}>
+          <p className="mb-3 text-xs text-[var(--fixiyi-color-neutral-400)]" data-testid="submitted-request-id">
+            {submitted.id}
+          </p>
+          <p className="mb-3" data-testid="submitted-status">
+            Statut : <Badge variant="success">{submitted.status}</Badge>
+          </p>
+          <p className="mb-2">Description : {submitted.description}</p>
+          <p className="mb-2">
+            Urgence : <Badge variant={submitted.urgency === "URGENT" ? "warning" : "info"}>{submitted.urgency}</Badge>
+          </p>
+          <p data-testid="submitted-media-count">Medias attaches : {submitted.mediaIds.length.toString()}</p>
+
+          <div className="mt-6">
+            <Button
+              onClick={() => {
+                router.push(`/requests/${submitted.id}/match`);
+              }}
+              testId="go-to-match-button"
+            >
+              Suivre la recherche de fournisseurs
+            </Button>
+          </div>
+        </Card>
       </main>
     );
   }
@@ -223,174 +245,184 @@ export default function NewRequestPage(): React.JSX.Element | null {
   const complexities = childrenOf(interventionTypes, interventionTypeId);
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <h1 className="mb-6 text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Nouvelle demande</h1>
+    <main className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
+      <h1 className="text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Nouvelle demande</h1>
 
-      {initError ? <p className="mb-4 text-sm text-red-600">{initError}</p> : null}
+      {initError === null ? null : <ErrorState message={initError} />}
 
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <LevelSelect
-          testId="domain-select"
-          label="Domaine"
-          value={domainId}
-          options={domains}
-          onChange={(value) => {
-            setDomainId(value);
-            setCategoryId("");
-            setServiceId("");
-            setInterventionTypeId("");
-            setComplexityId("");
-          }}
-        />
-        <LevelSelect
-          testId="category-select"
-          label="Categorie"
-          value={categoryId}
-          options={categories}
-          onChange={(value) => {
-            setCategoryId(value);
-            setServiceId("");
-            setInterventionTypeId("");
-            setComplexityId("");
-          }}
-        />
-        <LevelSelect
-          testId="service-select"
-          label="Service"
-          value={serviceId}
-          options={services}
-          onChange={(value) => {
-            setServiceId(value);
-            setInterventionTypeId("");
-            setComplexityId("");
-          }}
-        />
-        <LevelSelect
-          testId="intervention-type-select"
-          label="Type d'intervention"
-          value={interventionTypeId}
-          options={interventionTypes}
-          onChange={(value) => {
-            setInterventionTypeId(value);
-            setComplexityId("");
-          }}
-        />
-        <LevelSelect testId="complexity-select" label="Complexite" value={complexityId} options={complexities} onChange={setComplexityId} />
-      </div>
+      <Card title="Quel service vous faut-il ?" headingLevel={2}>
+        {treeQuery.isPending ? (
+          <Skeleton lines={5} label="Chargement du catalogue…" />
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <LevelSelect
+              testId="domain-select"
+              label="Domaine"
+              value={domainId}
+              options={domains}
+              onChange={(value) => {
+                setDomainId(value);
+                setCategoryId("");
+                setServiceId("");
+                setInterventionTypeId("");
+                setComplexityId("");
+              }}
+            />
+            <LevelSelect
+              testId="category-select"
+              label="Categorie"
+              value={categoryId}
+              options={categories}
+              onChange={(value) => {
+                setCategoryId(value);
+                setServiceId("");
+                setInterventionTypeId("");
+                setComplexityId("");
+              }}
+            />
+            <LevelSelect
+              testId="service-select"
+              label="Service"
+              value={serviceId}
+              options={services}
+              onChange={(value) => {
+                setServiceId(value);
+                setInterventionTypeId("");
+                setComplexityId("");
+              }}
+            />
+            <LevelSelect
+              testId="intervention-type-select"
+              label="Type d'intervention"
+              value={interventionTypeId}
+              options={interventionTypes}
+              onChange={(value) => {
+                setInterventionTypeId(value);
+                setComplexityId("");
+              }}
+            />
+            <LevelSelect testId="complexity-select" label="Complexite" value={complexityId} options={complexities} onChange={setComplexityId} />
+          </div>
+        )}
+      </Card>
 
-      <label className="mb-1 block text-sm text-[var(--fixiyi-color-neutral-600)]" htmlFor="description">
-        Description du probleme
-      </label>
-      <textarea
-        id="description"
-        data-testid="description-input"
-        value={description}
-        onChange={(event) => {
-          setDescription(event.target.value);
-        }}
-        className="mb-4 w-full rounded border border-[var(--fixiyi-color-neutral-300)] px-3 py-2"
-        rows={4}
-        placeholder="Prise de courant ne fonctionne plus depuis hier."
-      />
+      <Card title="Decrivez le probleme" headingLevel={2}>
+        <div className="flex flex-col gap-4">
+          <Input
+            label="Description"
+            value={description}
+            onChange={setDescription}
+            multiline
+            rows={4}
+            placeholder="Prise de courant ne fonctionne plus depuis hier."
+            required
+            testId="description-input"
+          />
 
-      <fieldset className="mb-4">
-        <legend className="mb-1 text-sm text-[var(--fixiyi-color-neutral-600)]">Urgence</legend>
-        <label className="mr-4 text-sm">
+          <fieldset>
+            <legend className="fx-field__label mb-1">Urgence</legend>
+            <label className="me-4 text-sm">
+              <input
+                type="radio"
+                data-testid="urgency-normal"
+                name="urgency"
+                checked={urgency === "NORMAL"}
+                onChange={() => {
+                  setUrgency("NORMAL");
+                }}
+              />{" "}
+              Normale
+            </label>
+            <label className="text-sm">
+              <input
+                type="radio"
+                data-testid="urgency-urgent"
+                name="urgency"
+                checked={urgency === "URGENT"}
+                onChange={() => {
+                  setUrgency("URGENT");
+                }}
+              />{" "}
+              Urgente
+            </label>
+          </fieldset>
+        </div>
+      </Card>
+
+      <Card title="Ou se trouve l'intervention ?" headingLevel={2}>
+        <div className="flex flex-col gap-3">
+          <Input
+            label="Adresse (optionnel)"
+            value={address}
+            onChange={setAddress}
+            placeholder="12 rue des Fleurs, Casablanca"
+            testId="address-input"
+          />
+          <div>
+            <Button variant="secondary" onClick={handleUseMyLocation} testId="use-my-location-button">
+              Utiliser ma position
+            </Button>
+          </div>
+          {coordinates ? (
+            <p className="text-sm text-[var(--fixiyi-color-neutral-600)]" data-testid="coordinates-display">
+              Position : {coordinates.lat.toFixed(5)}, {coordinates.lng.toFixed(5)}
+            </p>
+          ) : null}
+          {locationError === null ? null : <p className="fx-field__error">{locationError}</p>}
+        </div>
+      </Card>
+
+      <Card title="Photos, video ou audio (optionnel)" headingLevel={2}>
+        <div className="fx-field">
+          <label className="fx-field__label" htmlFor="media">
+            Ajouter des fichiers
+          </label>
           <input
-            type="radio"
-            data-testid="urgency-normal"
-            name="urgency"
-            checked={urgency === "NORMAL"}
-            onChange={() => {
-              setUrgency("NORMAL");
+            id="media"
+            data-testid="media-input"
+            type="file"
+            multiple
+            accept={ALLOWED_MEDIA_CONTENT_TYPES.join(",")}
+            onChange={(event) => {
+              handleFilesSelected(event.target.files);
             }}
-          />{" "}
-          Normale
-        </label>
-        <label className="text-sm">
-          <input
-            type="radio"
-            data-testid="urgency-urgent"
-            name="urgency"
-            checked={urgency === "URGENT"}
-            onChange={() => {
-              setUrgency("URGENT");
-            }}
-          />{" "}
-          Urgente
-        </label>
-      </fieldset>
+            className="text-sm"
+          />
+        </div>
 
-      <label className="mb-1 block text-sm text-[var(--fixiyi-color-neutral-600)]" htmlFor="address">
-        Adresse (optionnel)
-      </label>
-      <input
-        id="address"
-        data-testid="address-input"
-        value={address}
-        onChange={(event) => {
-          setAddress(event.target.value);
-        }}
-        className="mb-2 w-full rounded border border-[var(--fixiyi-color-neutral-300)] px-3 py-2"
-        placeholder="12 rue des Fleurs, Casablanca"
-      />
-      <button
-        type="button"
-        data-testid="use-my-location-button"
-        onClick={handleUseMyLocation}
-        className="mb-2 rounded border border-[var(--fixiyi-color-neutral-300)] px-3 py-1.5 text-sm"
-      >
-        Utiliser ma position
-      </button>
-      {coordinates ? (
-        <p data-testid="coordinates-display" className="mb-4 text-sm text-[var(--fixiyi-color-neutral-600)]">
-          Position : {coordinates.lat.toFixed(5)}, {coordinates.lng.toFixed(5)}
-        </p>
-      ) : null}
-      {locationError ? <p className="mb-4 text-sm text-red-600">{locationError}</p> : null}
+        {pendingMedia.length > 0 ? (
+          <ul className="mt-3 flex flex-col gap-2 text-sm" data-testid="media-list">
+            {pendingMedia.map((item) => (
+              <li key={item.file.name} className="flex flex-wrap items-center gap-2">
+                <span>{item.file.name}</span>
+                <Badge variant={MEDIA_STATUS_VARIANT[item.status]} testId="media-status">
+                  {item.status}
+                </Badge>
+                {item.detail === null ? null : <span className="text-[var(--fixiyi-color-neutral-600)]">{item.detail}</span>}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Card>
 
-      <label className="mb-1 block text-sm text-[var(--fixiyi-color-neutral-600)]" htmlFor="media">
-        Photos / video / audio (optionnel)
-      </label>
-      <input
-        id="media"
-        data-testid="media-input"
-        type="file"
-        multiple
-        accept={ALLOWED_MEDIA_CONTENT_TYPES.join(",")}
-        onChange={(event) => {
-          handleFilesSelected(event.target.files);
-        }}
-        className="mb-4 w-full text-sm"
-      />
-      {pendingMedia.length > 0 ? (
-        <ul data-testid="media-list" className="mb-4 flex flex-col gap-1 text-sm">
-          {pendingMedia.map((item) => (
-            <li key={item.file.name}>
-              {item.file.name} — <span data-testid="media-status">{item.status}</span>
-              {item.detail ? ` (${item.detail})` : ""}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {formError ? (
-        <p data-testid="form-error" className="mb-4 text-sm text-red-600">
+      {formError === null ? null : (
+        <p className="fx-field__error" role="alert" data-testid="form-error">
           {formError}
         </p>
-      ) : null}
+      )}
 
-      <button
-        type="button"
-        data-testid="submit-request-button"
-        disabled={submitting || !requestId}
-        onClick={() => {
-          void handleSubmit();
-        }}
-        className="rounded bg-[var(--fixiyi-color-primary-600)] px-4 py-2 font-medium text-white disabled:opacity-50"
-      >
-        {submitting ? "Envoi..." : "Envoyer la demande"}
-      </button>
+      <div>
+        <Button
+          loading={submitting}
+          disabled={requestId === null}
+          onClick={() => {
+            void handleSubmit();
+          }}
+          testId="submit-request-button"
+        >
+          Envoyer la demande
+        </Button>
+      </div>
     </main>
   );
 }
@@ -409,8 +441,8 @@ function LevelSelect({
   onChange: (value: string) => void;
 }): React.JSX.Element {
   return (
-    <div>
-      <label className="mb-1 block text-sm text-[var(--fixiyi-color-neutral-600)]" htmlFor={testId}>
+    <div className="fx-field">
+      <label className="fx-field__label" htmlFor={testId}>
         {label}
       </label>
       <select
@@ -421,7 +453,7 @@ function LevelSelect({
         onChange={(event) => {
           onChange(event.target.value);
         }}
-        className="w-full rounded border border-[var(--fixiyi-color-neutral-300)] px-3 py-2 disabled:opacity-50"
+        className="fx-field__control"
       >
         <option value="">--</option>
         {options.map((option) => (
