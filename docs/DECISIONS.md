@@ -662,4 +662,274 @@ Journal des decisions techniques et produit.
   s'accumule. Aucune date de reference exploitable pour un TTL n'existe
   ni n'est necessaire (le code OTP email lui-meme expire deja via Redis,
   independamment de ce champ Mongo).
+
+---
+
+## Decision 26 - Catalogue : 1 collection Mongo generique au lieu de 6
+
+- Contexte : `01_SPEC_PRODUCT.md #8` decrit une hierarchie a 5 niveaux
+  (`Domain > Category > Service > InterventionType > Complexity`) plus un
+  catalogue plat de `Skill` - 6 "types" au total, tous administrables.
+- Options : A. 6 collections Mongo separees (une par niveau, quasi
+  identiques : nom, description, ordre, actif, parent) / B. 1 collection
+  `catalog_nodes` avec un champ `level` discriminant et un `parentId`
+  nullable (null pour `DOMAIN`/`SKILL`, les deux racines)
+- Choix : B.
+- Raison : Les 6 niveaux partagent exactement la meme forme - dupliquer
+  6 schemas/services/controllers quasi identiques (create/read/update/
+  soft-delete + validation de la regle de parente) aurait ete plus de
+  code sans plus de clarte. Une seule collection + un service generique
+  qui valide la regle de parente par niveau
+  (`CATALOG_PARENT_LEVEL: Record<CatalogLevel, CatalogLevel | null>`,
+  `@fixiyi/contracts`) couvre les 6 cas reels avec un seul jeu de tests.
+  `RequiredSkill` (la relation Complexity->Skill du schema #8) devient un
+  simple champ `requiredSkillIds: string[]` sur les noeuds `COMPLEXITY`,
+  pas une 7e collection de jointure.
+- Trade-offs : Un seul index compose `{level, parentId, name}` (unique)
+  fait tout le travail d'unicite - moins granulaire que 6 index dedies,
+  mais suffisant (aucun besoin reel de contrainte differente par niveau).
+  Suppression = desactivation logicielle (`active: false`), jamais un
+  hard delete - une future Request/Offer (Phase 4+) pourra toujours
+  referencer un noeud meme desactive sans casser.
+- Date : 2026-09-20
+
+---
+
+## Decision 27 - `ProviderProfile` embarque ses 4 sous-agregats (pas 4
+  collections)
+
+- Contexte : `02_SPEC_ENGINEERING.md #98` liste `ProviderProfile,
+  ProviderSkill, ProviderService, ProviderAvailability,
+  ProviderServiceArea` comme 5 agregats distincts.
+- Options : A. 5 collections separees avec des jointures / B. Un seul
+  document `ProviderProfile` embarquant `skillIds: string[]`,
+  `serviceIds: string[]`, `availability: AvailabilitySlot[]`,
+  `serviceAreas: ServiceArea[]`
+- Choix : B.
+- Raison : Ces 4 sous-agregats n'ont aucun cycle de vie independant du
+  profil - toujours lus/ecrits avec lui, jamais interroges seuls dans le
+  perimetre Phase 3. L'embedding Mongoose est idiomatique pour des
+  donnees 1:1-scopees-au-parent (evite des jointures/N+1 pour un gain nul
+  ici). Coherent avec Decision 26 (meme logique de simplification) et
+  05_DECISION_POLICY.md (pas de normalisation prematuree).
+- Trade-offs : Si une phase future a besoin d'interroger "tous les
+  providers disponibles a tel horaire" independamment du profil, un
+  index sur un champ embarque (`availability.dayOfWeek`) reste possible,
+  mais une extraction en collection dediee serait alors a reconsiderer.
+  Zone geographique (`serviceAreas.center`) deja indexee `2dsphere` en
+  prevision de la Phase 5 (matching par proximite), non exploitee par
+  une recherche pour l'instant (meme statut "prepare" que
+  `ResourceOwnerGuard`, Decision 20).
+- Date : 2026-09-20
+
+---
+
+## Decision 28 - `VerificationCase` generique sur `targetType` (couvre
+  aussi `CompanyVerification`)
+
+- Contexte : `02_SPEC_ENGINEERING.md #98` liste separement
+  `Company, CompanyMember, CompanyVerification` et
+  `VerificationCase, VerificationDocument, VerificationDecision`,
+  suggerant a priori deux mecanismes de verification distincts (un pour
+  les entreprises, un pour les individus).
+- Options : A. Deux implementations paralleles de la machine a etats de
+  verification (une pour `Company`, une pour `ProviderProfile`) / B. Une
+  seule machine a etats generique, `targetType: "PROVIDER" | "COMPANY"`
+  + `targetId`, reutilisee pour les deux
+- Choix : B. `CompanyVerification` n'est donc pas une collection separee
+  - c'est le meme `VerificationCase` avec `targetType: "COMPANY"`.
+- Raison : Le cycle d'etats (`DRAFT -> IN_REVIEW -> NEEDS_CORRECTION/
+  VERIFIED/REJECTED`, `VERIFIED -> SUSPENDED`) et le worklow (documents
+  -> soumission -> decision historisee) sont identiques pour les deux
+  cibles ; dupliquer la machine a etats aurait double le risque de bug
+  sans bénéfice. La verification d'ownership differe (proprietaire du
+  profil vs. OWNER actif de l'entreprise) mais reste une simple fonction
+  injectee (`ProviderService.findById`/`CompanyService.isActiveOwner`),
+  pas une raison de dupliquer le reste.
+- Trade-offs : Aucune contrainte de schema ne peut imposer "un
+  `VerificationDocument` de type `COMPANY_REGISTRATION` seulement sur une
+  cible `COMPANY`" - verification laissee a la couche service si besoin
+  futur (pas de cas reel a bloquer en Phase 3).
+- Date : 2026-09-20
+
+---
+
+## Decision 29 - Upload de documents de verification : MinIO reel
+  (URL presignee), pas le pipeline media generique de la Phase 4
+
+- Contexte : `02_SPEC_ENGINEERING.md #124` decrit un pipeline complet
+  `CreateUploadSession -> SignedUpload -> ObjectStorage -> Scan ->
+  Process -> Finalize` (avec antivirus) prevu comme livrable Phase 4
+  (medias de `ServiceRequest`). La verification (Phase 3) a aussi besoin
+  d'uploader des documents (piece d'identite, etc.) **maintenant**.
+- Options : A. Attendre la Phase 4 et bloquer la verification / B.
+  Construire tout le pipeline generique (antivirus compris) en avance de
+  phase / C. Un flux minimal mais reel : `StorageService` (SDK S3 officiel
+  contre MinIO, URL PUT presignee, verification reelle d'existence via
+  `HeadObject` avant de marquer un document `UPLOADED` - jamais de
+  confiance aveugle dans la parole du client)
+- Choix : C.
+- Raison : Aucune simulation - l'upload passe reellement par MinIO (verifie
+  par un vrai `PUT` HTTP dans `verification.e2e.test.ts`), juste sans le
+  scan antivirus/traitement avance que la Phase 4 batira pour les medias
+  de demande (fonctionnalite plus large, avec plus de types de fichiers
+  et de consommateurs, qui justifiera alors la generalisation).
+- Trade-offs : Pas de scan antivirus sur les documents de verification
+  pour l'instant - a revisiter si la Phase 4 introduit un scanner
+  reutilisable (alors migrer `VerificationDocument` vers le pipeline
+  generique plutot que dupliquer un 2e scanner).
+- Date : 2026-09-20
+
+---
+
+## Decision 30 - Nouvelle dependance `apps/api` : `@aws-sdk/client-s3` +
+  `@aws-sdk/s3-request-presigner`
+
+- Contexte : generer une URL PUT presignee S3-compatible (MinIO) exige une
+  signature cryptographique (SigV4) non raisonnablement re-implementable
+  a la main (contrairement aux cookies/CSRF de la Phase 2, Decision 18).
+- Verification faite (`npm view`) : `@aws-sdk/client-s3@3.1136.0` et
+  `@aws-sdk/s3-request-presigner@3.1136.0`, SDK officiel AWS, aucune
+  `peerDependencies` declaree -> aucun risque de conflit du type
+  Decision 4/6.
+- Choix : les deux ajoutees telles quelles.
+- Raison : Decision autonome de l'agent (05_DECISION_POLICY.md) - SDK
+  officiel, tres maintenu, seule option raisonnable pour une signature
+  S3 correcte. `forcePathStyle: true` requis explicitement pour MinIO
+  (le style "virtual-hosted" par defaut du SDK ne fonctionne pas contre
+  lui).
+- Trade-offs : Poids de dependance non negligeable (SDK AWS complet) -
+  acceptable, aucune alternative plus legere serieuse pour une signature
+  SigV4 correcte.
+- Date : 2026-09-20
+
+---
+
+## Decision 31 - Bug reel : race condition sur le seed du catalogue,
+  corrige par un verrou distribue en 2 phases
+
+- Contexte : `CatalogSeedService` seme des donnees de demo au demarrage
+  si le catalogue est vide (`onModuleInit`). Verifie reellement en
+  ecrivant la suite e2e : 3 fichiers de test bootent chacun une instance
+  Nest complete independante contre la **meme** base MongoDB reelle -
+  `MongoServerError: E11000 duplicate key ... { level: "SKILL", parentId:
+  null, name: "Cablage de base" }` au 2e/3e boot.
+- Cause racine : un "check puis insert" (verifier que le catalogue est
+  vide, puis semer) est une race check-then-act classique - plusieurs
+  instances peuvent toutes deux passer le check avant que l'une d'elles
+  ait fini d'inserer.
+- Options : A. Un simple verrou "premier arrive, les autres abandonnent"
+  (`tryAcquire` sur un `_id` unique, `create()` atomique) / B. Un verrou
+  en 2 phases : le gagnant seme puis marque `completedAt`, les perdants
+  **attendent** ce marqueur (polling court) au lieu d'abandonner
+  immediatement
+- Choix : B.
+- Raison : L'option A corrige les doublons mais laisse un 2e bug latent :
+  une instance "perdante" continue son demarrage (et pourrait servir des
+  requetes) alors que le catalogue est encore partiellement semé par le
+  "gagnant". Verifie reellement : l'option A seule faisait echouer un
+  test (`getTree()` retournant un noeud sans ses enfants) de facon
+  intermittente selon l'ordre de demarrage des 3 apps de test. `runOnce()`
+  (`SeedLockService`, `apps/api/src/common/seed/`) est generique et
+  reutilisable par tout futur seed one-shot.
+- Trade-offs : Un polling court (100ms, timeout 30s) sur les instances
+  perdantes - negligeable au demarrage, jamais revisite ensuite (le
+  verrou reste acquis pour la vie de la base).
+- Date : 2026-09-20
+
+---
+
+## Decision 32 - Bug reel : rate limiting partage entre fichiers de test
+  e2e, corrige par execution sequentielle + nettoyage systematique
+
+- Contexte : l'ajout de 4 nouveaux fichiers e2e (catalog, provider,
+  company, verification) en plus des 2 existants (health, auth) a fait
+  reapparaitre, sous une nouvelle forme, l'interference de rate-limiting
+  deja rencontree en Phase 2 (Decision 23) : les compteurs Redis
+  (`ratelimit:otp-request:ip:*`, `ratelimit:otp-verify:ip:*`, ...) sont
+  partages par TOUS les fichiers, executes par Vitest en **parallele**
+  (threads/process separes) contre la **meme** IP loopback et le **meme**
+  Redis reel.
+- Options : A. Continuer a nettoyer au demarrage de chaque fichier
+  (deja fait en Phase 2 - insuffisant, l'accumulation croisee pendant
+  l'execution reste possible) / B. Nettoyer systematiquement AVANT
+  chaque appel OTP (pas seulement au demarrage du fichier) + desactiver
+  le parallelisme inter-fichiers de Vitest (`test.fileParallelism:
+  false`) pour ce projet
+- Choix : B (les deux combines).
+- Raison : Le nettoyage systematique (helper partage
+  `apps/api/test/otp-test-helper.ts`) rend chaque connexion "normale"
+  robuste a l'accumulation, quel que soit l'ordre d'execution.
+  `fileParallelism: false` elimine en plus toute la CLASSE de bug
+  (rate-limit ET la race de seed de la Decision 31 auraient aussi ete
+  attenuee par ceci seul) - des tests d'integration qui frappent une
+  **vraie** infra partagee (Mongo/Redis/MinIO reels, pas des mocks) sont
+  plus fiables sequentiels que paralleles ; le cout (suite ~30-60s au
+  lieu de ~15-20s) est juge acceptable face au risque de faux-echecs
+  intermittents.
+- Trade-offs : Suite de tests plus lente. Le test dedie au rate-limiting
+  (`auth.e2e.test.ts`, "Rate limiting") reste le seul a appeler
+  l'endpoint brut sans passer par le helper - il continue de nettoyer
+  explicitement apres lui-meme pour ne pas polluer les tests suivants.
+- Date : 2026-09-20
+
+---
+
+## Decision 33 - Back-office admin : authentification par Bearer token
+  en memoire (zustand), pas par cookies
+
+- Contexte : `apps/admin` (port 3001/3005) et `apps/api` (port 4000) sont
+  des origines differentes du point de vue du navigateur. L'auth cookie
+  de la Phase 2 (Decision 18) est concue pour un client **meme origine**
+  (`SameSite=Lax` suffit alors) ; la rendre fonctionnelle cross-origin
+  exigerait `credentials: true` + une liste blanche d'origines cote CORS
+  (`app.enableCors()` actuel = `origin: '*'`, incompatible avec
+  `credentials: true`).
+- Options : A. Reconfigurer CORS avec une origine explicite +
+  `credentials: true` pour que le flux cookie de la Phase 2 fonctionne
+  cross-origin / B. Le SPA admin recupere `accessToken`/`refreshToken`
+  dans le corps JSON (deja retournes par toutes les routes d'auth, prevu
+  pour un futur client mobile - Decision Phase 2 sur le "dual token
+  delivery"), les garde en memoire (zustand, **premier usage reel** du
+  store installe en Phase 1) et les envoie en `Authorization: Bearer`
+  sur chaque appel
+- Choix : B.
+- Raison : Reutilise un mecanisme déjà prevu et teste (le corps JSON des
+  routes d'auth) sans toucher a la configuration CORS/cookies de la
+  Phase 2 (qui reste pensee pour le futur `apps/web`, meme origine).
+  Verifie reellement : `curl -H "Origin: http://localhost:3005"` contre
+  l'API confirme `access-control-allow-origin: *` et une reponse 201 -
+  le flux Bearer cross-origin fonctionne sans aucune modification cote
+  API.
+- Trade-offs : Session perdue si le storage local du navigateur est
+  vide/prive (persist zustand -> localStorage) - acceptable pour un
+  outil interne, pas le niveau de securite vise pour la Phase 13
+  (mobile).
+- Date : 2026-09-20
+
+---
+
+## Decision 34 - Back-office : creation de noeud via `window.prompt()`,
+  pas un formulaire modal
+
+- Contexte : `docs/IMPLEMENTATION_PLAN.md` demande explicitement un
+  back-office "minimal" (l'admin complet est reserve a la Phase 12,
+  `06_SCOPE.md`). `apps/admin` n'a aucun composant UI reutilisable avant
+  cette session (aucun design system de composants construit).
+- Options : A. Construire un vrai formulaire modal (react-hook-form,
+  deja installe) pour chaque creation de noeud / B. `window.prompt()`
+  pour le seul champ `name`, appelant ensuite la vraie API
+  (`POST /catalog/nodes`) avec la vraie validation serveur
+- Choix : B.
+- Raison : "Minimal" au sens explicite du plan - chaque action reste
+  **reelle** (vrai appel API, vraie validation, vraie mise a jour de
+  l'arbre via invalidation TanStack Query), seule l'UX de saisie est
+  volontairement rudimentaire. Construire un systeme de modales
+  reutilisable pour un unique champ texte aurait ete disproportionne par
+  rapport au perimetre demande.
+- Trade-offs : Pas d'edition de `description`/`order`, pas de gestion de
+  `requiredSkillIds` depuis l'UI (l'API les supporte deja) - documente
+  comme limitation, a completer si la Phase 12 (dashboard admin complet)
+  ne les reprend pas entre-temps.
+- Date : 2026-09-20
 - Date : 2026-09-20

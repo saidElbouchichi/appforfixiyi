@@ -11,7 +11,6 @@ import {
   UserSchema,
   type AuthSessionResult,
   type AuthTokens,
-  type OtpRequestOutput,
   type ProblemDetails,
   type Session,
   type User,
@@ -25,6 +24,9 @@ import { z } from "zod";
 import { AppModule } from "../src/app.module.js";
 import { ProblemDetailsFilter } from "../src/common/filters/problem-details.filter.js";
 import { RedisService } from "../src/infrastructure/redis/redis.service.js";
+
+import { login as sharedLogin, requestOtpCode as sharedRequestOtpCode } from "./otp-test-helper.js";
+import { clearRateLimitState } from "./rate-limit-test-helper.js";
 
 const SessionListSchema = z.array(SessionSchema);
 
@@ -61,41 +63,21 @@ describe("Auth (e2e)", () => {
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
     server = app.getHttpAdapter().getInstance().server;
-
-    // Rate-limit counters persist in Redis across separate test runs within the same
-    // hour — start every run from a clean slate so this suite is repeatable.
     redis = app.get(RedisService);
-    const staleKeys = await redis.client.keys("ratelimit:*");
-    if (staleKeys.length > 0) {
-      await redis.client.del(...staleKeys);
-    }
+    await clearRateLimitState(redis);
   }, 30_000);
 
   afterAll(async () => {
     await app.close();
   });
 
-  async function requestOtp(phone: string): Promise<OtpRequestOutput> {
-    // Several tests deliberately log the same phone in twice (multi-device scenarios) —
-    // clear its resend cooldown first so this helper is never blocked by the 60s window.
-    await redis.client.del(`otp:cooldown:phone:${phone}`);
-    const response = await request(server).post("/api/v1/auth/otp/request").send({ phone });
-    expect(response.status).toBe(201);
-    return OtpRequestOutputSchema.parse(response.body);
+  // Thin wrappers over the shared helper (binds server/redis) so every existing
+  // single-arg call site (`requestOtpCode(phone)`, `login(phone)`, ...) keeps working.
+  function requestOtpCode(phone: string): Promise<string> {
+    return sharedRequestOtpCode(server, redis, phone);
   }
-
-  async function requestOtpCode(phone: string): Promise<string> {
-    const { devCode } = await requestOtp(phone);
-    expect(devCode).toMatch(/^\d{6}$/);
-    if (!devCode) throw new Error("expected a devCode in non-production/fake-provider mode");
-    return devCode;
-  }
-
-  async function login(phone: string): Promise<AuthSessionResult> {
-    const code = await requestOtpCode(phone);
-    const response = await request(server).post("/api/v1/auth/otp/verify").send({ phone, code });
-    expect(response.status).toBe(201);
-    return AuthSessionResultSchema.parse(response.body);
+  function login(phone: string): Promise<AuthSessionResult> {
+    return sharedLogin(server, redis, phone);
   }
 
   function parseProblem(body: unknown): ProblemDetails {

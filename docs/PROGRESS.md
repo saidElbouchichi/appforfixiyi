@@ -2,12 +2,11 @@
 
 ## Derniere mise a jour
 
-2026-09-20 - Phase 2 (Auth) TERMINEE, verification complete Phase 1+2
-effectuee (voir `docs/VERIFICATION_PHASE_1_2.md`)
+2026-09-20 - Phase 3 (Marketplace) TERMINEE
 
 ## Phase actuelle
 
-Phase 2 - Auth - **TERMINEE**. STOP, en attente de "GO PHASE 3".
+Phase 3 - Marketplace - **TERMINEE**. STOP, en attente de "GO PHASE 4".
 
 ## Phases terminees
 
@@ -15,66 +14,64 @@ Phase 2 - Auth - **TERMINEE**. STOP, en attente de "GO PHASE 3".
 - Phase 1 - Foundation (2026-09-19 / 2026-09-20) - voir
   `docs/phases/PHASE_1_REPORT.md`
 - Phase 2 - Auth (2026-09-20) - voir `docs/phases/PHASE_2_REPORT.md` et
-  `docs/VERIFICATION_PHASE_1_2.md` (verification exhaustive : 140 tests
-  automatises, 13/13 endpoints verifies manuellement en curl reel, index
-  MongoDB/cles Redis inspectes, 7 bugs trouves et corriges)
+  `docs/VERIFICATION_PHASE_1_2.md`
+- Phase 3 - Marketplace (2026-09-20) - voir
+  `docs/phases/PHASE_3_REPORT.md` : catalogue administrable (1 collection
+  generique, RBAC reel), profils fournisseur (competences/services/
+  disponibilites/zones geospatiales), entreprises (membres, invitation,
+  regle du dernier OWNER), verification (machine a etats generique
+  provider/company, upload MinIO reel), back-office minimal (`apps/admin`,
+  login OTP + gestion du catalogue)
 
-## Etat detaille de la phase actuelle (Phase 2 - Auth - TERMINEE)
+## Etat detaille de la phase actuelle (Phase 3 - Marketplace - TERMINEE)
 
-Module `auth` complet dans `apps/api/src/auth/` (36 fichiers) : Phone OTP
-(provider dev/fake uniquement), sessions + rotation de refresh tokens
-avec detection de reutilisation, logout/logout-all, device/session
-management, RBAC (roles + guards reellement appliques), base ABAC
-preparee (non branchee, pas de ressource possedee avant Phase 4+), regle
-d'age configurable appliquee sur l'auto-attribution du role PROVIDER,
-email + verification, cookies web HttpOnly/Secure/SameSite + CSRF
-double-submit, rate limiting (IP + telephone/email), TTL MongoDB natif
-sur sessions/devices.
-
-**Tout reellement verifie** dans cette meme session (pas seulement les
-tests automatises) : 79 tests `apps/api` (56 unit + 23 e2e reels
-Mongo/Redis/HTTP), 140 tests sur tout le monorepo, 13 endpoints testes un
-par un via curl contre la stack Docker reelle (port 4000), index MongoDB
-et cles Redis inspectes directement, logs des conteneurs analyses.
+101 tests `apps/api` (19 fichiers, dont 4 nouvelles suites e2e reelles :
+catalog/provider/company/verification — cette derniere avec un vrai
+upload HTTP PUT vers MinIO), 26 nouveaux tests `packages/contracts`.
 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` : 13/13, 13/13,
-11/11, 9/9 taches Turbo reussies, 0 erreur, 0 warning.
+11/11, 9/9 taches, 0 erreur, 0 warning sur tout le monorepo.
 
-Environnement de dev toujours actif : les 7 services Docker (MongoDB,
-Redis, MinIO, api, worker, web, admin) tournent, `api` reconstruit et
-redemarre deux fois pendant cette session (nouveau code Phase 2, puis
-index TTL) et verifie sain (`healthy`) apres chaque redemarrage.
+6 bugs reels trouves et corriges pendant cette phase (detail complet dans
+`docs/phases/PHASE_3_REPORT.md`) : race condition sur le seed du
+catalogue (verrou distribue en 2 phases), interference de rate-limiting
+entre fichiers de test e2e (execution sequentielle + nettoyage
+systematique), incoherence `z.infer`/`z.input` sur des champs `.default()`,
+prefixe de telephone de test invalide, resolution de module Next.js
+(imports relatifs sans extension, different de la convention NodeNext
+d'`apps/api`), typage `fetch()` sous `exactOptionalPropertyTypes`.
+
+`apps/admin` a maintenant son premier ecran metier reel (auparavant une
+simple page de statut) : login OTP puis gestion du catalogue, premier
+usage reel de `zustand` et `@tanstack/react-query` installes en Phase 1.
+
+Images Docker `api` et `admin` reconstruites avec le code de la Phase 3.
 
 ## Derniere action effectuee
 
-Verification systematique complete de tout ce qui a ete construit depuis
-la Phase 0 (demande explicite de l'utilisateur avant validation) :
-re-execution de tous les gates Phase 1, verification manuelle exhaustive
-des 13 endpoints Phase 2 via curl reel, inspection des index
-MongoDB/cles Redis, analyse des logs, correction de 2 bugs supplementaires
-trouves pendant cette verification (index TTL en conflit avec un index
-preexistant ; voir `docs/VERIFICATION_PHASE_1_2.md`), puis redaction de
-`docs/VERIFICATION_PHASE_1_2.md`, finalisation de
-`docs/phases/PHASE_2_REPORT.md` et de ce fichier.
+Verification complete des gates du monorepo (lint/typecheck/test/build,
+tous verts), verification manuelle du flux CORS/Bearer cross-origin de
+l'admin (curl), redaction de `docs/phases/PHASE_3_REPORT.md` et des
+Decisions 26 a 34, mise a jour de ce fichier. Rebuild des images Docker
+`api`/`admin` en cours de finalisation.
 
 ## Prochaine action exacte
 
-**Aucune** — la Phase 2 est terminee. STOP, attendre `GO PHASE 3` de
-l'utilisateur avant toute nouvelle implementation (Phase 3 = Marketplace :
-catalogue, profils, onboarding, verification, companies).
+**Aucune** — la Phase 3 est terminee. STOP, attendre `GO PHASE 4` de
+l'utilisateur avant toute nouvelle implementation (Phase 4 = Requests :
+creation de demande, medias, localisation, urgence).
 
 ## Blocages
 
-Aucun. Phase 2 terminee sans blocage technique residuel. Les 7 bugs
-trouves pendant le developpement et la verification ont tous ete corriges
-et re-testes (detail dans `docs/VERIFICATION_PHASE_1_2.md`).
+Aucun. Phase 3 terminee sans blocage technique residuel.
 
 ## Validation humaine requise
 
 - [x] pour demarrer Phase 0 (recue avant Phase 0)
 - [x] pour demarrer Phase 1 ("GO PHASE 1" recu)
 - [x] pour demarrer Phase 2 ("GO PHASE 2" recu)
-- [ ] pour demarrer Phase 3 (en attente — Phase 2 terminee et verifiee,
-  "GO PHASE 3" pas encore recu)
+- [x] pour demarrer Phase 3 ("GO PHASE 3" recu)
+- [ ] pour demarrer Phase 4 (en attente — Phase 3 terminee, "GO PHASE 4"
+  pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
 
@@ -83,15 +80,15 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (Decisions 16 a 25 = choix techniques Phase 2)
-3. docs/phases/PHASE_2_REPORT.md
-4. docs/VERIFICATION_PHASE_1_2.md (verification exhaustive Phase 1+2)
+2. docs/DECISIONS.md (Decisions 26 a 34 = choix techniques Phase 3)
+3. docs/phases/PHASE_3_REPORT.md
 
-Contexte : la Phase 2 (Auth) est TERMINEE et verifiee de bout en bout
-(automatise + manuel + infra reelle - voir VERIFICATION_PHASE_1_2.md).
-N'attends que "GO PHASE 3" de l'utilisateur ; si ce prompt est relance
-sans ce signal explicite, ne commence PAS la Phase 3 - redemande
-confirmation.
+Contexte : la Phase 3 (Marketplace) est TERMINEE : catalogue
+administrable, profils fournisseur, entreprises, verification (upload
+MinIO reel), back-office minimal. Tout teste reellement (101 tests
+apps/api, gates monorepo verts). N'attends que "GO PHASE 4" de
+l'utilisateur ; si ce prompt est relance sans ce signal explicite, ne
+commence PAS la Phase 4 - redemande confirmation.
 
 Verifie d'abord que Docker tourne toujours (`docker compose -f
 docker-compose.yml -f docker-compose.dev.yml ps` depuis la racine).

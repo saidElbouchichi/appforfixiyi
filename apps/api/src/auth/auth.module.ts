@@ -43,5 +43,12 @@ import { TokenService } from "./token/token.service.js";
     CsrfGuard,
     RateLimitGuard,
   ],
+  // Guards are exported so other modules (catalog, providers, companies, verification, ...)
+  // can protect their own routes with `@UseGuards(AuthGuard, RolesGuard, CsrfGuard)`. Their
+  // own constructor dependencies must ALSO be exported — Nest resolves a guard referenced by
+  // class in @UseGuards() against the *consuming* module's reachable providers, not just
+  // AuthModule's (verified: omitting these throws "Nest can't resolve dependencies of the
+  // AuthGuard ... TokenService ... is available in the CatalogModule module").
+  exports: [AuthGuard, RolesGuard, ResourceOwnerGuard, CsrfGuard, TokenService, SessionService, CsrfService],
 })
 export class AuthModule {}

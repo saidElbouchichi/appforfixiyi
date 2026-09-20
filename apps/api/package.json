@@ -13,6 +13,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1136.0",
+    "@aws-sdk/s3-request-presigner": "^3.1136.0",
     "@fastify/static": "^10.1.4",
     "@fixiyi/config": "workspace:*",
     "@fixiyi/contracts": "workspace:*",
