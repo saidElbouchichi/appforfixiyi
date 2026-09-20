@@ -19,7 +19,11 @@ async function bootstrap(): Promise<void> {
 
   app.setGlobalPrefix("api/v1", { exclude: ["health"] });
   app.useGlobalFilters(new ProblemDetailsFilter());
-  app.enableCors();
+  // Explicit methods: Fastify/@fastify/cors's automatic method detection was
+  // only ever advertising GET/HEAD/POST in its preflight response, silently
+  // blocking every real-browser PATCH/DELETE call (found via Phase 4's
+  // Playwright test hitting PATCH /requests/:id — see Decision 35's report).
+  app.enableCors({ methods: ["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE"] });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle(env.APP_NAME)

@@ -1,17 +1,10 @@
 import { z } from "zod";
 
-import { IdSchema, IsoDateTimeSchema } from "./common.js";
+import { GeoPointSchema, IdSchema, IsoDateTimeSchema } from "./common.js";
 
 /** 01_SPEC_PRODUCT.md #7 — progressive: Bricoleur -> Technicien -> Expert. */
 export const ProviderTypeSchema = z.enum(["BRICOLEUR", "TECHNICIEN", "EXPERT"]);
 export type ProviderType = z.infer<typeof ProviderTypeSchema>;
-
-export const GeoPointSchema = z.object({
-  type: z.literal("Point"),
-  /** [longitude, latitude] — GeoJSON order, not [lat, lng]. */
-  coordinates: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
-});
-export type GeoPoint = z.infer<typeof GeoPointSchema>;
 
 /** 01_SPEC_PRODUCT.md #98 — `ProviderServiceArea`, embedded (see Decision). Not yet queried by proximity — Phase 5. */
 export const ServiceAreaSchema = z.object({

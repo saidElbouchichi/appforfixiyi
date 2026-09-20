@@ -34,6 +34,13 @@ coverage/
 .nyc_output/
 *.lcov
 
+# Playwright (tests/browser) — keep the named step screenshots (01-*.png etc.),
+# ignore only Playwright's own per-run artifacts (traces, failure screenshots, report state)
+tests/browser/test-results/
+tests/browser/playwright-report/
+tests/browser/screenshots/*/
+tests/browser/screenshots/.last-run.json
+
 # OS
 .DS_Store
 ._*

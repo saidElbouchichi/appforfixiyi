@@ -13,6 +13,8 @@ services:
       DATABASE_URL: mongodb://mongodb:27017/fixiyi
       REDIS_URL: redis://redis:6379
       STORAGE_ENDPOINT: http://minio:9000
+      # Presigned upload URLs are handed to the browser, which cannot resolve the "minio" service hostname — sign them against the host-published port instead.
+      STORAGE_PUBLIC_ENDPOINT: http://localhost:9000
       API_URL: http://api:4000
     depends_on:
       mongodb:

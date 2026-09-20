@@ -1,4 +1,4 @@
-import { CreateBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { CreateBucketCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "@fixiyi/config";
 import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
@@ -21,15 +21,24 @@ export interface PresignedUpload {
 export class StorageService implements OnModuleInit {
   private readonly logger = new Logger(StorageService.name);
   private readonly client: S3Client;
+  /** Signs presigned URLs against a client-reachable host — see `STORAGE_PUBLIC_ENDPOINT`'s doc comment in env-schema.ts. Signing is a local HMAC computation, not a network call, so a second client purely for this is cheap. */
+  private readonly publicClient: S3Client;
   private readonly bucket: string;
 
   constructor(@Inject(ENV) env: Env) {
     this.bucket = env.STORAGE_BUCKET;
+    const credentials = { accessKeyId: env.STORAGE_ACCESS_KEY, secretAccessKey: env.STORAGE_SECRET };
     this.client = new S3Client({
       region: env.STORAGE_REGION,
       endpoint: env.STORAGE_ENDPOINT,
       forcePathStyle: true, // required for MinIO (virtual-hosted-style buckets don't work against it)
-      credentials: { accessKeyId: env.STORAGE_ACCESS_KEY, secretAccessKey: env.STORAGE_SECRET },
+      credentials,
+    });
+    this.publicClient = new S3Client({
+      region: env.STORAGE_REGION,
+      endpoint: env.STORAGE_PUBLIC_ENDPOINT ?? env.STORAGE_ENDPOINT,
+      forcePathStyle: true,
+      credentials,
     });
   }
 
@@ -47,18 +56,32 @@ export class StorageService implements OnModuleInit {
 
   async createPresignedUploadUrl(objectKey: string, contentType: string): Promise<PresignedUpload> {
     const command = new PutObjectCommand({ Bucket: this.bucket, Key: objectKey, ContentType: contentType });
-    const url = await getSignedUrl(this.client, command, { expiresIn: PRESIGNED_UPLOAD_TTL_SECONDS });
+    const url = await getSignedUrl(this.publicClient, command, { expiresIn: PRESIGNED_UPLOAD_TTL_SECONDS });
     return { url, expiresInSeconds: PRESIGNED_UPLOAD_TTL_SECONDS };
   }
 
   /** Real existence check against the object store — never trust the client's word that an upload happened. */
   async objectExists(objectKey: string): Promise<boolean> {
+    return (await this.headObject(objectKey)) !== null;
+  }
+
+  /** Real `HeadObject` — `null` if the object doesn't exist (never trust the client's declared size). */
+  async headObject(objectKey: string): Promise<{ contentLength: number } | null> {
     try {
-      await this.client.send(new HeadObjectCommand({ Bucket: this.bucket, Key: objectKey }));
-      return true;
+      const result = await this.client.send(new HeadObjectCommand({ Bucket: this.bucket, Key: objectKey }));
+      return { contentLength: result.ContentLength ?? 0 };
     } catch {
-      return false;
+      return null;
     }
+  }
+
+  /** Reads only the first `byteLength` bytes — enough for a magic-byte signature check without downloading the whole object. */
+  async readObjectPrefix(objectKey: string, byteLength: number): Promise<Buffer> {
+    const result = await this.client.send(
+      new GetObjectCommand({ Bucket: this.bucket, Key: objectKey, Range: `bytes=0-${(byteLength - 1).toString()}` }),
+    );
+    const bytes = await result.Body?.transformToByteArray();
+    return Buffer.from(bytes ?? []);
   }
 }
 

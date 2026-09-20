@@ -20,7 +20,7 @@ interface RequestOptions {
 /** Thin fetch wrapper — Bearer-token auth (not cookies), so this cross-origin call to apps/api needs no CORS-credentials setup. */
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = {};
-  // Fastify's JSON body parser rejects a request that declares Content-Type: application/json but sends no body (Phase 4 surfaced this on apps/web's bodyless POST /requests) — only set it when there's an actual body.
+  // Fastify's JSON body parser rejects a request that declares Content-Type: application/json but sends no body (e.g. POST /requests, which takes none) — only set it when there's an actual body.
   if (options.body !== undefined) {
     headers["Content-Type"] = "application/json";
   }
@@ -46,4 +46,12 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   }
 
   return data as T;
+}
+
+/** A presigned upload URL is not `apps/api` — it must be PUT with no Authorization/JSON headers attached. */
+export async function uploadFile(uploadUrl: string, file: File): Promise<void> {
+  const response = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
+  if (!response.ok) {
+    throw new ApiError(`Upload failed (${response.status.toString()})`, "UPLOAD_FAILED", response.status);
+  }
 }

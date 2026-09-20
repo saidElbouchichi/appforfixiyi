@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Fixiyi",
-  description: "Fixiyi — socle technique (Phase 1, Foundation)",
+  description: "Fixiyi — trouvez un professionnel de confiance pres de chez vous",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

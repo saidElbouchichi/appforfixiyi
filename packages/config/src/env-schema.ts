@@ -40,6 +40,8 @@ export const EnvSchema = z.object({
 
   STORAGE_PROVIDER: z.string().min(1).default("minio"),
   STORAGE_ENDPOINT: z.url(),
+  /** Only needed when STORAGE_ENDPOINT is an internal/service-network hostname (e.g. Docker's `http://minio:9000`) that an external browser can't resolve — presigned URLs must be signed against a client-reachable host instead. Defaults to STORAGE_ENDPOINT (the common case: both are already the same public host). */
+  STORAGE_PUBLIC_ENDPOINT: z.url().optional(),
   STORAGE_REGION: z.string().min(1).default("us-east-1"),
   STORAGE_BUCKET: z.string().min(1),
   STORAGE_ACCESS_KEY: z.string().min(1),

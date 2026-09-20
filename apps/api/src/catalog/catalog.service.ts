@@ -130,6 +130,12 @@ export class CatalogService {
     return this.model.countDocuments({ _id: { $in: ids }, level });
   }
 
+  /** Reusable by other modules (e.g. RequestService validating a service/interventionType/complexity parent chain) — `null`, not a throw, when absent. */
+  async getById(id: string): Promise<CatalogNode | null> {
+    const node = await this.model.findById(id);
+    return node ? toCatalogNode(node) : null;
+  }
+
   private async assertValidRequiredSkills(level: CatalogLevel, skillIds: string[]): Promise<void> {
     if (skillIds.length === 0) {
       return;

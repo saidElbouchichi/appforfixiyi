@@ -44,3 +44,15 @@ export const BaseEntitySchema = z.object({
   createdAt: IsoDateTimeSchema,
   updatedAt: IsoDateTimeSchema,
 });
+
+/**
+ * GeoJSON Point — shared primitive (moved here in Phase 4 from `provider.ts`,
+ * which had the only consumer at the time; `location.ts` is now a second
+ * real consumer for `ServiceRequest` locations).
+ */
+export const GeoPointSchema = z.object({
+  type: z.literal("Point"),
+  /** [longitude, latitude] — GeoJSON order, not [lat, lng]. */
+  coordinates: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
+});
+export type GeoPoint = z.infer<typeof GeoPointSchema>;

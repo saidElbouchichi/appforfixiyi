@@ -932,4 +932,189 @@ Journal des decisions techniques et produit.
   comme limitation, a completer si la Phase 12 (dashboard admin complet)
   ne les reprend pas entre-temps.
 - Date : 2026-09-20
+
+---
+
+## Decision 35 - `ServiceRequest` : machine a etats reduite a
+  `DRAFT -> REQUESTED` (+ `CANCELLED`/`EXPIRED`), `MATCHING` prepare mais
+  non exploite
+
+- Contexte : `docs/prompt/02_SPEC_ENGINEERING.md` propose un cycle complet
+  `DRAFT -> REQUESTED -> MATCHING -> RESPONDED -> NEGOTIATING ->
+  PRICE_AGREED -> CONFIRMED/CANCELLED/EXPIRED`. Aucune Offre (Phase 7) ni
+  Intervention (Phase 8) n'existe encore pour piloter les transitions a
+  partir de `RESPONDED`.
+- Options : A. Implementer le cycle complet des maintenant, avec des
+  transitions "factices" en attendant les Phases 7/8 / B. Implementer
+  uniquement `DRAFT -> REQUESTED` (soumission client) + `CANCELLED` (a
+  tout moment avant matching) ; garder `MATCHING` et les etats suivants
+  dans l'enum du contrat (pour que le contrat soit stable) mais sans
+  aucune transition Phase 4 qui y mene ; `EXPIRED` reste defini sans
+  declencheur automatique (necessiterait un job planifie, absent du
+  projet).
+- Choix : B (valide explicitement par l'utilisateur avant le "GO PHASE 4").
+- Raison : Implementer `RESPONDED`/`NEGOTIATING`/`PRICE_AGREED`/
+  `CONFIRMED` maintenant serait un faux workflow — rien ne peut
+  legitimement y transitionner sans Offre/Intervention reelles
+  (03_AGENT_PROTOCOL.md #2, regle absolue anti-mock). `MATCHING` reste
+  dans le contrat car matching sur `REQUESTED` sera la toute premiere
+  action de la Phase 5 — l'enum ne doit pas etre retouche a ce moment-la.
+- Trade-offs : Une demande `REQUESTED` reste dans cet etat indefiniment
+  jusqu'a la Phase 5 (pas de moteur de matching pour la faire progresser)
+  — attendu et documente, pas un bug.
+- Date : 2026-09-20
+
+---
+
+## Decision 36 - Localisation de la demande : position exacte stockee,
+  `approximateCoordinates()` prepare mais non branche
+
+- Contexte : `01_SPEC_PRODUCT.md` #17 : "Avant acceptation : localisation
+  approximative. Apres confirmation : adresse exacte accessible au
+  fournisseur autorise." Aucun fournisseur ne peut encore consulter une
+  demande (pas de matching/offres avant la Phase 5) : il n'existe donc
+  aucun lecteur non-proprietaire a proteger aujourd'hui.
+- Options : A. Stocker uniquement la position approximative jusqu'a la
+  Phase 5, puis migrer les documents vers la position exacte / B. Stocker
+  la position **exacte** des la Phase 4 (source de verite unique, jamais
+  a "upgrader" plus tard) et preparer `approximateCoordinates()` comme
+  fonction pure testee dans `@fixiyi/shared-utils`, prete a etre appelee
+  par le futur endpoint de lecture cote fournisseur (Phase 5), sans la
+  brancher nulle part pour l'instant — meme statut que
+  `ResourceOwnerGuard` (Decision 20).
+- Choix : B (valide explicitement par l'utilisateur avant le "GO PHASE
+  4").
+- Raison : Une migration de donnees (A) est un risque et un travail
+  reporte sans valeur ajoutee : la regle produit ne concerne QUE ce
+  qu'un lecteur externe voit, pas ce qui est stocke. `GeoPointSchema` a
+  ete deplace de `provider.ts` vers `common.ts` (primitive partagee, 2
+  consommateurs reels desormais : `ProviderProfile.serviceAreas` et
+  `RequestLocation`).
+- Trade-offs : Le contrat expose la position exacte a quiconque peut lire
+  la demande aujourd'hui (le client proprietaire uniquement,
+  `RequestService.requireOwned` verifie l'appartenance) — aucun risque
+  reel avant qu'un lecteur fournisseur n'existe.
+- Date : 2026-09-20
+
+---
+
+## Decision 37 - Pipeline media generique : `targetType`/`targetId`
+  (mirroring Decision 28), scan par signature binaire ecrit a la main,
+  metadonnees image via `image-size`
+
+- Contexte : `02_SPEC_ENGINEERING.md` #124 decrit le pipeline
+  `CreateUploadSession -> SignedUpload -> ObjectStorage -> Scan ->
+  Process -> Finalize`. Aucun service d'antivirus n'est provisionne dans
+  cet environnement.
+- Options (portee) : A. `Media` couple directement a `ServiceRequest`
+  (champ `requestId`) / B. `Media` generique avec `targetType`/`targetId`
+  (memes noms que `VerificationCase`, Decision 28), reutilisable par un
+  futur type de cible (ex. pieces jointes de chat, Phase 6) sans
+  breaking change de contrat.
+- Options (Scan) : A. Se fier au `Content-Type` declare par le client /
+  B. Verifier reellement les premiers octets de l'objet (magic bytes)
+  contre le `Content-Type` declare, ecrit a la main
+  (`media-signature.ts`) — signatures couvertes : JPEG/PNG/WEBP,
+  MP4/WEBM, MP3/WAV/OGG.
+- Options (Process, dimensions image) : A. Parser les en-tetes
+  JPEG/PNG/WEBP a la main (risque reel de bugs subtils, notamment le
+  scan de segments JPEG) / B. Dependance `image-size` (zero dependance
+  transitive, tres maintenue, usage a sens unique — memes criteres que
+  `libphonenumber-js`, Decision 19).
+- Choix : B partout.
+- Raison : `targetType`/`targetId` reutilise un vocabulaire et un pattern
+  deja valides (Decision 28) plutot que d'en inventer un nouveau. La
+  verification de signature binaire est reelle (detecte un fichier
+  deguise) meme si ce n'est pas un antivirus — limitation documentee. Un
+  parsing JPEG/PNG/WEBP a la main aurait ete disproportionne par rapport
+  au risque de bug, contrairement au hand-rolling des cookies/CSRF
+  (Decision 18) qui portait sur une logique petite et entierement sous
+  controle.
+- Trade-offs : Un rejet automatique (`REJECTED` + raison), pas une
+  decision humaine comme dans `VerificationCase` — nouveau, documente :
+  le pipeline Scan/Process est entierement mecanique, aucune revue
+  humaine n'est prevue par le produit pour un media de demande.
+  `MediaModule` n'a AUCUN controleur : ses routes HTTP vivent dans
+  `RequestController` (`POST /requests/:id/media`, `.../finalize`) pour
+  que la validation de propriete + d'editabilite de la demande reste
+  centralisee dans `RequestService`, avant tout appel au pipeline —
+  mime logique que pourquoi `VerificationController` possede ses propres
+  routes de document plutot qu'un `DocumentController` separe.
+- Date : 2026-09-20
+
+---
+
+## Decision 38 - `apps/web` : meme authentification Bearer-en-memoire
+  que `apps/admin` (Decision 33), et nouveau workspace `tests/browser`
+  (Playwright, installation reelle)
+
+- Contexte : `apps/web` (port 3000) et `apps/api` (port 4000) sont deux
+  origines differentes du point de vue du navigateur, exactement comme
+  `apps/admin` (Decision 33) — le cookie de la Phase 2 reste pense pour
+  un client meme-origine. L'utilisateur a explicitement demande un vrai
+  outil de navigateur pilote pour verifier `apps/web`.
+- Choix : Reutiliser tel quel le pattern Bearer + zustand
+  (`useAuthStore`) de Decision 33 pour `apps/web`. Installer
+  `@playwright/test` dans un nouveau workspace pnpm `tests/browser/`
+  (`tests/` etait reserve depuis la Phase 1, jamais rempli), avec
+  Chromium telecharge via `npx playwright install chromium`.
+- Raison : Le probleme cross-origin est identique a celui deja resolu et
+  verifie empiriquement en Phase 3 — aucune raison de reconfigurer CORS
+  differemment pour ce second client. `tests/browser` reste separe de
+  `apps/api`'s tests e2e (Vitest+Supertest, in-process) : il pilote un
+  vrai navigateur contre la vraie stack Docker (`apps/web`:3000,
+  `apps/api`:4000, Mongo/Redis/MinIO reels) — aucune couche reseau
+  simulee.
+- Trade-offs : Le scenario Playwright depend de l'etat reel de la stack
+  Docker (doit etre demarree et a jour) — documente dans
+  `tests/browser/playwright.config.ts` (`baseURL` configurable via
+  `WEB_URL`).
+- Date : 2026-09-20
+
+---
+
+## Decision 39 - Trois bugs reels trouves uniquement par le test
+  navigateur reel (Playwright), invisibles aux tests e2e in-process
+  d'`apps/api`
+
+- Contexte : Le scenario Playwright complet (login OTP -> creation de
+  demande -> upload media -> soumission) a echoue trois fois de suite
+  pour des raisons qu'aucun test e2e existant (Vitest+Supertest,
+  in-process, meme machine) n'aurait jamais pu detecter :
+  1. `apiFetch` (apps/web ET apps/admin) envoyait toujours
+     `Content-Type: application/json`, meme sans corps. Fastify rejette
+     une requete qui declare ce header sans corps
+     ("Body cannot be empty..."). `POST /requests` est le premier
+     endpoint du projet appele sans corps depuis un client — invisible
+     avant.
+  2. `app.enableCors()` (sans options) ne renvoyait que
+     `Access-Control-Allow-Methods: GET,HEAD,POST` en preflight reel,
+     bloquant tout PATCH/DELETE envoye par un VRAI navigateur (verifie
+     par `curl -X OPTIONS`). Latent depuis la Phase 3 (les boutons
+     Desactiver/Reactiver du back-office admin auraient echoue de la
+     meme maniere) — jamais detecte car aucun test precedent ne
+     declenche un vrai preflight CORS.
+  3. Les URLs presignees MinIO etaient signees avec
+     `STORAGE_ENDPOINT=http://minio:9000` (nom de service Docker
+     interne). Le conteneur `api` le resout ; le navigateur (sur la
+     machine hote) non — `net::ERR_NAME_NOT_RESOLVED`. Invisible car les
+     tests e2e d'`apps/api` tournent sur l'hote avec
+     `STORAGE_ENDPOINT=http://localhost:9000` pour les DEUX usages
+     (signature ET requete reelle).
+- Corrections : (1) `apiFetch` n'ajoute `Content-Type` que si un corps
+  est effectivement envoye (corrige dans `apps/web` ET `apps/admin`).
+  (2) `app.enableCors({ methods: [...] })` explicite plutot que la
+  detection automatique de Fastify/`@fastify/cors`, jugee non fiable.
+  (3) Nouvelle variable `STORAGE_PUBLIC_ENDPOINT` (optionnelle,
+  `env-schema.ts`) : `StorageService` garde un second `S3Client`
+  (signature uniquement, aucun appel reseau) pour les URLs presignees,
+  utilisant `STORAGE_PUBLIC_ENDPOINT ?? STORAGE_ENDPOINT`;
+  `docker-compose.dev.yml` la fixe a `http://localhost:9000` pour le
+  service `api`.
+- Raison de tout documenter ici : c'est exactement la justification
+  donnee par l'utilisateur pour exiger un test navigateur reel en Phase
+  4 plutot que de se contenter des tests e2e in-process — confirmee par
+  les faits.
+- Trade-offs : Aucun — corrections strictement additives/correctives,
+  aucun comportement existant valide par un test ne change.
 - Date : 2026-09-20

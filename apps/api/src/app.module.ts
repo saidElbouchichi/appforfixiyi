@@ -8,7 +8,9 @@ import { HealthModule } from "./health/health.module.js";
 import { DatabaseModule } from "./infrastructure/database/database.module.js";
 import { EnvModule } from "./infrastructure/env.module.js";
 import { RedisModule } from "./infrastructure/redis/redis.module.js";
+import { MediaModule } from "./media/media.module.js";
 import { ProviderModule } from "./providers/provider.module.js";
+import { RequestModule } from "./requests/request.module.js";
 import { VerificationModule } from "./verification/verification.module.js";
 
 @Module({})
@@ -26,6 +28,8 @@ export class AppModule {
         ProviderModule,
         CompanyModule,
         VerificationModule,
+        MediaModule,
+        RequestModule,
       ],
     };
   }
