@@ -274,3 +274,122 @@ Journal des decisions techniques et produit.
   `docs/phases/PHASE_1_PLAN.md` comme hors perimetre.
 - Trade-offs : Aucun - c'est exactement la sequence prevue par le scope.
 - Date : 2026-09-19
+
+---
+
+## Decision 13 - Remplacement de `eslint-plugin-react` par
+  `@eslint-react/eslint-plugin`
+
+- Contexte : Premiere vraie mise a l'epreuve du preset `react.js` de
+  `@fixiyi/eslint-config` (seuls consommateurs possibles : `apps/web`/
+  `apps/admin`, inexistants avant cette session - voir "avertissement
+  connu" de la fin de Phase 1 partie 1). Verification faite en lancant
+  reellement `pnpm --filter @fixiyi/web lint` : crash immediat, pas un
+  simple avertissement de peerDependency.
+  ```
+  TypeError: Error while loading rule 'react/display-name':
+  contextOrFilename.getFilename is not a function
+  ```
+- Cause racine identifiee : `eslint-plugin-react@7.37.5` (derniere
+  version publiee, verifie via `npm view ... versions`) appelle encore
+  `context.getFilename()` dans son utilitaire interne de detection de
+  version React (`lib/util/version.js`). Cette methode, deja depreciee
+  en ESLint 9 en faveur de `context.filename`, a ete retiree dans
+  ESLint 10. Le peerDependency declare de `eslint-plugin-react`
+  (`eslint: "^3 || ... || ^9.7"`) le confirme : le paquet ne supporte
+  officiellement rien au-dela d'ESLint 9.7, ni en stable ni en tag
+  `next` (verifie : `next` = `7.8.0-rc.0`, une version ANTERIEURE et
+  toujours sans support ESLint 10).
+- Options : A. Downgrade global d'ESLint a la 9.x pour tout le monorepo
+  (regression sur `packages/*`/`apps/api`/`apps/worker`, deja verifies
+  fonctionnels sur ESLint 10) / B. Neutraliser uniquement les regles qui
+  crashent (`react/display-name` et toute regle basee sur
+  `Components.componentRule`/`usedPropTypes`, detection fragile et
+  susceptible de s'etendre a d'autres regles du meme utilitaire) / C.
+  Remplacer `eslint-plugin-react` par `@eslint-react/eslint-plugin`
+  (alias npm `eslint-plugin-react-x`), plugin TypeScript-first concu pour
+  flat config, peerDependency `eslint: "*"` (verifie via `npm view`)
+- Choix : C.
+- Raison : Seule option qui resout la cause racine (pas de contournement
+  fragile) sans regresser sur les 9 packages/apps deja verifies sur
+  ESLint 10. `@eslint-react/eslint-plugin` fournit un preset
+  `recommended-type-checked` (65+1 regles) coherent avec le linting
+  type-aware deja en place partout ailleurs (`strictTypeChecked` dans
+  `base.js`). Verifie reellement : `pnpm --filter @fixiyi/web lint` -> 0
+  erreur, 0 avertissement apres le changement.
+- Trade-offs : `@eslint-react/eslint-plugin` reimplemente ses propres
+  regles de hooks (`@eslint-react/rules-of-hooks`,
+  `@eslint-react/exhaustive-deps`, `@eslint-react/purity`,
+  `@eslint-react/set-state-in-effect`, `@eslint-react/set-state-in-render`,
+  `@eslint-react/static-components`, `@eslint-react/unsupported-syntax`,
+  `@eslint-react/use-memo`, `@eslint-react/error-boundaries`) qui
+  font doublon avec celles de `eslint-plugin-react-hooks@7.1.1` (deja en
+  place, verifie compatible ESLint 10 via `pnpm peers check` avant meme
+  ce changement). Ces 9 regles dupliquees sont explicitement desactivees
+  dans `react.js` pour garder `eslint-plugin-react-hooks` (le plugin
+  officiel maintenu par l'equipe React) comme unique source de verite sur
+  les hooks - `@eslint-react/use-state` (non duplique) reste actif. A
+  surveiller si `eslint-plugin-react` publie un jour un correctif ESLint
+  10 (peu probable, `next` tag est en retard sur `latest`).
+- Date : 2026-09-20
+
+---
+
+## Decision 14 - Design tokens <-> Tailwind v4 : pont par variables CSS +
+  valeurs arbitraires (pas de mapping `@theme inline` complet en Phase 1)
+
+- Contexte : `apps/web`/`apps/admin` doivent consommer
+  `@fixiyi/design-tokens/css`. Tailwind v4 propose `@theme inline { --color-x:
+  var(--autre-var); }` pour generer des utilitaires (`bg-x`, `text-x`, ...)
+  a partir de variables CSS existantes.
+- Options : A. Mapper l'integralite des tokens (couleurs primary 50-900,
+  neutral 0-1000, semantiques, radius, font, motion) dans un bloc
+  `@theme inline` pour generer des utilitaires Tailwind nommes / B. Importer
+  simplement `@fixiyi/design-tokens/css` (variables `--fixiyi-*` disponibles
+  globalement) et les consommer directement via la syntaxe de valeur
+  arbitraire Tailwind (`bg-[var(--fixiyi-color-primary-100)]`) ou en CSS
+  brut, sans creer de nouvel espace de nommage Tailwind
+- Choix : B.
+- Raison : `apps/web` n'a encore aucun ecran/composant reel (page de statut
+  uniquement) - mapper ~40 tokens vers un theme Tailwind complet des
+  maintenant serait de l'infrastructure sans consommateur reel (meme
+  logique que Decision 12). L'import seul suffit a prouver le cablage
+  (verifie : build reel + grep du CSS genere, `--fixiyi-color-primary-100:
+  #d3ebea` et `background-color:var(--fixiyi-color-primary-100)` bien
+  presents dans `.next/static/chunks/*.css`).
+- Trade-offs : Pas d'utilitaires Tailwind courts (`bg-primary-500`) tant que
+  le mapping `@theme inline` n'est pas fait - a reevaluer dans une phase
+  ulterieure quand de vrais composants/ecrans consommeront reellement les
+  tokens de couleur/espacement en volume.
+- Date : 2026-09-20
+
+---
+
+## Decision 15 - Telemetrie Next.js ET Turborepo desactivee (Docker/CI)
+
+- Contexte : `next build`/`next dev`/`next start` collectent par defaut une
+  telemetrie anonyme envoyee a Vercel. Constate egalement pendant cette
+  session, en construisant les images Docker : `turbo run build` affiche
+  le meme type d'avertissement ("Turborepo now collects completely
+  anonymous telemetry..."). Ni l'un ni l'autre ne peut etre desactive
+  depuis un fichier de config versionne (`next.config.ts` n'a pas ce
+  pouvoir) - seule une variable d'environnement (`NEXT_TELEMETRY_DISABLED`,
+  `TURBO_TELEMETRY_DISABLED`) ou un flag machine persistant le permet.
+  Verifie reellement : `TURBO_TELEMETRY_DISABLED=1 pnpm exec turbo
+  telemetry status` -> `Status: Disabled`. Meme categorie de probleme que
+  le beacon `@scarf/scarf` de la Decision 11 : transmission a un service
+  externe sans necessite fonctionnelle pour l'app.
+- Options : A. Laisser actives (defaut) / B. `NEXT_TELEMETRY_DISABLED=1` et
+  `TURBO_TELEMETRY_DISABLED=1` dans les Dockerfiles (`ENV`, stage `base`)
+  et dans l'environnement CI (`.github/workflows/ci.yml`) + note dans
+  `README.md` pour le developpement local
+- Choix : B.
+- Raison : Coherent avec la Decision 11 (03_AGENT_PROTOCOL.md - pas de
+  donnees vers un service externe sans necessite). Une variable
+  d'environnement (Docker/CI) + une ligne de doc suffisent, pas de
+  configuration machine persistante requise pour que ce soit reproductible
+  partout ou le build tourne (local, CI, image Docker).
+- Trade-offs : Un developpeur local qui ne suit pas la note du README
+  garde les deux telemetries actives sur sa machine (pas bloquant, juste
+  documente).
+- Date : 2026-09-20

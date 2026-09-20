@@ -2,23 +2,27 @@
 
 ## Derniere mise a jour
 
-2026-09-19 23:29 UTC - PAUSE (limite de tokens imminente, arret volontaire
-en milieu de Phase 1 pour sauvegarder l'etat proprement)
+2026-09-20 - Phase 1 TERMINEE (reprise apres "CONTINUE PHASE 1", suite a
+la pause du 2026-09-19 23:29 UTC)
 
 ## Phase actuelle
 
-Phase 1 - Foundation - **PAUSE, ~55% completee**
+Phase 1 - Foundation - **TERMINEE**. STOP, en attente de "GO PHASE 2".
 
 ## Phases terminees
 
 - Phase 0 - Audit (2026-09-19) - voir `docs/phases/PHASE_0_REPORT.md`
+- Phase 1 - Foundation (2026-09-19 / 2026-09-20) - voir
+  `docs/phases/PHASE_1_REPORT.md`
 
-## Etat detaille de la phase actuelle (Phase 1 - Foundation)
+## Etat detaille de la phase actuelle (Phase 1 - Foundation - TERMINEE)
 
-Tous les etats ci-dessous sont **reellement verifies** dans cette session
-(commandes lancees, pas suppositions). Environnement de dev toujours actif :
-MongoDB/Redis/MinIO tournent dans Docker (`docker-compose.yml`, inchange
-depuis Phase 0).
+Tous les etats ci-dessous sont **reellement verifies**, sur les deux
+sessions qui composent cette phase (commandes lancees, pas suppositions).
+Environnement de dev toujours actif : MongoDB/Redis/MinIO tournent dans
+Docker depuis la Phase 0 ; `api`/`worker`/`web`/`admin` tournent
+maintenant aussi dans Docker (`docker-compose.dev.yml`, nouveau dans
+cette session) en plus de leurs smoke tests manuels hors Docker.
 
 ### Fichiers racine du monorepo — TERMINE
 
@@ -90,23 +94,51 @@ voir Decision 7), `DatabaseModule` (Mongoose), `RedisModule` (ioredis).
 Contenu : queue de diagnostic `system`/job `ping` (voir Decision 9) —
 PAS une queue metier, documentee comme telle dans le code.
 
-### apps/web (Next.js) — **PAS COMMENCE**
+### apps/web (Next.js App Router) — TERMINE, tous les gates verts + smoke test reel + Docker sain
 
-Aucun fichier cree. Prochaine etape de la Phase 1.
+- `pnpm --filter @fixiyi/web lint` -> **0 erreur, 0 avertissement**
+  (apres remplacement de `eslint-plugin-react`, casse sous ESLint 10 -
+  voir Decision 13 et Bug 4 de `PHASE_1_REPORT.md`)
+- `pnpm --filter @fixiyi/web typecheck` -> **0 erreur**
+- `pnpm --filter @fixiyi/web build` -> **succes** (`next build`,
+  Turbopack, route `/` statique)
+- **Smoke test manuel reel** (`next start`) : `GET /` -> 200, contenu
+  HTML verifie (texte de statut present, CSS des design tokens present
+  dans le bundle compile)
+- **Verifie dans Docker** : `docker compose ps` -> `fixiyi-web` `healthy`
+  (HEALTHCHECK reel sur `/`)
 
-### apps/admin (Next.js) — **PAS COMMENCE**
+Contenu : App Router minimal, Tailwind CSS v4 CSS-first (`@theme`, pas de
+`tailwind.config.js`) important `@fixiyi/design-tokens/css`,
+`Providers` (TanStack Query, `QueryClientProvider`), page de statut
+honnete (pas de fonctionnalite produit simulee). `zustand`/
+`react-hook-form`/`zod` installes (stack imposee), pas encore utilises
+(aucun ecran metier en Phase 1).
 
-Aucun fichier cree. Prochaine etape de la Phase 1.
+### apps/admin (Next.js App Router) — TERMINE, meme niveau que apps/web
 
-### Infrastructure / CI — **PAS COMMENCE**
+Memes gates verts, meme smoke test reel, meme verification Docker
+(`fixiyi-admin` `healthy`). Contenu identique a `apps/web` a l'exception
+du titre/texte de statut.
 
-- Dockerfile par app (api/worker/web/admin) : PAS crees.
-- `docker-compose.dev.yml` (services applicatifs) : PAS cree.
-  `docker-compose.yml` existant (infra mongo/redis/minio) inchange et
-  toujours fonctionnel.
-- `.github/workflows/ci.yml` : PAS cree.
-- `README.md` : PAS encore mis a jour avec les instructions reelles
-  (toujours le contenu de la Phase 0).
+### Infrastructure / CI — TERMINE
+
+- Dockerfile par app (`apps/{api,worker,web,admin}/Dockerfile`) : crees,
+  pattern `turbo prune --docker`, utilisateur non-root, HEALTHCHECK reel
+  sur `api`/`web`/`admin` (pas sur `worker`, pas de surface HTTP).
+- `docker-compose.dev.yml` : cree, complete `docker-compose.yml`
+  (mongodb/redis/minio inchange). **Verifie reellement** :
+  `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`
+  -> 7/7 conteneurs up, 4/4 avec HEALTHCHECK `healthy`
+  (mongodb/redis/api/web/admin), `worker` `Up` sans HEALTHCHECK.
+  `curl http://localhost:4000/health` reussi via le reseau Docker reel.
+- `.github/workflows/ci.yml` : cree (install -> lint -> typecheck -> test
+  -> build, services GitHub Actions `mongo:7`/`redis:7-alpine`,
+  telemetrie Next.js/Turborepo desactivee). **Pas encore exerce par une
+  execution GitHub Actions reelle** (aucun push vers un remote GitHub
+  depuis cette session).
+- `README.md` : mis a jour avec les instructions reelles (install, dev,
+  tests, Docker complet, note telemetrie).
 
 ### Environnement local de cette session (non versionne)
 
@@ -200,7 +232,45 @@ Aucun fichier cree. Prochaine etape de la Phase 1.
   `src/system/ping.processor.ts`
 - `test/setup-env.ts`, `test/ping.e2e.test.ts`
 
-## Liste COMPLETE des fichiers modifies dans cette session
+## Liste COMPLETE des fichiers crees dans la session suivante (apres
+"CONTINUE PHASE 1", fin de la Phase 1)
+
+**apps/web/**
+- `package.json`, `tsconfig.json`, `eslint.config.mjs`, `next.config.ts`,
+  `postcss.config.mjs`
+- `src/app/globals.css`, `src/app/providers.tsx`, `src/app/layout.tsx`,
+  `src/app/page.tsx`
+- `Dockerfile`
+
+**apps/admin/**
+- `package.json`, `tsconfig.json`, `eslint.config.mjs`, `next.config.ts`,
+  `postcss.config.mjs`
+- `src/app/globals.css`, `src/app/providers.tsx`, `src/app/layout.tsx`,
+  `src/app/page.tsx`
+- `Dockerfile`
+
+**apps/api/**, **apps/worker/**
+- `Dockerfile` (nouveau pour chacun)
+
+**Racine**
+- `docker-compose.dev.yml`
+- `.dockerignore`
+- `.github/workflows/ci.yml`
+
+## Liste COMPLETE des fichiers modifies dans cette session suivante
+
+- `packages/eslint-config/package.json` (retrait de `eslint-plugin-react`,
+  ajout de `@eslint-react/eslint-plugin` — Decision 13)
+- `packages/eslint-config/react.js` (reecrit pour `@eslint-react/eslint-plugin`)
+- `.gitignore` (ajout de `next-env.d.ts`)
+- `README.md` (instructions reelles : install, dev, tests, Docker complet,
+  telemetrie)
+- `docs/DECISIONS.md` (Decisions 13 a 15 ajoutees)
+- `docs/PROGRESS.md`, `docs/phases/PHASE_1_REPORT.md` (ce fichier et le
+  rapport de phase, statut TERMINEE)
+
+## Liste COMPLETE des fichiers modifies dans la session precedente (avant
+la pause)
 
 - `.env.test.example` (ajout de `APP_URL`, `API_URL`, `STORAGE_ENDPOINT`,
   `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY`, `STORAGE_SECRET` — le fichier
@@ -220,56 +290,30 @@ dans le rapport de phase), `apps/api/src/app.module.ts`,
 
 ## Derniere action effectuee
 
-Smoke test manuel reussi de `apps/worker` (`node dist/main.js` ->
-connexion Redis confirmee, log `[worker] ready`), processus arrete
-proprement. Immediatement apres, reception de la demande utilisateur de
-sauvegarder l'etat de session par precaution (limite de tokens) : cette
-sauvegarde (PROGRESS.md, DECISIONS.md, PHASE_1_REPORT.md) est l'action en
-cours.
+Verification complete de la stack Docker (7 services) apres correction du
+Bug 4 (permissions) : `docker compose -f docker-compose.yml -f
+docker-compose.dev.yml up -d` -> tous les conteneurs sains, `curl
+http://localhost:4000/health` et contenu HTML de `apps/web`/`apps/admin`
+verifies reellement via le reseau Docker. Puis finalisation de
+`docs/phases/PHASE_1_REPORT.md` et de ce fichier (statut TERMINEE).
 
 ## Prochaine action exacte
 
-Reprendre la Phase 1 exactement a l'etape **"apps/web (Next.js
-minimal)"** du plan (`docs/phases/PHASE_1_PLAN.md`, sequence
-d'implementation, etape 7) :
-
-1. Creer `apps/web/package.json` (Next.js App Router, React, TypeScript,
-   Tailwind CSS v4 — `tailwindcss` + `@tailwindcss/postcss`, PAS
-   `tailwind.config.js` classique, config CSS-first via `@theme`),
-   `@tanstack/react-query`, `zustand`, `react-hook-form`, `zod`.
-2. Wirer `@fixiyi/design-tokens/css` (deja pret, exporte via
-   `"./css": "./src/tokens.css"`) dans le CSS global Tailwind.
-3. Page d'accueil minimale et honnete (pas de "Decrire mon probleme
-   avec l'IA" / "Choisir un service" factices - ce sont des
-   fonctionnalites de Phase 4/9, hors perimetre Foundation). Juste une
-   page de statut prouvant que le build/dev fonctionne.
-4. Repeter pour `apps/admin` (meme niveau minimal).
-5. `pnpm lint && pnpm typecheck && pnpm test && pnpm build` sur
-   l'ensemble du monorepo (les 10 packages actuels + web + admin).
-6. Dockerfiles (`apps/api/Dockerfile`, `apps/worker/Dockerfile`,
-   `apps/web/Dockerfile`, `apps/admin/Dockerfile`) + `docker-compose.dev.yml`
-   completant l'infra existante ; verifier `docker compose build` (et
-   idealement `up -d` + healthcheck).
-7. `.github/workflows/ci.yml` (install -> lint -> typecheck -> test ->
-   build).
-8. Mettre a jour `README.md` avec les instructions d'installation reelles.
-9. Finaliser `docs/phases/PHASE_1_REPORT.md` (deja un premier jet complet
-   ecrit dans cette session de sauvegarde — a completer avec web/admin/
-   Docker/CI une fois faits).
-10. `docs/PROGRESS.md` -> statut Phase 1 TERMINEE.
-11. STOP, attendre `GO PHASE 2`.
+**Aucune** — la Phase 1 est terminee. STOP, attendre `GO PHASE 2` de
+l'utilisateur avant toute nouvelle implementation.
 
 ## Blocages
 
-Aucun blocage technique. Interruption volontaire pour raison de gestion
-de contexte (limite de tokens), pas un probleme de fond. L'environnement
-Docker (MongoDB/Redis/MinIO) tourne toujours et est sain.
+Aucun. Phase 1 terminee sans blocage technique residuel. L'environnement
+complet (MongoDB/Redis/MinIO/api/worker/web/admin) tourne dans Docker et
+est verifie sain.
 
 ## Validation humaine requise
 
 - [x] pour demarrer Phase 0 (recue avant Phase 0)
 - [x] pour demarrer Phase 1 ("GO PHASE 1" recu)
-- [ ] pour demarrer Phase 2 (en attente — Phase 1 pas encore terminee)
+- [ ] pour demarrer Phase 2 (en attente — Phase 1 terminee, "GO PHASE 2"
+  pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
 
@@ -278,21 +322,15 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (Decisions 4 a 12 = choix techniques Phase 1)
+2. docs/DECISIONS.md (Decisions 4 a 15 = choix techniques Phase 1)
 3. docs/phases/PHASE_1_REPORT.md
-4. docs/phases/PHASE_1_PLAN.md
 
-Contexte : la Phase 1 (Foundation) est en pause a ~55%. Tout ce qui est
-"TERMINE" ci-dessus (packages/*, apps/api, apps/worker) est reellement
-teste et fonctionnel (lint/typecheck/test/build verts + smoke tests
-manuels reussis) - NE PAS refaire ce travail.
+Contexte : la Phase 1 (Foundation) est TERMINEE (packages/*, apps/api,
+apps/worker, apps/web, apps/admin, Docker, CI, README - tout reellement
+teste et fonctionnel, voir PHASE_1_REPORT.md). N'attends que "GO PHASE 2"
+de l'utilisateur ; si ce prompt est relance sans ce signal explicite, ne
+commence PAS la Phase 2 - redemande confirmation.
 
-Reprends exactement a "Prochaine action exacte" ci-dessus : creation de
-apps/web et apps/admin (Next.js minimal), puis Dockerfiles +
-docker-compose.dev.yml, puis CI, puis README, puis finalisation du
-rapport de Phase 1 et STOP en attendant GO PHASE 2.
-
-Verifie d'abord que Docker (mongodb/redis/minio) tourne toujours
-(`docker compose ps` depuis la racine) avant de lancer des tests
-d'integration.
+Verifie d'abord que Docker tourne toujours (`docker compose -f
+docker-compose.yml -f docker-compose.dev.yml ps` depuis la racine).
 ```

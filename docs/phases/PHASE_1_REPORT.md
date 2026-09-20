@@ -2,15 +2,16 @@
 
 ## Statut
 
-**PAUSE (~55% completee)** — arret volontaire pour limite de tokens, pas
-un blocage technique. Tout ce qui est marque TERMINE ci-dessous est
-reellement construit, teste (build gates + smoke tests manuels), et
-fonctionnel.
+**TERMINEE** — tous les objectifs du perimetre sont construits, testes
+(build gates + smoke tests manuels + verification Docker reelle), et
+fonctionnels.
 
-## Date debut / pause
+## Date debut / fin
 
 Debut : 2026-09-19 (immediatement apres reception de "GO PHASE 1")
-Pause : 2026-09-19 23:29 UTC
+Pause intermediaire : 2026-09-19 23:29 UTC (~55%, limite de tokens, voir
+historique de ce fichier / `docs/PROGRESS.md`)
+Reprise et fin : 2026-09-20 (apres reception de "CONTINUE PHASE 1")
 
 ## Objectifs (statut par objectif)
 
@@ -28,14 +29,19 @@ Pause : 2026-09-19 23:29 UTC
   teste)
 - ✅ `apps/api` (NestJS + Fastify, Mongo + Redis reels, health check reel,
   OpenAPI, pipe de validation Zod, filtre Problem Details) — build gates
-  verts + smoke test manuel reussi
+  verts + smoke test manuel reussi + verifie sain dans Docker
 - ✅ `apps/worker` (BullMQ + Redis reels, arret propre) — build gates
-  verts + smoke test manuel reussi
-- ⏳ `apps/web` (Next.js minimal) — **PAS COMMENCE**
-- ⏳ `apps/admin` (Next.js minimal) — **PAS COMMENCE**
-- ⏳ Dockerfile par app + `docker-compose.dev.yml` — **PAS COMMENCE**
-- ⏳ `.github/workflows/ci.yml` — **PAS COMMENCE**
-- ⏳ Mise a jour de `README.md` — **PAS COMMENCE**
+  verts + smoke test manuel reussi + verifie sain dans Docker
+- ✅ `apps/web` (Next.js App Router, Tailwind v4 CSS-first, design tokens
+  cables, TanStack Query/Zustand/React Hook Form/Zod installes) — build
+  gates verts + smoke test manuel reussi + verifie sain dans Docker
+- ✅ `apps/admin` (meme niveau que `apps/web`) — build gates verts +
+  smoke test manuel reussi + verifie sain dans Docker
+- ✅ Dockerfile par app + `docker-compose.dev.yml` — les 4 images
+  construites, la stack complete (7 services) demarree et verifiee saine
+- ✅ `.github/workflows/ci.yml` — install -> lint -> typecheck -> test ->
+  build, avec MongoDB/Redis en services CI
+- ✅ Mise a jour de `README.md`
 
 ## Ce qui a ete fait
 
@@ -113,13 +119,80 @@ supply-chain de pnpm (`allowBuilds`, voir Decision 11).
   un vrai `Queue.add()` + `QueueEvents` + attente de completion reelle
   via Redis.
 
+### 5. `apps/web` et `apps/admin` — Next.js (App Router)
+
+- Next.js 16 (App Router) + React 19 + TypeScript, Tailwind CSS v4 en
+  config CSS-first (`@import "tailwindcss";` + `@import
+  "@fixiyi/design-tokens/css";` dans `globals.css`, PAS de
+  `tailwind.config.js`). Verifie reellement : les variables
+  `--fixiyi-color-*` et les utilitaires Tailwind a valeur arbitraire
+  (`bg-[var(--fixiyi-color-primary-100)]`) sont bien presents dans le CSS
+  compile (`grep` sur `.next/static/chunks/*.css` apres build).
+- `Providers` (composant client) : `QueryClientProvider` (TanStack Query)
+  reellement cable dans `layout.tsx` — pas de requete reelle encore
+  (aucun ecran metier), mais l'infrastructure fonctionne (meme logique
+  que `ZodValidationPipe` en Decision 6 : piece prete, pas encore
+  exercee par une fonctionnalite reelle).
+- `zustand`, `react-hook-form` installes (requis par le plan technique
+  pour les phases suivantes) mais non utilises encore : aucun ecran/etat
+  metier n'existe en Phase 1 pour les exercer honnetement.
+- Page d'accueil minimale et honnete : statut de build fonctionnel
+  uniquement, aucun bouton mort ni fonctionnalite simulee.
+- `eslint-plugin-react` casse reellement sous ESLint 10 (voir Decision 13
+  et Bug 4) — remplace par `@eslint-react/eslint-plugin`.
+- Smoke test manuel reel (`next build` + `next start`) pour les deux
+  apps : `GET /` -> 200, contenu HTML verifie (texte de statut present).
+
+### 6. Docker — Dockerfile par app + `docker-compose.dev.yml`
+
+- Pattern `turbo prune --docker` (documente officiellement par
+  Turborepo pour les monorepos pnpm) : chaque `Dockerfile`
+  (`apps/{api,worker,web,admin}/Dockerfile`) prune le monorepo au
+  strict necessaire pour son app, installe le lockfile pruned, build,
+  puis copie le resultat dans une image finale minimale tournant en
+  utilisateur non-root.
+- `docker-compose.dev.yml` complete `docker-compose.yml` (infra) avec
+  les 4 apps ; `api`/`worker` recoivent les URLs Mongo/Redis/MinIO
+  reecrites vers les noms de service Docker (`mongodb`, `redis`,
+  `minio`) au lieu de `localhost` (`.env` local reutilise via `env_file`
+  + `environment` pour les surcharges reseau).
+- **Verifie reellement** : `docker compose -f docker-compose.yml -f
+  docker-compose.dev.yml up -d` demarre les 7 services ; `docker compose
+  ps` confirme `api`/`web`/`admin` `healthy` (HEALTHCHECK reel sur
+  `/health` et `/`) et `worker` `Up` (pas de HEALTHCHECK - pas de
+  surface HTTP, voir Decision 9) ; `curl http://localhost:4000/health`
+  retourne `{"status":"ok","checks":{"mongo":{"status":"up"},"redis":{"status":"up"}}}`
+  en passant reellement par le reseau Docker (pas `localhost`).
+- Voir Bug 4 ci-dessous pour un probleme reel de permissions decouvert
+  et corrige pendant cette verification.
+
+### 7. CI — `.github/workflows/ci.yml`
+
+- Pipeline `install -> lint -> typecheck -> test -> build` (turbo, sur
+  tout le monorepo), avec des services GitHub Actions `mongo:7` et
+  `redis:7-alpine` (memes versions que `docker-compose.yml`) pour que
+  les tests d'integration reels d'`apps/api`/`apps/worker` fonctionnent
+  en CI exactement comme en local.
+- Telemetrie Next.js/Turborepo desactivee (Decision 15).
+- Pas encore exerce par une execution GitHub Actions reelle (aucun push
+  vers le remote depuis cette session) - voir Limitations.
+
+### 8. `README.md`
+
+Instructions d'installation/dev/test/Docker reelles (plus le contenu de
+fin de Phase 0), incluant la note telemetrie (Decision 15) et le tableau
+des services de developpement mis a jour (API, web, admin).
+
 ## Fichiers crees / modifies
 
 Liste complete et exhaustive dans `docs/PROGRESS.md` (sections "Liste
-COMPLETE des fichiers crees" et "... modifies"). Resume : **~100 fichiers
-crees**, 1 fichier modifie (`.env.test.example`, complete pour matcher
-`EnvSchema`), plus les 2 fichiers de suivi (`docs/PROGRESS.md`,
-`docs/DECISIONS.md`).
+COMPLETE des fichiers crees" et "... modifies"). Resume : **~120 fichiers
+crees** (packages/apps de la premiere moitie de phase + `apps/web`,
+`apps/admin`, 4 `Dockerfile`, `docker-compose.dev.yml`,
+`.github/workflows/ci.yml`, `.dockerignore`), fichiers modifies
+(`.env.test.example`, `.gitignore`, `README.md`,
+`packages/eslint-config/{package.json,react.js}`), plus les fichiers de
+suivi (`docs/PROGRESS.md`, `docs/DECISIONS.md`).
 
 ## Tests
 
@@ -134,10 +207,15 @@ crees**, 1 fichier modifie (`.env.test.example`, complete pour matcher
 | **Integration reelle** (Redis Docker, BullMQ bout-en-bout) | `apps/worker` | 2 tests OK |
 | **Smoke test manuel** (process reel demarre) | `apps/api` | `GET /health` -> 200 ok, `GET /api/v1/health` -> 404, `GET /api/docs` -> 200, erreur 404 -> Problem Details correct |
 | **Smoke test manuel** (process reel demarre) | `apps/worker` | demarre, log `[worker] ready`, connexion Redis confirmee |
+| Build gates (lint/typecheck/build) | `apps/web`, `apps/admin` | 0 erreur/0 warning ; pas de tests unitaires (page de statut sans logique metier a tester - voir Decision 14) |
+| **Smoke test manuel** (process reel demarre) | `apps/web`, `apps/admin` | `next start` -> `GET /` 200, contenu HTML verifie |
+| **Verification Docker reelle** (7 conteneurs, reseau Docker reel) | stack complete | `docker compose ps` -> mongodb/redis (healthy, deja verifies), api/web/admin (healthy, HEALTHCHECK reel), worker (Up, pas de HEALTHCHECK) ; `curl :4000/health` via le reseau Docker -> 200, mongo+redis up |
 
-**Total automatise : 63 tests, tous passent.** Build (`tsc`/`nest
-build`/`tsup`) et lint (ESLint, 0 erreur/0 warning) verts sur les 9
-packages/apps existants.
+**Total automatise : 63 tests, tous passent** (inchange - `apps/web`/
+`apps/admin` n'ajoutent pas de tests unitaires, voir Decision 14).
+`pnpm lint && pnpm typecheck && pnpm test && pnpm build` -> **13/13,
+13/13, 11/11, 9/9 taches Turbo reussies** sur les 12 packages/apps du
+monorepo (0 erreur, 0 warning).
 
 ## Commandes lancees et resultats (extraits verifies)
 
@@ -187,11 +265,37 @@ ESM dist\main.js 1.66 KB
 
 $ node dist/main.js
 [worker] ready (env=development)
+
+$ pnpm --filter @fixiyi/web lint && pnpm --filter @fixiyi/web typecheck && pnpm --filter @fixiyi/web build
+(0 erreur, 0 warning ; build Next.js reussi, route / statique)
+
+$ docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+ Container fixiyi-mongodb  Healthy
+ Container fixiyi-redis  Healthy
+ Container fixiyi-api  Started
+ Container fixiyi-worker  Started
+ Container fixiyi-web  Started
+ Container fixiyi-admin  Started
+
+$ docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
+fixiyi-admin    Up ... (healthy)
+fixiyi-api      Up ... (healthy)
+fixiyi-mongodb  Up ... (healthy)
+fixiyi-redis    Up ... (healthy)
+fixiyi-web      Up ... (healthy)
+fixiyi-worker   Up ...
+fixiyi-minio    Up ...
+
+$ curl http://localhost:4000/health
+{"status":"ok","checks":{"mongo":{"status":"up"},"redis":{"status":"up"}}}
+
+$ docker logs fixiyi-worker --tail 5
+[worker] ready (env=development)
 ```
 
 ## Decisions prises
 
-Voir `docs/DECISIONS.md`, Decisions 4 a 12 :
+Voir `docs/DECISIONS.md`, Decisions 4 a 15 :
 
 4. TypeScript epingle en 6.0.3 (pas 7.x — incompatibilite peer avec
    `typescript-eslint`).
@@ -206,6 +310,11 @@ Voir `docs/DECISIONS.md`, Decisions 4 a 12 :
 11. `allowBuilds` pnpm : deny `@scarf/scarf` (telemetrie pure), allow le
     reste (fonctionnels et verifies).
 12. `apps/mobile` non cree en Phase 1 (prevu Phase 13).
+13. Remplacement de `eslint-plugin-react` (crash reel sous ESLint 10) par
+    `@eslint-react/eslint-plugin`.
+14. Design tokens <-> Tailwind v4 : pont par variables CSS + valeurs
+    arbitraires, pas de mapping `@theme inline` complet en Phase 1.
+15. Telemetrie Next.js ET Turborepo desactivee (Docker/CI).
 
 ## Problemes rencontres et resolutions
 
@@ -270,17 +379,58 @@ temporaires (cas nominal, sous-dossier profond, aucun `.env` nulle part,
 test final : `"injected env (36) from ..\..\.env"` puis demarrage
 reussi.
 
+### Bug 4 — Permissions Docker : le cache pnpm par utilisateur de
+  corepack casse au demarrage du conteneur
+
+**Symptome** : les 4 conteneurs (`api`, `worker`, `web`, `admin`)
+demarraient puis bouclaient en erreur au lieu de rester up :
+
+```
+Error: ERR_PNPM_PACKAGE_MANAGER_REMOVE_MODULES_DIR
+  × installing dependencies
+  ╰─▶ Failed to remove /app/node_modules/.pnpm from the modules directory:
+      Permission denied (os error 13)
+```
+
+Decouvert en verifiant reellement `docker compose up -d` + `docker logs`
+(pas suppose) - `docker compose ps` montrait les 4 conteneurs bloques en
+`health: starting` puis en boucle de redemarrage, `curl` sur `/health`
+echouait avec une connexion vide.
+
+**Cause racine** : le `Dockerfile` activait pnpm via `corepack enable &&
+corepack prepare pnpm@12.4.2 --activate`, execute par `root` dans les
+stages de build. Le cache de corepack (le binaire pnpm telecharge) vit
+sous `$HOME`, qui differe pour l'utilisateur non-root `fixiyi` cree pour
+le stage `runner`. Au premier lancement du conteneur, corepack ne
+retrouve pas son cache sous le nouveau `$HOME`, retelecharge pnpm, puis
+declenche une verification de coherence qui tente de vider
+`/app/node_modules/.pnpm` - un dossier appartenant a `root` (copie
+`COPY --from=installer /app .` executee avant le `USER fixiyi`, donc en
+tant que `root`) - d'ou le refus de permission en tant qu'utilisateur
+non-root.
+
+**Resolution** : deux changements independants et complementaires,
+verifies ensemble en reconstruisant les 4 images puis en relancant la
+stack :
+
+1. `npm install -g pnpm@12.4.2 turbo@2.11.2` au lieu de `corepack
+   enable`/`prepare` - un binaire pnpm global unique, sans cache par
+   utilisateur, elimine la cause du retelechargement.
+2. `COPY --from=installer --chown=fixiyi:fixiyi /app .` - les fichiers
+   copies appartiennent directement a l'utilisateur d'execution non-root,
+   plus de mismatch de proprietaire quel que soit le comportement de
+   pnpm au demarrage.
+
+Verifie par reconstruction complete des 4 images + `docker compose up -d`
++ `docker compose ps` (4/4 `healthy`/`Up`) + `curl`/`docker logs` reels
+sur chaque service (voir "Commandes lancees" ci-dessus).
+
 ### Problemes mineurs (corriges au fil de l'eau, non bloquants)
 
 - `typescript-eslint` ne supporte pas encore TypeScript 7.x (peer
   `<6.1.0`) -> epingle sur 6.0.3 (Decision 4).
 - `nestjs-zod` ne supporte pas encore NestJS 12 -> pipe Zod maison
   (Decision 6).
-- `eslint-plugin-react@7.37.5` declare un peer ESLint jusqu'a `^9.7`
-  seulement (nous sommes en ESLint 10) — **warning connu, non bloquant**,
-  pas encore reellement teste puisque `apps/web`/`apps/admin` (seuls
-  consommateurs du preset `react.js`) ne sont pas encore crees. A
-  surveiller a la prochaine session.
 - `eslint-plugin-import-x` sans resolveur configure produisait des
   centaines de faux positifs "Resolve error" -> ajout de
   `eslint-import-resolver-typescript` + configuration
@@ -296,36 +446,46 @@ reussi.
 
 ## Limitations / TODO documentes
 
-- `apps/web`, `apps/admin` : pas crees.
-- Dockerfiles (api/worker/web/admin) et `docker-compose.dev.yml` : pas
-  crees. `docker-compose.yml` (infra) existant fonctionne toujours.
-- `.github/workflows/ci.yml` : pas cree.
-- `README.md` : pas mis a jour (toujours le contenu de fin de Phase 0).
 - Traductions `ary` (darija) : premier jet, a valider par un locuteur
   natif avant tout usage en production.
 - `ZodValidationPipe` : ecrit et teste unitairement, mais pas encore
   branche sur une vraie route (aucun DTO metier en Phase 1).
-- Peer warning `eslint-plugin-react` vs ESLint 10 : non teste en
-  conditions reelles (attend `apps/web`/`apps/admin`).
-- Aucune CI n'a encore tourne ces gates automatiquement — seulement en
-  local dans cette session.
+- `Providers`/TanStack Query dans `apps/web`/`apps/admin` : cable mais
+  pas encore exerce par une vraie requete (aucun ecran metier).
+- `zustand`/`react-hook-form` : installes (stack imposee), pas encore
+  utilises (aucun formulaire/etat metier en Phase 1).
+- Mapping design tokens -> theme Tailwind (`@theme inline`) : pas fait,
+  seules les variables CSS brutes + valeurs arbitraires sont cablees
+  (Decision 14) - a refaire quand de vrais composants existeront.
+- Images Docker non optimisees pour la taille (tout `node_modules` du
+  sous-ensemble pruned est copie, pas de `next.config.ts`
+  `output: "standalone"` ni d'install `--prod` separee) - fonctionnel
+  mais pas mimimal, a revisiter si la taille des images devient un vrai
+  probleme (pas le cas en Phase 1).
+- `.github/workflows/ci.yml` : ecrit et relu attentivement (syntaxe,
+  versions d'actions, services Mongo/Redis), mais **pas encore exerce
+  par une execution GitHub Actions reelle** - aucun push vers un remote
+  GitHub n'a eu lieu depuis cette session locale. A verifier au premier
+  push/PR.
+- Peer warning `eslint-plugin-react` vs ESLint 10 : **resolu** (Decision
+  13, Bug reel decouvert et corrige - pas qu'un warning, un crash reel).
 
 ## Prerequis pour la phase suivante
 
-Tous remplis pour continuer IMMEDIATEMENT la Phase 1 (pas la Phase 2) :
+Tous remplis pour demarrer la Phase 2 :
 
-- Environnement Docker (Mongo/Redis/MinIO) operationnel et verifie.
-- Socle monorepo + 7 packages partages stables et testes.
-- `apps/api` et `apps/worker` fonctctionnels de bout en bout (build +
-  tests + smoke test reel).
-- Toutes les decisions techniques de cette premiere moitie de phase
-  documentees (`docs/DECISIONS.md`).
+- Environnement Docker complet (Mongo/Redis/MinIO + api/worker/web/admin)
+  operationnel et verifie sain (`docker compose ps`, healthchecks reels).
+- Socle monorepo + 7 packages partages + 4 apps stables et testes (0
+  erreur/0 warning sur lint/typecheck/test/build, tout le monorepo).
+- CI ecrite (install -> lint -> typecheck -> test -> build) - a confirmer
+  au premier push.
+- README a jour avec les instructions reelles d'installation/dev/Docker.
+- Toutes les decisions techniques de la phase documentees
+  (`docs/DECISIONS.md`, Decisions 4 a 15).
 
 ## Prochaine phase
 
-**Toujours Phase 1 - Foundation** — la phase n'est PAS terminee. Reprendre
-avec `apps/web`, `apps/admin`, Dockerfiles, `docker-compose.dev.yml`, CI,
-README, puis clore le rapport et **STOP + attendre "GO PHASE 2"**
-conformement a `06_SCOPE.md` (regle d'arret absolue : jamais de Phase 2
-sans validation humaine explicite ET sans que la Phase 1 soit
-effectivement terminee).
+**Phase 1 - Foundation TERMINEE.** Conformement a `06_SCOPE.md` (regle
+d'arret absolue : jamais de Phase 2 sans validation humaine explicite),
+**STOP et attente de "GO PHASE 2"**.

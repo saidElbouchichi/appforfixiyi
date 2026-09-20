@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "@fixiyi/design-tokens/css";
+
+body {
+  font-family: var(--fixiyi-font-sans);
+  background-color: var(--fixiyi-color-neutral-50);
+  color: var(--fixiyi-color-neutral-900);
+}
