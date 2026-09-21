@@ -2,7 +2,8 @@
 
 ## Derniere mise a jour
 
-2026-09-20 - Phase 5 (Matching) TERMINEE
+2026-09-21 - Inspection ECC des Phases 0-5 + refonte du Design System.
+Phase 5 reste la derniere phase TERMINEE ; Phase 6 non demarree.
 
 ## Phase actuelle
 
@@ -94,6 +95,38 @@ pas) — dont 2 HIGH a planifier avant la production :
   Reproduit sous Playwright ; correction proposee, non appliquee.
 - **B2 (HIGH)** — upload presigne non borne en taille, objets rejetes
   jamais supprimes de MinIO, aucun rate limit sur les routes de demande.
+
+## Design System unifie (2026-09-21)
+
+`packages/ui` passe de 8 a **11 composants** (ajout de `Icon`, `Select`,
+`RadioGroup`) et de **52 a 102 tests** ; `packages/design-tokens` de 3 a
+**6 tests**. Total monorepo : **373 tests** (contre 320).
+
+- **Animations** : nouvelle couche `packages/ui/src/styles/animations.css`
+  (6 `@keyframes`, 7 utilitaires `.fx-animate-*`), durees et courbes
+  exclusivement issues des tokens, glissement directionnel sur l'axe
+  inline et retourne sous `[dir="rtl"]`. `prefers-reduced-motion` est
+  traite par **une seule regle** couvrant tous les utilitaires, avec un
+  test qui echoue si une animation ajoutee plus tard n'y figure pas
+  (Decision 49).
+- **Icones** : 21 SVG inline, aucune dependance externe, une grille 24x24
+  commune, 4 tailles (16/20/24/32), `currentColor`, `aria-hidden` par
+  defaut et `role="img"` + `aria-label` quand l'icone porte le sens seule.
+- **Tokens** : `tokens.css` avait derive de `tokens.ts` (spacing, shadows,
+  typography, z-index, easing manquants — d'ou les ombres et tailles de
+  texte codees en dur dans `styles.css`). Les 5 familles sont ajoutees et
+  un test de synchronisation bidirectionnelle fait desormais echouer le
+  build en cas de divergence (Decision 48).
+- **Ecrans** : les 6 ecrans existants adaptes. Le `window.prompt()` du
+  back-office catalogue est remplace par un vrai `Modal` + `Input`
+  (Decision 47, revient sur la Decision 34).
+- Verifie sur le **vrai build Next.js** (keyframes, utilitaires, blocs
+  `prefers-reduced-motion` et regles `[dir="rtl"]` presents dans le CSS
+  compile) et par les **2 scenarios Playwright** rejoues contre les images
+  Docker reconstruites.
+
+Gates apres refonte : `pnpm lint` 15/15, `pnpm typecheck` 15/15,
+`pnpm test` 13/13 (373 tests), `pnpm build` 10/10 — 0 erreur.
 
 ## Derniere action effectuee
 
