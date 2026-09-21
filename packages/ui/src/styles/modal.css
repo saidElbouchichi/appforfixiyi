@@ -1,4 +1,4 @@
-/* @fixiyi/ui — Modal. */
+/* @fixiyi/ui — Modal, BottomSheet, CommandPalette (the dialogs of useDialog). */
 
 /* ----------------------------------------------------------------- modal */
 
@@ -23,6 +23,15 @@
   overflow-y: auto;
   padding: var(--fixiyi-space-5);
   text-align: start;
+  animation: fx-scale-in var(--fixiyi-motion-normal) var(--fixiyi-ease-out) both;
+}
+
+.fx-modal--sm {
+  max-inline-size: 400px;
+}
+
+.fx-modal--lg {
+  max-inline-size: 720px;
 }
 
 .fx-modal__header {
@@ -67,4 +76,166 @@
   gap: var(--fixiyi-space-2);
   justify-content: flex-end;
   margin-block-start: var(--fixiyi-space-5);
+}
+
+/* ------------------------------------------------------------ bottom sheet */
+
+.fx-sheet__overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background-color: var(--fixiyi-scrim);
+  z-index: var(--fixiyi-z-modal);
+}
+
+.fx-sheet {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 640px;
+  max-block-size: 85dvh;
+  border-start-start-radius: var(--fixiyi-radius-overlay);
+  border-start-end-radius: var(--fixiyi-radius-overlay);
+  background-color: var(--fixiyi-color-surface);
+  box-shadow: var(--fixiyi-elevation-overlay);
+  text-align: start;
+  animation: fx-sheet-in var(--fixiyi-motion-slow) var(--fixiyi-ease-out) both;
+}
+
+.fx-sheet:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: -2px;
+}
+
+.fx-sheet__handle {
+  align-self: center;
+  inline-size: var(--fixiyi-space-10);
+  block-size: var(--fixiyi-space-1);
+  margin-block-start: var(--fixiyi-space-2);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-neutral-300);
+}
+
+.fx-sheet__header {
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-3);
+  padding-block: var(--fixiyi-space-2);
+  padding-inline: var(--fixiyi-space-5) var(--fixiyi-space-3);
+}
+
+.fx-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 0 var(--fixiyi-space-5);
+  padding-inline: var(--fixiyi-space-5);
+}
+
+/* Actions stay above the home indicator of a notched phone. */
+.fx-sheet__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fixiyi-space-2);
+  justify-content: flex-end;
+  padding: var(--fixiyi-space-4);
+  padding-block-end: max(var(--fixiyi-space-4), env(safe-area-inset-bottom));
+  border-block-start: 1px solid var(--fixiyi-color-border);
+}
+
+/* --------------------------------------------------------- command palette */
+
+.fx-palette__overlay {
+  align-items: flex-start;
+  padding-block-start: var(--fixiyi-space-20);
+}
+
+.fx-palette {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 560px;
+  max-block-size: 70vh;
+  overflow: hidden;
+  border-radius: var(--fixiyi-radius-overlay);
+  background-color: var(--fixiyi-color-surface);
+  box-shadow: var(--fixiyi-elevation-overlay);
+  font-family: var(--fixiyi-font-sans);
+  text-align: start;
+  animation: fx-scale-in var(--fixiyi-motion-fast) var(--fixiyi-ease-out) both;
+}
+
+.fx-palette__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-block-end: 1px solid var(--fixiyi-color-border);
+}
+
+.fx-palette__icon {
+  position: absolute;
+  inset-inline-start: var(--fixiyi-space-5);
+  color: var(--fixiyi-color-text-muted);
+  pointer-events: none;
+}
+
+.fx-palette__input {
+  inline-size: 100%;
+  min-block-size: var(--fixiyi-size-control-xl);
+  padding-inline: var(--fixiyi-space-12) var(--fixiyi-space-5);
+  border: none;
+  background: transparent;
+  color: var(--fixiyi-color-text);
+  font: inherit;
+  font-size: var(--fixiyi-text-body-lg-size);
+}
+
+.fx-palette__input:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: -2px;
+}
+
+.fx-palette__list {
+  overflow-y: auto;
+  padding: var(--fixiyi-space-2);
+}
+
+.fx-palette__group-label {
+  padding-block: var(--fixiyi-space-2) var(--fixiyi-space-1);
+  padding-inline: var(--fixiyi-space-3);
+  color: var(--fixiyi-color-text-muted);
+  font-size: var(--fixiyi-text-overline-size);
+  line-height: var(--fixiyi-text-overline-line-height);
+  font-weight: var(--fixiyi-text-overline-weight);
+  letter-spacing: var(--fixiyi-text-overline-tracking);
+  text-transform: uppercase;
+}
+
+.fx-palette__option {
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-3);
+  min-block-size: var(--fixiyi-size-touch-target);
+  padding-inline: var(--fixiyi-space-3);
+  border-inline-start: 3px solid transparent;
+  border-radius: var(--fixiyi-radius-control);
+  color: var(--fixiyi-color-text);
+  font-size: var(--fixiyi-text-body-size);
+  cursor: pointer;
+}
+
+/* The active option is marked by a start bar as well as the tint (WCAG 1.4.1). */
+.fx-palette__option--active {
+  border-inline-start-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-action);
+}
+
+.fx-palette__empty {
+  margin: 0;
+  padding: var(--fixiyi-space-6);
+  color: var(--fixiyi-color-text-muted);
+  text-align: center;
 }

@@ -71,13 +71,22 @@
   font-family: var(--fixiyi-font-sans);
 }
 
+/* The glyph sits in a soft brand disc (board); red disc for an error. */
 .fx-state__icon {
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--fixiyi-space-16);
+  block-size: var(--fixiyi-space-16);
+  margin-block-end: var(--fixiyi-space-1);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-icon-accent);
   font-size: var(--fixiyi-font-size-3xl);
   line-height: 1;
-  color: var(--fixiyi-color-neutral-400);
 }
 
 .fx-state--error .fx-state__icon {
+  background-color: var(--fixiyi-color-error-surface);
   color: var(--fixiyi-color-error-text);
 }
 

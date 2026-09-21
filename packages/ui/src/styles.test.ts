@@ -119,9 +119,11 @@ describe("styles.css — spacing, shape and elevation (design phase 3)", () => {
     const values = valuesOf(/(?:margin|padding)(?:-[a-z-]+)?|(?:row-|column-)?gap/);
     expect(values.length).toBeGreaterThan(30);
     // A calc() is on the grid when it combines nothing but space tokens and plain numbers.
+    // max(space token, env(safe-area-inset-*)): the grid, or more on a notched phone.
+    const safeArea = /max\(var\(--fixiyi-space-\d+\),\s*env\(safe-area-inset-[a-z]+\)\)/g;
     const tokenCalc = /calc\((?:[\s\d.+\-*/()]|var\(--fixiyi-space-\d+\))*\)/g;
     const offGrid = values.filter(
-      (value) => !value.replace(tokenCalc, "0").split(/\s+/).every((part) => /^(?:0|auto|var\(--fixiyi-space-\d+\))$/.test(part)),
+      (value) => !value.replace(tokenCalc, "0").replace(safeArea, "0").split(/\s+/).every((part) => /^(?:0|auto|var\(--fixiyi-space-\d+\))$/.test(part)),
     );
     expect(offGrid).toEqual([]);
   });

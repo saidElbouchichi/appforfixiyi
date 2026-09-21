@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import { expect, test, type Page } from "@playwright/test";
-import { Alert, Avatar, Badge, Button, Card, Checkbox, ProgressBar, ProgressCircle, Rating, RatingInput, Stepper, Tooltip, IconButton, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
+import { Accordion, Alert, Avatar, BottomSheet, CommandPalette, EmptyState, ErrorState, Menu, Modal, Tabs, Badge, Button, Card, Checkbox, ProgressBar, ProgressCircle, Rating, RatingInput, Stepper, Tooltip, IconButton, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
 
 import { contrastRatio, renderUi } from "../support/ui-harness";
 
@@ -302,5 +302,76 @@ test.describe("feedback and identity", () => {
   test("keeps the horizontal stepper inside a 360px phone", async ({ page }) => {
     await renderUi(page, <Stepper label="Etapes" steps={[{ label: "Service" }, { label: "Adresse" }, { label: "Photos" }, { label: "Envoi" }]} current={1} />, { width: 360 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  });
+});
+
+test.describe("disclosure and overlays", () => {
+  test("render tabs, accordion, menu trigger and the empty/error states", async ({ page }) => {
+    await renderUi(
+      page,
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Tabs
+          label="Profil"
+          value="services"
+          onChange={noop}
+          tabs={[
+            { id: "services", label: "Services", icon: "tools", content: <p>Liste des services</p> },
+            { id: "about", label: "A propos", content: <p>Presentation</p> },
+            { id: "zones", label: "Zones", content: <p>Zones</p> },
+          ]}
+        />
+        <Accordion
+          defaultExpanded={["a"]}
+          items={[
+            { id: "a", title: "Comment payer ?", content: <p>Le paiement arrive avec la phase 9.</p> },
+            { id: "b", title: "Puis-je annuler ?", content: <p>Oui.</p> },
+          ]}
+        />
+        <Menu label="Actions" items={[{ id: "edit", label: "Modifier", onSelect: noop }]} />
+        <EmptyState title="Aucune demande" message="Vos demandes apparaitront ici." />
+        <ErrorState message="Impossible de charger les demandes." onRetry={noop} />
+      </div>,
+    );
+    await page.screenshot({ path: "screenshots/ds-07-disclosure-states.png", fullPage: true, animations: "disabled" });
+  });
+
+  test("render the bottom sheet against the bottom edge, full width on a phone", async ({ page }) => {
+    // Reduced motion: the rise collapses to its final frame, so the geometry is measurable at once.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await renderUi(
+      page,
+      <BottomSheet open title="Filtrer" onClose={noop} footer={<Button block>Appliquer</Button>} testId="sheet">
+        <p>Contenu de la feuille.</p>
+      </BottomSheet>,
+    );
+    const sheet = await page.getByTestId("sheet").boundingBox();
+    expect(sheet?.width).toBe(390);
+    expect((sheet?.y ?? 0) + (sheet?.height ?? 0)).toBeCloseTo(844, 0);
+    await page.screenshot({ path: "screenshots/ds-08-bottom-sheet.png", animations: "disabled" });
+  });
+
+  test("render the modal and the command palette", async ({ page }) => {
+    await renderUi(
+      page,
+      <Modal open title="Confirmer la suppression" onClose={noop} footer={<Button variant="danger">Supprimer</Button>}>
+        <p>Cette action est definitive.</p>
+      </Modal>,
+    );
+    await page.screenshot({ path: "screenshots/ds-09-modal.png", animations: "disabled" });
+
+    await renderUi(
+      page,
+      <CommandPalette
+        open
+        onClose={noop}
+        commands={[
+          { id: "requests", label: "Mes demandes", group: "Navigation", icon: "calendar", onRun: noop },
+          { id: "chat", label: "Messages", group: "Navigation", icon: "message", onRun: noop },
+          { id: "new", label: "Nouvelle demande", group: "Actions", icon: "add", onRun: noop },
+        ]}
+      />,
+      { width: 1024 },
+    );
+    await page.screenshot({ path: "screenshots/ds-10-command-palette.png", animations: "disabled" });
   });
 });

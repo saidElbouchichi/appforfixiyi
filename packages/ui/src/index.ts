@@ -1,3 +1,4 @@
+export { Accordion, type AccordionItem, type AccordionProps } from "./components/Accordion.js";
 export { Alert, type AlertProps, type AlertVariant } from "./components/Alert.js";
 export {
   Avatar,
@@ -8,6 +9,7 @@ export {
   type AvatarTrade,
 } from "./components/Avatar.js";
 export { Badge, type BadgeProps, type BadgeVariant } from "./components/Badge.js";
+export { BottomSheet, type BottomSheetProps } from "./components/BottomSheet.js";
 export {
   Button,
   type ButtonProps,
@@ -15,6 +17,14 @@ export {
   type ButtonVariant,
 } from "./components/Button.js";
 export { Card, type CardHighlight, type CardProps } from "./components/Card.js";
+export {
+  CommandPalette,
+  filterCommands,
+  normalizeSearch,
+  useCommandPaletteShortcut,
+  type Command,
+  type CommandPaletteProps,
+} from "./components/CommandPalette.js";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox.js";
 export { Chip, type ChipProps } from "./components/Chip.js";
 export {
@@ -59,6 +69,7 @@ export {
   type SkeletonProps,
   type SpinnerProps,
 } from "./components/Loading.js";
+export { Menu, type MenuItem, type MenuProps } from "./components/Menu.js";
 export { Modal, type ModalProps } from "./components/Modal.js";
 export {
   ProgressBar,
@@ -79,6 +90,7 @@ export { Select, type SelectOption, type SelectProps } from "./components/Select
 export { Slider, type SliderProps } from "./components/Slider.js";
 export { Stepper, type StepperProps, type StepperStep } from "./components/Stepper.js";
 export { Switch, type SwitchProps } from "./components/Switch.js";
+export { Tabs, type TabItem, type TabsProps } from "./components/Tabs.js";
 export {
   ToastProvider,
   useToast,

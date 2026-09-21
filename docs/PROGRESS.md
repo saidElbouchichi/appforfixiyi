@@ -197,7 +197,12 @@ la refonte.**
 - **Phase 3 (Espacements, rayons, ombres) TERMINEE** —
   `docs/design/PHASE_3_REPORT.md` : roles de forme et d'elevation, grille
   de 4 px partout, Tailwind branche sur les tokens, 592 tests + 9 Playwright.
-- Prochaine : Phase 4 (composants primitifs).
+- **Phase 4 (Composants primitifs) TERMINEE** — `docs/design/PHASE_4_REPORT.md` :
+  13 -> 36 composants (6 variantes et 4 tailles de bouton, 23 nouveaux dont
+  Toast, Tabs, Menu, BottomSheet, CommandPalette), 63 icones, banc d'essai
+  navigateur ; 681 tests + 25 Playwright. Icones sociales reportees en phase 5
+  (D4 : pas de logos non fournis).
+- Prochaine : Phase 5 (layout : Header, Footer, Navbar, BottomNavigation).
 
 ## Derniere action effectuee
 
