@@ -8,6 +8,8 @@ interface AuthState {
   refreshToken: string | null;
   user: User | null;
   setSession: (session: { accessToken: string; refreshToken: string; user: User }) => void;
+  /** Rotated pair from `POST /auth/refresh`, which returns tokens only — the signed-in user is unchanged and must be kept. */
+  setTokens: (tokens: { accessToken: string; refreshToken: string }) => void;
   clearSession: () => void;
 }
 
@@ -25,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       user: null,
       setSession: (session) => set(session),
+      setTokens: (tokens) => set(tokens),
       clearSession: () => set({ accessToken: null, refreshToken: null, user: null }),
     }),
     { name: "fixiyi-admin-auth" },
