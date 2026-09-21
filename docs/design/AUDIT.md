@@ -1,8 +1,9 @@
 # AUDIT — REFONTE DESIGN SYSTEM V2 (FIXIYI)
 
 Date : 2026-09-21
-Statut : **audit uniquement — aucune ligne de code modifiee.** En attente de
-validation avant toute phase.
+Statut : **audit valide — 7 decisions validees le 2026-09-21** (detail :
+`docs/design/DECISIONS.md`). Aucune ligne de code modifiee. En attente des
+parties 2/3 et 3/3 du master prompt, puis du « GO Refonte Design ».
 Reference : `docs/design/reference/fixiyi-design-board.png` (image unique
 recue, planche design + panneau « Demande d'integration »).
 Ecarts entre le prompt de mission et le depot : `AUDIT_NOTES.md`.
@@ -227,14 +228,16 @@ signalerai tout conflit avant de commencer :
    `docs/design/PHASE_X_REPORT.md`.
 4. Contraste mesure, pas estime.
 
-## 8. Decisions attendues avant la phase 1
+## 8. Decisions — validees le 2026-09-21
 
-| # | Decision | Ma recommandation |
+| # | Decision | Statut |
 |---|---|---|
-| D1 | Orange et accessibilite | roles `#F97316` / `#EA580C` / `#C2410C` |
-| D2 | Ecrans sans backend | exclus ; realises avec les phases 7, 8, 10 |
-| D3 | Icones et couleurs metiers | champs optionnels sur le catalogue |
-| D4 | Logo et illustrations | fournir le SVG ; avatars a initiales |
-| D5 | Architecture | monorepo existant, pas de React Native |
-| D6 | Polices | `next/font`, Inter + Noto Sans Arabic |
-| D7 | Famille | Inter seule |
+| D1 | Orange par roles : `#F97316` marque et decor, `#EA580C` icones et bordures, `#C2410C` texte et boutons | **validee** |
+| D2 | Reservation, Suivi, Avis exclus ; realises dans les Phases 7-10 | **validee** |
+| D3 | Champs optionnels `icon` / `accentColor` sur les noeuds du catalogue (Decision 62) | **validee** — modification du modele de donnees |
+| D4 | Avatars a initiales, placeholders neutres, jamais de photo inventee | **validee** — **logo SVG attendu** |
+| D5 | Monorepo Next.js existant, pas de React Native | **validee** |
+| D6 | `next/font` : Inter + Noto Sans Arabic | **validee** |
+| D7 | Inter seule | **validee** |
+
+Detail et justifications : `docs/design/DECISIONS.md`.

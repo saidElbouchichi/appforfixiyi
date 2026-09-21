@@ -176,6 +176,18 @@ passaient **a vide** a cause d'un `dist` perime.
 **Validation humaine en attente** : conservation des messages supprimes
 (Decision 59) — defaut reversible retenu, a confirmer.
 
+## Refonte Design System V2 — mission hors protocole (2026-09-21)
+
+Demandee explicitement par l'utilisateur, hors 06_SCOPE, avec ses propres
+documents sous `docs/design/`. **La Phase 7 ne demarre pas avant la fin de
+la refonte.**
+
+- Audit : `docs/design/AUDIT.md`, ecarts : `docs/design/AUDIT_NOTES.md`.
+- 7 decisions validees : `docs/design/DECISIONS.md` (et Decision 62 pour
+  le modele du catalogue).
+- En attente : parties 2/3 et 3/3 du master prompt, fichier du logo, puis
+  « GO Refonte Design ». **Aucune modification de code avant.**
+
 ## Derniere action effectuee
 
 Phase 6 complete : plan, contrats, detecteur, module chat, temps reel,

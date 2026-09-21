@@ -1833,3 +1833,31 @@ Tous trouves par l'execution, pas par relecture :
    l'assistant partage.
 
 - Date : 2026-09-21
+
+---
+
+## Decision 62 - Icone et couleur d'affichage sur les noeuds du catalogue
+  (refonte Design System V2, D3)
+
+- Contexte : la refonte Design System V2 (mission hors protocole,
+  `docs/design/`) affiche les categories de services en tuiles, chacune
+  avec une icone et une couleur de metier. Le noeud de catalogue
+  (Decision 26 : une collection generique pour tous les niveaux) ne porte
+  que `level`, `parentId`, `name`, `description`, `order`, `active`,
+  `requiredSkillIds`.
+- Options : (a) champs optionnels `icon` et `accentColor` sur le noeud,
+  administrables dans le back-office ; (b) correspondance cote interface
+  indexee par nom de categorie.
+- Choix : (a).
+- Raison : (b) casse au premier renommage fait dans le back-office. (a)
+  laisse l'administrateur maitre de l'affichage et reste retro-compatible :
+  les champs sont optionnels, les noeuds existants restent valides.
+- Validation : **modification du modele de donnees principal**, donc
+  soumise a validation humaine (05_DECISION_POLICY.md) — **validee par
+  l'utilisateur le 2026-09-21**. Non encore implementee.
+- A trancher a l'implementation : valeurs admises (icones de la liste
+  fermee du Design System, couleurs limitees a la palette metiers) et
+  heritage (un noeud sans valeur prend celle de son ancetre le plus
+  proche).
+- Detail : `docs/design/DECISIONS.md`, D3.
+- Date : 2026-09-21
