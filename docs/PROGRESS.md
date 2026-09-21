@@ -2,13 +2,11 @@
 
 ## Derniere mise a jour
 
-2026-09-21 - Phase 6 (Chat) DEMARREE ("GO PHASE 6" recu). Plan ecrit :
-`docs/phases/PHASE_6_PLAN.md`.
+2026-09-21 - Phase 6 (Chat) TERMINEE.
 
 ## Phase actuelle
 
-Phase 6 - Chat - **EN COURS** (realtime, messages, attachments,
-anti-contact). Plan : `docs/phases/PHASE_6_PLAN.md`.
+Phase 6 - Chat - **TERMINEE**. STOP, en attente de "GO PHASE 7".
 
 ## Phases terminees
 
@@ -32,6 +30,11 @@ anti-contact). Plan : `docs/phases/PHASE_6_PLAN.md`.
   AUTO/DIRECT, localisation approximative cote fournisseur, suivi client
   et **premier ecran fournisseur**, plus le design system partage
   `packages/ui` (bonus).
+- Phase 6 - Chat (2026-09-21) - voir `docs/phases/PHASE_6_REPORT.md` :
+  conversations liees a une candidature reelle, anti-contact
+  (`ContactDetectionService`), temps reel Socket.IO (HTTP ecrit, la socket
+  notifie), accuses, reponses, reactions, edition/suppression controlees,
+  pieces jointes, recherche, ecran de chat dans `apps/web`.
 
 ## Etat detaille de la phase actuelle (Phase 5 - Matching - TERMINEE)
 
@@ -148,23 +151,50 @@ Les 2 HIGH de l'inspection sont corriges :
 Tests : **375** (api 153 -> 155), Playwright **4/4** (2 nouveaux).
 Gates : lint 15/15, typecheck 15/15, test 13/13, build 10/10.
 
+## Etat detaille de la Phase 6 - Chat - TERMINEE
+
+**Critere de sortie atteint** : un numero de telephone est masque avant
+acceptation et visible apres, prouve a trois niveaux — reponse a
+l'expediteur, lecture par l'autre partie, et **document MongoDB** (le
+numero n'est jamais ecrit). Verifie aussi en base de dev apres le scenario
+navigateur : 0 numero brut dans les messages stockes.
+
+Le point cle : « avant/apres acceptation » renvoie aux offres, qui sont la
+Phase 7. La protection est levee par une seule methode de service,
+`ConversationService.unlockContact`, **non exposee en HTTP** — c'est ce que
+l'acceptation d'offre appellera (Decision 53).
+
+**542 tests** (375 avant) : api 278, ui 125, contracts 90, shared-utils
+27, config 11, design-tokens 6, i18n 3, worker 2. Playwright **5/5** dont
+un nouveau scenario a deux navigateurs. Gates sans cache : lint 15/15,
+typecheck 15/15, test 13/13, build 10/10, 0 erreur, 0 warning.
+
+Six bugs reels trouves et corriges (Decision 61), dont un indicateur de
+frappe persistant repere **dans les captures Playwright**, et des tests qui
+passaient **a vide** a cause d'un `dist` perime.
+
+**Validation humaine en attente** : conservation des messages supprimes
+(Decision 59) — defaut reversible retenu, a confirmer.
+
 ## Derniere action effectuee
 
-Gates complets du monorepo (tous verts), verification manuelle par
-`mongosh` du match/candidats/batchs/configuration reellement ecrits, deux
-scenarios Playwright reels avec captures d'ecran, redaction de
-`docs/phases/PHASE_5_REPORT.md` et des Decisions 40 a 46, correction des
-chiffres de la Phase 4, mise a jour de ce fichier.
+Phase 6 complete : plan, contrats, detecteur, module chat, temps reel,
+primitives de design system, ecran de chat, 3 suites e2e API + 1 scenario
+Playwright, gates sans cache, verification en base, Decisions 53 a 61,
+`docs/phases/PHASE_6_REPORT.md`, mise a jour de ce fichier, de
+`CURRENT_STATE.md` et de `IMPLEMENTATION_PLAN.md`.
 
 ## Prochaine action exacte
 
-**Aucune** — la Phase 5 est terminee. STOP, attendre `GO PHASE 6` de
-l'utilisateur (Phase 6 = Chat : realtime, messages, attachments,
-anti-contact).
+**Aucune** — la Phase 6 est terminee. STOP, attendre `GO PHASE 7` de
+l'utilisateur (Phase 7 = Offers : offres, contre-offres, negociation,
+acceptation, price lock). La Phase 7 devra appeler
+`ConversationService.unlockContact` a l'acceptation d'une offre.
 
 ## Blocages
 
-Aucun. Phase 5 terminee sans blocage technique residuel.
+Aucun blocage technique. Une decision attend l'utilisateur (Decision 59),
+sans bloquer la Phase 7.
 
 ## Validation humaine requise
 
@@ -175,7 +205,9 @@ Aucun. Phase 5 terminee sans blocage technique residuel.
 - [x] pour demarrer Phase 4 ("GO PHASE 4" recu)
 - [x] pour demarrer Phase 5 ("GO PHASE 5" recu)
 - [x] pour demarrer Phase 6 ("GO PHASE 6" recu)
-- [ ] pour demarrer Phase 7 (a demander en fin de Phase 6)
+- [ ] pour demarrer Phase 7 (en attente — Phase 6 terminee, "GO PHASE 7"
+  pas encore recu)
+- [ ] conservation des messages supprimes (Decision 59 — choix juridique)
 
 ## Prompt de reprise pour la prochaine session
 
@@ -184,17 +216,17 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (Decisions 40 a 46 = choix techniques Phase 5)
-3. docs/phases/PHASE_5_REPORT.md
+2. docs/DECISIONS.md (Decisions 53 a 61 = choix techniques Phase 6)
+3. docs/phases/PHASE_6_REPORT.md
 
-Contexte : la Phase 5 (Matching) est TERMINEE : dispatch progressif reel
-(batch borne, attente par job differe, expansion de rayon), ponderations
-administrables en base, services geo/transport, AUTO et DIRECT,
-localisation approximative cote fournisseur, ecrans client et
-fournisseur, design system packages/ui. Tout teste reellement (320 tests,
-2 scenarios Playwright, gates verts). N'attends que "GO PHASE 6" de
-l'utilisateur ; si ce prompt est relance sans ce signal explicite, ne
-commence PAS la Phase 6 - redemande confirmation.
+Contexte : la Phase 6 (Chat) est TERMINEE : conversations liees a une
+candidature reelle, anti-contact avant acceptation, temps reel Socket.IO
+(HTTP ecrit, la socket notifie), ecran de chat. 542 tests, 5 scenarios
+Playwright, gates verts. La protection des coordonnees n'est levee que par
+ConversationService.unlockContact — la Phase 7 doit l'appeler a
+l'acceptation d'une offre. N'attends que "GO PHASE 7" de l'utilisateur ;
+si ce prompt est relance sans ce signal explicite, ne commence PAS la
+Phase 7 - redemande confirmation.
 
 Verifie d'abord que Docker tourne toujours (`docker compose -f
 docker-compose.yml -f docker-compose.dev.yml ps` depuis la racine).

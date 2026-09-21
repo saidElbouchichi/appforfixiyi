@@ -166,11 +166,20 @@ fonctionnelle, build gates verts.
 **Criteres de sortie** : tests prouvant qu'un numero de telephone est
 bloque/masque avant acceptation et visible apres, build gates verts.
 
+**Livree le 2026-09-21** — voir `docs/phases/PHASE_6_REPORT.md`. Hors
+perimetre par construction : notifications push/SMS/email et signalement
+de message (moderation, Phase 10).
+
 ---
 
 ## Phase 7 - Offers
 
 **Objectif** : offres, negociation, acceptation, verrouillage du prix.
+
+**Dependance issue de la Phase 6** : l'acceptation d'une offre doit appeler
+`ConversationService.unlockContact(requestId, providerUserId)` — c'est la
+seule maniere prevue de lever la protection des coordonnees du chat
+(Decision 53). Une offre reste un objet metier, jamais un message.
 
 **Livrables cles**
 - `Offer`, `OfferVersion`, `CounterOffer` (schema conforme a

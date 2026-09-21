@@ -1,8 +1,53 @@
 # FIXIYI - CURRENT STATE
 
-Derniere mise a jour : 2026-09-19 (Phase 0 - Audit)
+Derniere mise a jour : 2026-09-21 (fin de Phase 6 - Chat)
+
+> Note d'exactitude : ce document n'avait pas ete mis a jour depuis la
+> Phase 0, alors que 03_AGENT_PROTOCOL.md §9 le demande a chaque
+> changement d'architecture. La section ci-dessous decrit l'etat reel au
+> terme de la Phase 6 ; l'audit de Phase 0 est conserve plus bas, tel quel,
+> comme historique.
+
+## Etat au terme de la Phase 6
+
+### Architecture
+
+Modular monolith (Decision 1) en monorepo pnpm + Turborepo.
+
+| Brique | Role | Depuis |
+|---|---|---|
+| `apps/api` | NestJS 12 + Fastify, MongoDB, Redis, BullMQ, MinIO — seule source de verite | Phase 1 |
+| `apps/api` temps reel | Socket.IO sur le meme serveur HTTP, adaptateur Redis ; **notifie uniquement**, toutes les ecritures passent par HTTP | **Phase 6** |
+| `apps/worker` | processus BullMQ separe | Phase 1 |
+| `apps/web` | Next.js — client et fournisseur : login, demande, suivi du matching, boite fournisseur, **chat** | Phases 4-6 |
+| `apps/admin` | Next.js — back-office catalogue | Phase 3 |
+| `packages/*` | contracts (Zod), ui (design system), design-tokens, config, shared-utils, i18n, tsconfig, eslint-config | Phase 1+ |
+
+### Modules de `apps/api`
+
+auth, catalog, providers, companies, verification, media, requests,
+configuration, geo, matching, **chat** (Phase 6), health.
+
+### Services Docker (7)
+
+mongodb, redis, minio (infra) ; api, worker, web, admin (applicatifs).
+Le WebSocket est servi par le conteneur `api` sur le port 4000 : aucun
+service supplementaire.
+
+### Points d'attention connus
+
+- La protection des coordonnees n'est levee que par
+  `ConversationService.unlockContact`, que la Phase 7 doit appeler.
+- Findings ouverts de l'inspection : B3 (`User.status` non applique), B4
+  (`trustProxy` ; corrige seulement la ou `key: "user"` est utilise), B5
+  (MinIO absent du CI), B6 (base de test jamais purgee), B7 (corrige pour
+  le chat, toujours ouvert sur les demandes).
+- Decision 59 (conservation des messages supprimes) en attente de
+  validation humaine.
 
 ---
+
+# Audit de Phase 0 (historique, 2026-09-19)
 
 ## 1. Type de workspace
 

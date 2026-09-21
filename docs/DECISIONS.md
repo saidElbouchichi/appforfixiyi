@@ -1593,3 +1593,243 @@ Journal des decisions techniques et produit.
   fini d'ecrire et `undici` se bloque au lieu de remonter la reponse —
   artefact client d'un upload refuse, pas une assertion plus faible.
 - Date : 2026-09-21
+
+---
+
+## Decision 53 - Anti-contact : le deverrouillage est un point d'accroche de
+  service, jamais une route ; « visible apres » = le numero VERIFIE du compte
+
+- Contexte : 01_SPEC_PRODUCT.md #27 masque les coordonnees « avant
+  acceptation » et autorise « le numero autorise » « apres acceptation » —
+  d'une **offre**. Les offres sont la Phase 7. Le critere de sortie de la
+  Phase 6 exige pourtant de prouver « masque avant, visible apres ».
+- Options : (a) une route HTTP « debloquer » ; (b) repousser l'anti-contact
+  en Phase 7 ; (c) un etat `contactPolicy` sur la conversation et une
+  methode de service unique `ConversationService.unlockContact`, non
+  exposee en HTTP, que l'acceptation d'offre appellera.
+- Choix : (c).
+- Raison : (a) annule la protection (un fournisseur l'appellerait
+  lui-meme) et serait un faux workflow (03_AGENT_PROTOCOL #2). (b) viole le
+  critere de sortie. (c) est le vrai chemin de code que la Phase 7
+  empruntera (l'evenement `OfferAccepted` est deja declare dans
+  `@fixiyi/contracts`) ; les tests l'appellent par injection de
+  dependances. Un test verifie qu'aucune route `/unlock` ou `/contact`
+  n'existe.
+- Lecture retenue de « visible apres » : la conversation expose le
+  **telephone verifie du compte** de l'autre partie (« le numero
+  autorise », suivi de « Fixiyi ne fournit pas de VoIP ») et les messages
+  suivants ne sont plus masques. Les messages masques **avant** restent
+  masques : l'original n'est **jamais stocke**, seule la trace de la
+  tentative l'est (`redactions: [{type}]`). C'est la seule garantie
+  qu'aucune lecture, recherche, export ou bug futur ne le fasse fuiter —
+  verifie en base : 0 numero brut dans les messages stockes.
+- `unlockContact` cree la conversation si les parties n'ont jamais
+  echange avant l'offre, et est idempotent (le premier horodatage est
+  conserve).
+- Trade-offs : un numero tape avant l'acceptation ne reapparait jamais,
+  meme apres. Assume : le numero verifie du compte le remplace, et c'est
+  le seul dont Fixiyi garantit l'identite.
+- Date : 2026-09-21
+
+---
+
+## Decision 54 - Detection des coordonnees : validation par plan de
+  numerotation, carte d'offsets en unites UTF-16
+
+- Contexte : #27 demande de detecter numeros, emails, URLs, tentatives de
+  contournement et « variantes textuelles evidentes ». Un detecteur trop
+  large rend le chat inutilisable (il masquerait « 1500 DH », « 14h30 »,
+  une date, un RIB) ; trop etroit, il est contourne en ecrivant
+  « zero six douze... ».
+- Choix :
+  1. Les candidats telephone sont **confirmes par `libphonenumber-js`**
+     (deja une dependance, region `MA` par defaut) au lieu d'un compte de
+     chiffres. C'est ce qui garde propres les prix, heures, dates,
+     adresses, RIB, compteurs, numeros de serie — 24 cas de faux positifs
+     sont epingles en test.
+  2. Variantes : chiffres arabes-indiens, persans et pleine largeur ;
+     nombres en lettres en francais (y compris par paires : soixante-dix,
+     quatre-vingt-dix-neuf), anglais, darija latine (arabizi) et arabe ;
+     lettres sosies (`O`, `l`, `I`) ; espaces insecables (`\p{Zs}`, dont
+     l'espace fine insecable de la typographie francaise), jamais un saut
+     de ligne.
+  3. Un numero colle a un autre nombre (« 300 0612345678 ») est isole en
+     cherchant la plus longue sous-suite valide de groupes.
+  4. Emails obfusques (`(at)`, `arobase`, `point`...) retenus seulement
+     s'ils forment une adresse complete — sinon « at » et « point »
+     seraient masques dans des phrases ordinaires.
+  5. La mention d'une plateforme (« whatsapp », « insta ») est
+     **journalisee**, pas masquee : le mot n'est pas une coordonnee.
+- Detail d'implementation non evident : le masquage s'applique au texte
+  **original** via une carte d'offsets tenue en **unites UTF-16**. Une
+  premiere version iterait par point de code ; un seul emoji en debut de
+  message decalait alors tous les offsets et masquait les mauvais
+  caracteres. Corrige avant tout test, puis epingle par un test.
+- Applique aux envois, aux **editions** (sinon l'edition devient le
+  contournement) et aux **noms de pieces jointes**, avant que la ligne
+  media n'existe (le nom stocke et la cle d'objet ne contiennent jamais la
+  coordonnee).
+- Limite : pas d'OCR — un numero ecrit dans une photo passe (aucun
+  fournisseur provisionne ; l'IA est la Phase 11).
+- Date : 2026-09-21
+
+---
+
+## Decision 55 - Temps reel : HTTP ecrit, la socket notifie ; salles par
+  utilisateur ; adaptateur Redis
+
+- Contexte : #49 — « le WebSocket n'est jamais la source de verite ». #50 —
+  reconnexion, evenements manquants, idempotence, deduplication.
+- Choix :
+  - **Toutes les mutations passent par HTTP** : memes guards, meme
+    validation Zod, meme rate limiting, memes erreurs Problem Details. La
+    socket ne transporte que des notifications serveur -> client, plus un
+    seul evenement client -> serveur ephemere, `typing`.
+  - **Salles par utilisateur** (`user:<id>`), rejointes a la connexion. Le
+    serveur decide qui recoit quoi d'apres les participants en base ; un
+    client ne demande jamais a rejoindre une conversation, donc ne peut pas
+    rejoindre celle d'un autre.
+  - **Authentification a la poignee de main** (meme regle qu'`AuthGuard` :
+    token valide ET session active), et un **balayage** periodique qui
+    deconnecte les sockets dont la session a ete revoquee — une requete
+    groupee par balayage, pas une par socket. Un logout distant coupe donc
+    aussi le temps reel.
+  - **Rattrapage** : `seq` monotone par conversation ; au retour le client
+    demande `?after=<dernier seq>` a l'API. **Deduplication** : cle par id,
+    la plus haute `version` gagne. **Idempotence** : `clientMessageId`.
+  - **Adaptateur Redis** : une seule instance aujourd'hui, mais sans lui un
+    second replica separerait silencieusement les utilisateurs.
+- Raison : c'est l'application litterale de #49, et c'est aussi le plus
+  simple — aucune logique d'ecriture dupliquee entre HTTP et socket.
+- Suite de la Decision 51 : la socket relit le token a chaque
+  (re)connexion et, sur refus `UNAUTHORIZED`, rafraichit via **la meme
+  promesse unique** que HTTP — deux refresh concurrents declencheraient la
+  detection de rejeu.
+- Date : 2026-09-21
+
+---
+
+## Decision 56 - Nouvelles dependances temps reel
+
+- `apps/api` : `@nestjs/websockets` et `@nestjs/platform-socket.io`
+  (12.0.3, alignes sur Nest 12), `socket.io` (4.8.3),
+  `@socket.io/redis-adapter` (8.3.0). `apps/api` (dev) et `apps/web` :
+  `socket.io-client` (4.8.3).
+- Raison : Socket.IO est **nomme** par la stack cible (01_SPEC_PRODUCT.md
+  #52) et par l'IMPLEMENTATION_PLAN valide pour la Phase 6 ; ce n'est pas
+  un choix de stack nouveau. Versions stables courantes, compatibilite
+  verifiee avec les pairs de Nest 12 avant installation.
+- Date : 2026-09-21
+
+---
+
+## Decision 57 - Accuses par filigranes, vues calculees par l'API pour
+  chaque lecteur
+
+- Contexte : sent / delivered / read (#26) pour chaque message.
+- Choix : quatre **filigranes** sur la conversation (`client`/`provider` x
+  `Delivered`/`Read`), avances par `$max` et bornes au dernier `seq`.
+  « Lu » implique « distribue ». Le statut de chaque message, les dates
+  limites d'edition et de suppression sont **calcules par l'API pour le
+  lecteur** (`deliveryStatus`, `editableUntil`, `deletableUntil`) ; React
+  n'affiche que ce qu'on lui donne (03_AGENT_PROTOCOL #2).
+- Raison : dans un echange a deux, « l'autre a tout lu jusqu'a N » repond
+  en O(1) pour tous les messages, sans une ligne par message. Un filigrane
+  ne recule jamais, donc un accuse repete ou en retard est inoffensif — et
+  un accuse qui n'a rien fait avancer n'est pas rediffuse (pas de tempete
+  d'evenements).
+- Date : 2026-09-21
+
+---
+
+## Decision 58 - Cycle de vie de la conversation lie a la candidature ; le
+  client designe une candidature, pas un utilisateur
+
+- Choix :
+  - Une conversation lie le client d'une demande et **un fournisseur
+    reellement dispatche** dessus (Phase 5) ; unique par
+    `(requestId, providerUserId)`, ouverture idempotente.
+  - Le client ouvre en nommant un **`candidateId`** : la candidature creee
+    par le moteur est en elle-meme la preuve du contact, et une
+    candidature d'une autre demande est refusee. (Premiere version :
+    `providerUserId` — l'ecran client ne le connaissait meme pas.)
+  - Ouvrir la conversation cote fournisseur fait passer la candidature de
+    `NOTIFIED` a `VIEWED` — seules les `NOTIFIED` expirent, sinon une
+    discussion engagee serait coupee au batch suivant.
+  - Envoi refuse (`CONVERSATION_CLOSED`) si la demande est annulee ou la
+    candidature declinee/expiree, **sauf** apres deverrouillage : apres
+    acceptation, la conversation doit durer jusqu'a l'intervention.
+  - Frontieres de module (#51) : le chat ne lit jamais `MatchCandidate` ;
+    `MatchingModule` exporte trois requetes etroites.
+- Date : 2026-09-21
+
+---
+
+## Decision 59 - Suppression controlee : cachee aux deux parties, conservee
+  pour les litiges — **VALIDATION HUMAINE REQUISE**
+
+- Contexte : « suppression controlee » (#26) ; un litige contient « le chat
+  pertinent » (02_SPEC_ENGINEERING). Conserver ou purger le contenu d'un
+  message supprime est un **choix juridique** (05_DECISION_POLICY :
+  validation humaine ; loi marocaine 09-08 sur les donnees personnelles).
+- Choix provisoire : l'expediteur peut supprimer son message dans les 24 h ;
+  il disparait pour **les deux** participants, mais la ligne est
+  **conservee** en base pour les litiges.
+- Raison du defaut : c'est le choix **reversible** — un job de purge peut
+  s'ajouter plus tard, alors qu'une purge immediate ne se rattrape pas. Et
+  le contenu conserve est deja masque s'il etait protege.
+- **A confirmer par l'utilisateur** avant la mise en production.
+- Date : 2026-09-21
+
+---
+
+## Decision 60 - Rate limiting par utilisateur sur les routes authentifiees
+
+- Contexte : le `RateLimitGuard` ne comptait que par IP. Derriere un NAT —
+  ou un NAT d'operateur mobile, courant au Maroc — de nombreux
+  utilisateurs partagent une IP : un seul aurait epuise le quota de tous
+  (finding B4 de l'inspection).
+- Choix : option `key: "user"` (retro-compatible, `ip` par defaut). Le chat
+  l'utilise sur toutes ses routes d'ecriture (envoi 30/min, modifications
+  60/min, ouverture 20/min, recherche 30/min, upload 20/min). Echec
+  **ferme** si la route n'est pas authentifiee : se rabattre en silence sur
+  l'IP masquerait une erreur de cablage.
+- Limite : B4 n'est corrige que la ou `key: "user"` est utilise ; les
+  routes OTP restent a juste titre par IP, et `trustProxy` reste a
+  configurer pour la production.
+- Date : 2026-09-21
+
+---
+
+## Decision 61 - Six bugs reels trouves pendant la Phase 6
+
+Tous trouves par l'execution, pas par relecture :
+
+1. **Offsets de masquage decales par un emoji** (carte par point de code au
+   lieu d'unite UTF-16). Corrige avant tout test, epingle ensuite.
+2. **Tests qui passaient a vide** : l'API resout `@fixiyi/contracts` depuis
+   son `dist/`, perime ; la constante de masquage valait `undefined`, le
+   texte masque contenait « undefined » et les comparaisons par gabarit
+   passaient **des deux cotes**. Une seule assertion stricte l'a revele. Un
+   test de precondition fait desormais echouer bruyamment un `dist`
+   perime.
+3. **Numeros de test invalides passe 99 connexions** : un compteur partage
+   `runId + 2 chiffres` produisait un numero trop long, refuse en 400 par
+   l'OTP, uniquement au 16e test d'un fichier. Numeros aleatoires valides
+   desormais.
+4. **Classe de caracteres corrompue par l'outillage** : l'echappement
+   ` ` devenait un caractere litteral, puis un `sed` l'a transforme en
+   `[ \t00a0...]` — admettant `0` et `a` comme separateurs. Les tests
+   passaient toujours ; seule la relecture de la ligne l'a montre.
+   Remplace par `\p{Zs}`, plus correct de toute facon.
+5. **Indicateur « ecrit… » persistant** sous le message deja recu de la
+   meme personne, jusqu'au delai d'inactivite. Trouve **dans les captures
+   Playwright**. Un message recu l'efface ; envoyer arrete le sien ; un
+   test avec un delai plus court que les minuteries le verrouille.
+6. **Session Playwright injectee avec un refresh token deja consomme** :
+   l'ancien assistant gardait le refresh token d'avant rotation. Latent
+   tant qu'aucun 401 ne survenait ; avec la Decision 51, un 401 aurait
+   presente un token consomme et revoque la session. Corrige en extrayant
+   l'assistant partage.
+
+- Date : 2026-09-21
