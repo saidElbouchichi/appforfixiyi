@@ -11,12 +11,15 @@ import {
   contrastPairs,
   duration,
   easing,
+  elevation,
   fontFamily,
   fontSize,
   fontVariables,
   fontWeight,
   radius,
+  radiusRoles,
   roles,
+  scrim,
   shadows,
   spacing,
   textStyles,
@@ -45,7 +48,9 @@ function normalize(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "tokens.css"), "utf8");
+const here = dirname(fileURLToPath(import.meta.url));
+const css = readFileSync(join(here, "tokens.css"), "utf8");
+const tailwindTheme = readFileSync(join(here, "tailwind-theme.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 const declared = new Map([...css.matchAll(/(--fixiyi-[a-z0-9-]+)\s*:\s*([^;]+);/g)].map((match) => [match[1] ?? "", normalize(match[2] ?? "")]));
 
 /** Follows `var(--x)` references inside tokens.css down to a literal value. */
@@ -83,6 +88,9 @@ for (const [style, spec] of Object.entries(textStyles)) {
   put(`--fixiyi-text-${style}-tracking`, spec.letterSpacing);
 }
 for (const [name, value] of Object.entries(shadows)) put(`--fixiyi-shadow-${name}`, value);
+for (const [role, step] of Object.entries(radiusRoles)) put(`--fixiyi-radius-${kebab(role)}`, radius[step]);
+for (const [role, step] of Object.entries(elevation)) put(`--fixiyi-elevation-${role}`, shadows[step]);
+put("--fixiyi-scrim", scrim);
 for (const [name, value] of Object.entries(zIndex)) put(`--fixiyi-z-${name}`, value);
 for (const [name, value] of Object.entries(duration)) put(`--fixiyi-motion-${name}`, value);
 for (const [name, value] of Object.entries(easing)) put(`--fixiyi-ease-${name}`, value);
@@ -171,6 +179,15 @@ describe("tokens.css mirrors the TypeScript tokens", () => {
     }
   });
 
+  it("declares shape and elevation roles as references to the step they name", () => {
+    for (const [role, step] of Object.entries(radiusRoles)) {
+      expect(declared.get(`--fixiyi-radius-${kebab(role)}`), role).toBe(`var(--fixiyi-radius-${step})`);
+    }
+    for (const [role, step] of Object.entries(elevation)) {
+      expect(declared.get(`--fixiyi-elevation-${role}`), role).toBe(`var(--fixiyi-shadow-${step})`);
+    }
+  });
+
   it("lets next/font supply each family through the variables the apps set", () => {
     expect(loadedFontVariables(declared.get("--fixiyi-font-sans") ?? "")).toEqual([fontVariables.latin, fontVariables.arabic]);
     expect(loadedFontVariables(declared.get("--fixiyi-font-arabic") ?? "")).toEqual([fontVariables.arabic, fontVariables.latin]);
@@ -180,5 +197,35 @@ describe("tokens.css mirrors the TypeScript tokens", () => {
     for (const role of Object.keys(roles)) {
       expect(declared.get(`--fixiyi-color-${kebab(role)}`), role).toMatch(/^var\(--fixiyi-color-/);
     }
+  });
+});
+
+describe("tailwind-theme.css binds Tailwind's utilities to the tokens", () => {
+  const theme = new Map([...tailwindTheme.matchAll(/(--[a-z0-9*-]+)\s*:\s*([^;]+);/g)].map((match) => [match[1] ?? "", normalize(match[2] ?? "")]));
+
+  it("derives every spacing utility from the 4px token", () => {
+    expect(theme.get("--spacing")).toBe("var(--fixiyi-space-1)");
+  });
+
+  it("replaces Tailwind's radius and shadow defaults with the scale and the roles", () => {
+    expect(theme.get("--radius-*")).toBe("initial");
+    expect(theme.get("--shadow-*")).toBe("initial");
+    for (const step of Object.keys(radius).filter((name) => name !== "none")) {
+      expect(theme.get(`--radius-${step}`), step).toBe(`var(--fixiyi-radius-${step})`);
+    }
+    for (const role of Object.keys(radiusRoles)) {
+      expect(theme.get(`--radius-${kebab(role)}`), role).toBe(`var(--fixiyi-radius-${kebab(role)})`);
+    }
+    for (const step of Object.keys(shadows).filter((name) => name !== "none")) {
+      expect(theme.get(`--shadow-${step}`), step).toBe(`var(--fixiyi-shadow-${step})`);
+    }
+    for (const role of Object.keys(elevation)) {
+      expect(theme.get(`--shadow-${role}`), role).toBe(`var(--fixiyi-elevation-${role})`);
+    }
+  });
+
+  it("points only at variables tokens.css declares", () => {
+    const referenced = [...tailwindTheme.matchAll(/var\((--fixiyi-[a-z0-9-]+)\)/g)].map((match) => match[1] ?? "");
+    expect(referenced.filter((name) => !declared.has(name))).toEqual([]);
   });
 });

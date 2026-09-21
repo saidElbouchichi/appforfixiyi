@@ -29,7 +29,7 @@ test("a dispatched provider sees the client's request, approximated, and can dec
 
   await fillAndSubmitRequest(page);
   await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
-  await page.screenshot({ path: "screenshots/10-request-submitted.png" });
+  await page.screenshot({ path: "screenshots/10-request-submitted.png", animations: "disabled" });
 
   await page.getByTestId("go-to-match-button").click();
   await expect(page).toHaveURL(/\/match$/);
@@ -37,7 +37,7 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   await page.getByTestId("start-match-button").click();
   await expect(page.getByTestId("match-status")).toContainText("ACTIVE", { timeout: 20_000 });
   await expect(page.getByTestId("candidate-list")).toContainText(providerName, { timeout: 20_000 });
-  await page.screenshot({ path: "screenshots/11-match-candidates.png" });
+  await page.screenshot({ path: "screenshots/11-match-candidates.png", animations: "disabled" });
 
   // A batch is a batch: the client sees a bounded number of providers, not everyone.
   const contacted = await page.getByTestId("candidate-row").count();
@@ -68,11 +68,11 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   expect(approximate).toContain("33.57");
   expect(approximate).not.toContain("33.5731");
   await expect(row).toContainText("Adresse exacte communiquee apres acceptation");
-  await providerPage.screenshot({ path: "screenshots/12-provider-inbox.png" });
+  await providerPage.screenshot({ path: "screenshots/12-provider-inbox.png", animations: "disabled" });
 
   await providerPage.getByTestId("decline-button").first().click();
   await expect(providerPage.getByTestId("provider-match-row")).toHaveCount(0, { timeout: 20_000 });
-  await providerPage.screenshot({ path: "screenshots/13-provider-declined.png" });
+  await providerPage.screenshot({ path: "screenshots/13-provider-declined.png", animations: "disabled" });
 
   console.log(`Provider ${providerName} (${provider.profileId}) was dispatched to and declined through the UI.`);
   await providerContext.close();

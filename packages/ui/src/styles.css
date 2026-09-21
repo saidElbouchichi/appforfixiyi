@@ -6,6 +6,9 @@
  * - Tous les tokens viennent de `@fixiyi/design-tokens/css`, qui doit etre
  *   importe AVANT ce fichier par l'application consommatrice. Aucune valeur
  *   de couleur/rayon/police/ombre/taille de texte codee en dur.
+ * - Espacements sur la grille de 4px (`--fixiyi-space-*`) ; rayons et ombres
+ *   par ROLE (`--fixiyi-radius-control|card|…`, `--fixiyi-elevation-*`),
+ *   jamais par pas d'echelle : la forme d'un bouton se change en un endroit.
  * - RTL : uniquement des proprietes CSS logiques (`padding-inline`,
  *   `margin-inline-start`, `inset-inline-*`, `text-align: start`). Aucune
  *   propriete directionnelle physique (`left`, `padding-right`, ...), donc
@@ -219,9 +222,9 @@
   gap: var(--fixiyi-space-2);
   min-block-size: 44px;
   padding-inline: var(--fixiyi-space-4);
-  padding-block: 10px;
+  padding-block: var(--fixiyi-space-2);
   border: 1px solid transparent;
-  border-radius: var(--fixiyi-radius-md);
+  border-radius: var(--fixiyi-radius-control);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-text-body-size);
   font-weight: var(--fixiyi-font-weight-semibold);
@@ -248,12 +251,12 @@
 .fx-button--primary {
   background-color: var(--fixiyi-color-action);
   color: var(--fixiyi-color-on-action);
-  box-shadow: var(--fixiyi-shadow-sm);
+  box-shadow: var(--fixiyi-elevation-raised);
 }
 
 .fx-button--primary:hover:not(:disabled) {
   background-color: var(--fixiyi-color-action-hover);
-  box-shadow: var(--fixiyi-shadow-md);
+  box-shadow: var(--fixiyi-elevation-hover);
 }
 
 .fx-button--secondary {
@@ -270,12 +273,12 @@
 .fx-button--danger {
   background-color: var(--fixiyi-color-danger-action);
   color: var(--fixiyi-color-on-danger);
-  box-shadow: var(--fixiyi-shadow-sm);
+  box-shadow: var(--fixiyi-elevation-raised);
 }
 
 .fx-button--danger:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--fixiyi-color-danger-action) 85%, black);
-  box-shadow: var(--fixiyi-shadow-md);
+  box-shadow: var(--fixiyi-elevation-hover);
 }
 
 .fx-button--ghost {
@@ -296,7 +299,7 @@
 .fx-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--fixiyi-space-2);
   text-align: start;
 }
 
@@ -310,15 +313,15 @@
 
 .fx-field__required {
   color: var(--fixiyi-color-error-text);
-  margin-inline-start: 2px;
+  margin-inline-start: var(--fixiyi-space-1);
 }
 
 .fx-field__control {
   min-block-size: 44px;
   padding-inline: var(--fixiyi-space-3);
-  padding-block: 10px;
+  padding-block: var(--fixiyi-space-2);
   border: 1px solid var(--fixiyi-color-border-control);
-  border-radius: var(--fixiyi-radius-md);
+  border-radius: var(--fixiyi-radius-control);
   background-color: var(--fixiyi-color-surface);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-text-body-size);
@@ -385,7 +388,7 @@
   min-block-size: 44px;
   padding-inline: var(--fixiyi-space-3);
   border: 1px solid var(--fixiyi-color-border-control);
-  border-radius: var(--fixiyi-radius-md);
+  border-radius: var(--fixiyi-radius-control);
   background-color: var(--fixiyi-color-surface);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-sm);
@@ -419,9 +422,9 @@
 .fx-card {
   background-color: var(--fixiyi-color-surface);
   border: 1px solid var(--fixiyi-color-border);
-  border-radius: var(--fixiyi-radius-lg);
+  border-radius: var(--fixiyi-radius-card);
   padding: var(--fixiyi-space-5);
-  box-shadow: var(--fixiyi-shadow-sm);
+  box-shadow: var(--fixiyi-elevation-raised);
   text-align: start;
 }
 
@@ -440,10 +443,10 @@
 .fx-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding-inline: 10px;
+  gap: var(--fixiyi-space-1);
+  padding-inline: var(--fixiyi-space-3);
   padding-block: var(--fixiyi-space-1);
-  border-radius: var(--fixiyi-radius-full);
+  border-radius: var(--fixiyi-radius-pill);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-text-caption-size);
   font-weight: var(--fixiyi-font-weight-semibold);
@@ -494,7 +497,7 @@
   min-inline-size: 44px;
   min-block-size: 44px;
   border: none;
-  border-radius: var(--fixiyi-radius-md);
+  border-radius: var(--fixiyi-radius-control);
   background-color: transparent;
   color: var(--fixiyi-color-text-muted);
   cursor: pointer;
@@ -513,7 +516,7 @@
   block-size: 20px;
   border: 2px solid var(--fixiyi-color-neutral-300);
   border-block-start-color: var(--fixiyi-color-icon-accent);
-  border-radius: var(--fixiyi-radius-full);
+  border-radius: var(--fixiyi-radius-pill);
   animation: fx-spin var(--fixiyi-motion-slow) linear infinite;
 }
 
@@ -526,14 +529,24 @@
 .fx-skeleton {
   display: block;
   background-color: var(--fixiyi-color-surface-sunken);
-  border-radius: var(--fixiyi-radius-sm);
+  border-radius: var(--fixiyi-radius-inset);
   animation: fx-pulse 1.4s var(--fixiyi-ease-in-out) infinite;
+}
+
+/* A skeleton line stands in for a line of body-sm text, so it takes its size. */
+.fx-skeleton--line {
+  block-size: var(--fixiyi-text-body-sm-size);
+  margin-block-end: var(--fixiyi-space-2);
+}
+
+.fx-skeleton--last {
+  inline-size: 60%;
 }
 
 .fx-loading {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--fixiyi-space-3);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-sm);
   color: var(--fixiyi-color-text-muted);
@@ -545,7 +558,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: var(--fixiyi-space-3);
   padding-block: var(--fixiyi-space-10);
   padding-inline: var(--fixiyi-space-5);
   text-align: center;
@@ -587,14 +600,14 @@
   align-items: center;
   justify-content: center;
   padding: var(--fixiyi-space-4);
-  background-color: rgb(0 0 0 / 45%);
+  background-color: var(--fixiyi-scrim);
   z-index: var(--fixiyi-z-modal);
 }
 
 .fx-modal {
   background-color: var(--fixiyi-color-surface);
-  border-radius: var(--fixiyi-radius-lg);
-  box-shadow: var(--fixiyi-shadow-lg);
+  border-radius: var(--fixiyi-radius-overlay);
+  box-shadow: var(--fixiyi-elevation-overlay);
   inline-size: 100%;
   max-inline-size: 520px;
   max-block-size: 85vh;
@@ -628,7 +641,7 @@
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: var(--fixiyi-radius-md);
+  border-radius: var(--fixiyi-radius-control);
   background-color: transparent;
   color: var(--fixiyi-color-text-muted);
   cursor: pointer;
@@ -680,25 +693,25 @@
   max-inline-size: min(80%, 36rem);
   padding-block: var(--fixiyi-space-2);
   padding-inline: var(--fixiyi-space-3);
-  border-radius: var(--fixiyi-radius-lg);
+  border-radius: var(--fixiyi-radius-card);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-text-body-size);
   line-height: var(--fixiyi-text-body-line-height);
-  box-shadow: var(--fixiyi-shadow-sm);
+  box-shadow: var(--fixiyi-elevation-raised);
   text-align: start;
 }
 
 .fx-bubble--own {
   background-color: var(--fixiyi-color-action);
   color: var(--fixiyi-color-on-action);
-  border-end-end-radius: var(--fixiyi-radius-sm);
+  border-end-end-radius: var(--fixiyi-radius-bubble-tail);
 }
 
 .fx-bubble--other {
   background-color: var(--fixiyi-color-surface);
   border: 1px solid var(--fixiyi-color-border);
   color: var(--fixiyi-color-text);
-  border-end-start-radius: var(--fixiyi-radius-sm);
+  border-end-start-radius: var(--fixiyi-radius-bubble-tail);
 }
 
 .fx-bubble--deleted {
@@ -721,8 +734,8 @@
 .fx-bubble__notice {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-block: 6px 0;
+  gap: var(--fixiyi-space-1);
+  margin-block: var(--fixiyi-space-2) 0;
   font-size: var(--fixiyi-font-size-xs);
 }
 
@@ -730,7 +743,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
+  gap: var(--fixiyi-space-1);
   margin-block-start: var(--fixiyi-space-1);
   font-size: var(--fixiyi-font-size-xs);
   opacity: 0.85;
@@ -744,8 +757,8 @@
 .fx-bubble__media {
   display: block;
   max-inline-size: 100%;
-  border-radius: var(--fixiyi-radius-md);
-  margin-block-end: 6px;
+  border-radius: var(--fixiyi-radius-inset);
+  margin-block-end: var(--fixiyi-space-2);
 }
 
 .fx-delivery {
@@ -763,9 +776,9 @@
   flex-direction: column;
   padding-block: var(--fixiyi-space-1);
   padding-inline: var(--fixiyi-space-2);
-  margin-block-end: 6px;
+  margin-block-end: var(--fixiyi-space-2);
   border-inline-start: 3px solid currentcolor;
-  border-radius: var(--fixiyi-radius-sm);
+  border-radius: var(--fixiyi-radius-inset);
   background-color: rgb(0 0 0 / 8%);
   font-size: var(--fixiyi-text-body-sm-size);
   line-height: var(--fixiyi-text-body-sm-line-height);
@@ -795,9 +808,9 @@
   align-items: center;
   gap: var(--fixiyi-space-1);
   padding-inline: var(--fixiyi-space-2);
-  padding-block: 2px;
+  padding-block: var(--fixiyi-space-1);
   border: 1px solid var(--fixiyi-color-border);
-  border-radius: var(--fixiyi-radius-full);
+  border-radius: var(--fixiyi-radius-pill);
   background-color: var(--fixiyi-color-surface);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-text-caption-size);
@@ -821,7 +834,7 @@
 
 .fx-typing__dots {
   display: inline-flex;
-  gap: 3px;
+  gap: var(--fixiyi-space-1);
 }
 
 /* A typing cycle wants ~1 s, longer than any motion token; derived from the
@@ -829,7 +842,7 @@
 .fx-typing__dots > span {
   inline-size: 6px;
   block-size: 6px;
-  border-radius: var(--fixiyi-radius-full);
+  border-radius: var(--fixiyi-radius-pill);
   background-color: var(--fixiyi-color-neutral-400);
   animation: fx-pulse calc(var(--fixiyi-motion-slow) * 4) var(--fixiyi-ease-in-out) infinite;
 }
@@ -856,9 +869,9 @@
   min-block-size: 44px;
   max-block-size: 160px;
   padding-inline: var(--fixiyi-space-3);
-  padding-block: 10px;
+  padding-block: var(--fixiyi-space-2);
   border: 1px solid var(--fixiyi-color-border-control);
-  border-radius: var(--fixiyi-radius-lg);
+  border-radius: var(--fixiyi-radius-control);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-text-body-size);
   line-height: var(--fixiyi-text-body-line-height);

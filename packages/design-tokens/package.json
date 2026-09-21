@@ -13,7 +13,8 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./css": "./src/tokens.css"
+    "./css": "./src/tokens.css",
+    "./tailwind": "./src/tailwind-theme.css"
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",

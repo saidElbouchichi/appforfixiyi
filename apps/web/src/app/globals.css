@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Tailwind utilities on the Fixiyi scale (spacing, radius, shadow, font). */
+@import "@fixiyi/design-tokens/tailwind";
 @import "@fixiyi/design-tokens/css";
 /* Must come after the tokens: every rule in it resolves --fixiyi-* variables. */
 @import "@fixiyi/ui/css";

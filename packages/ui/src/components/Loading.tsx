@@ -1,4 +1,4 @@
-import type { CSSProperties, JSX } from "react";
+import type { JSX } from "react";
 
 import { cx } from "../cx.js";
 
@@ -44,14 +44,13 @@ export function Skeleton({ lines = 3, label = "Chargement…", testId }: Skeleto
   return (
     <div role="status" aria-live="polite" data-testid={testId}>
       <span className="fx-visually-hidden">{label}</span>
-      {rows.map((index) => {
-        const style: CSSProperties = {
-          blockSize: "14px",
-          marginBlockEnd: "8px",
-          inlineSize: index === rows.length - 1 ? "60%" : "100%",
-        };
-        return <span key={`skeleton-line-${index.toString()}`} className="fx-skeleton" style={style} aria-hidden="true" />;
-      })}
+      {rows.map((index) => (
+        <span
+          key={`skeleton-line-${index.toString()}`}
+          className={index === rows.length - 1 ? "fx-skeleton fx-skeleton--line fx-skeleton--last" : "fx-skeleton fx-skeleton--line"}
+          aria-hidden="true"
+        />
+      ))}
     </div>
   );
 }

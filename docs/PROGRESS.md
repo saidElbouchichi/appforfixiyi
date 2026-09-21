@@ -194,7 +194,10 @@ la refonte.**
 - **Phase 2 (Typographie) TERMINEE** — `docs/design/PHASE_2_REPORT.md` :
   Inter + Noto Sans Arabic auto-hebergees par `next/font`, tout le texte sur
   l'echelle V2, 582 tests + 9 Playwright.
-- Prochaine : Phase 3 (espacements, rayons, ombres).
+- **Phase 3 (Espacements, rayons, ombres) TERMINEE** —
+  `docs/design/PHASE_3_REPORT.md` : roles de forme et d'elevation, grille
+  de 4 px partout, Tailwind branche sur les tokens, 592 tests + 9 Playwright.
+- Prochaine : Phase 4 (composants primitifs).
 
 ## Derniere action effectuee
 

@@ -143,6 +143,14 @@
   --fixiyi-radius-3xl: 32px;
   --fixiyi-radius-full: 9999px;
 
+  /* Shape roles (radiusRoles in radius.ts). */
+  --fixiyi-radius-control: var(--fixiyi-radius-md);
+  --fixiyi-radius-card: var(--fixiyi-radius-xl);
+  --fixiyi-radius-bubble-tail: var(--fixiyi-radius-sm);
+  --fixiyi-radius-inset: var(--fixiyi-radius-md);
+  --fixiyi-radius-overlay: var(--fixiyi-radius-2xl);
+  --fixiyi-radius-pill: var(--fixiyi-radius-full);
+
   /* --------------------------------------------------------- typography */
   /* next/font fills the two inner variables (fontVariables in typography.ts). */
   --fixiyi-font-sans:
@@ -221,6 +229,12 @@
   --fixiyi-shadow-lg: 0 10px 15px rgba(28, 25, 23, 0.08);
   --fixiyi-shadow-xl: 0 20px 25px rgba(28, 25, 23, 0.10);
   --fixiyi-shadow-2xl: 0 25px 50px rgba(28, 25, 23, 0.15);
+
+  /* Elevation roles (elevation in shadows.ts). */
+  --fixiyi-elevation-raised: var(--fixiyi-shadow-sm);
+  --fixiyi-elevation-hover: var(--fixiyi-shadow-lg);
+  --fixiyi-elevation-overlay: var(--fixiyi-shadow-xl);
+  --fixiyi-scrim: rgba(28, 25, 23, 0.45);
 
   /* ------------------------------------------------------------ z-index */
   --fixiyi-z-base: 0;

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { textStyles } from "@fixiyi/design-tokens";
+import { elevation, radiusRoles, textStyles } from "@fixiyi/design-tokens";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -96,5 +96,44 @@ describe("styles.css — typography (design phase 2)", () => {
 
   it("switches Arabic and darija content to the Arabic-first stack", () => {
     expect(declarations).toMatch(/:lang\(ar\),\s*:lang\(ary\)\s*\{\s*--fixiyi-font-sans:\s*var\(--fixiyi-font-arabic\)/);
+  });
+});
+
+describe("styles.css — spacing, shape and elevation (design phase 3)", () => {
+  /** Every `property: value` pair whose property matches, comments stripped. */
+  const valuesOf = (property: RegExp): string[] =>
+    [...declarations.matchAll(new RegExp(String.raw`(?:^|[;{\s])(${property.source})\s*:\s*([^;{}]+);`, "g"))].map((match) => (match[2] ?? "").trim());
+
+  const kebab = (name: string): string => name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+
+  it("puts every margin, padding and gap on the 4px grid (--fixiyi-space-*, 0 or auto)", () => {
+    const values = valuesOf(/(?:margin|padding)(?:-[a-z-]+)?|(?:row-|column-)?gap/);
+    expect(values.length).toBeGreaterThan(30);
+    const offGrid = values.filter((value) => !value.split(/\s+/).every((part) => /^(?:0|auto|var\(--fixiyi-space-\d+\))$/.test(part)));
+    expect(offGrid).toEqual([]);
+  });
+
+  it("rounds corners only through a shape role, never a raw step or a literal", () => {
+    const allowed = new Set(Object.keys(radiusRoles).map((role) => `var(--fixiyi-radius-${kebab(role)})`));
+    const values = valuesOf(/border(?:-[a-z-]+)?-radius/);
+    expect(values.length).toBeGreaterThan(15);
+    expect(values.filter((value) => !allowed.has(value))).toEqual([]);
+  });
+
+  it("casts shadows only through an elevation role (or none)", () => {
+    const allowed = new Set([...Object.keys(elevation).map((role) => `var(--fixiyi-elevation-${role})`), "none"]);
+    const values = valuesOf(/box-shadow/);
+    expect(values.length).toBeGreaterThan(0);
+    expect(values.filter((value) => !allowed.has(value))).toEqual([]);
+  });
+
+  it("lifts primary and danger buttons to the hover elevation (part 2B)", () => {
+    for (const variant of ["primary", "danger"]) {
+      expect(blockOf(`.fx-button--${variant}:hover:not(:disabled)`), variant).toContain("var(--fixiyi-elevation-hover)");
+    }
+  });
+
+  it("dims the page behind a modal with the scrim token, not an ad-hoc black", () => {
+    expect(blockOf(".fx-modal__overlay")).toContain("var(--fixiyi-scrim)");
   });
 });

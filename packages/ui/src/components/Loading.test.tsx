@@ -48,6 +48,14 @@ describe("Skeleton", () => {
     }
   });
 
+  it("shortens only the last line, as real text ends, with no inline style", () => {
+    const { container } = render(<Skeleton lines={3} />);
+
+    const lines = [...container.querySelectorAll(".fx-skeleton")];
+    expect(lines.map((line) => line.classList.contains("fx-skeleton--last"))).toEqual([false, false, true]);
+    for (const line of lines) expect(line.getAttribute("style")).toBeNull();
+  });
+
   it("still announces that something is loading, via visually hidden text", () => {
     render(<Skeleton />);
     expect(screen.getByRole("status").textContent).toContain("Chargement");

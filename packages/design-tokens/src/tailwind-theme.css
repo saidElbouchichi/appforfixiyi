@@ -1,0 +1,42 @@
+/**
+ * Tailwind v4 theme bridge — imported by each app's globals.css right after
+ * `tailwindcss`. Tailwind's utilities (`p-6`, `gap-4`, `rounded-card`,
+ * `shadow-raised`, `font-sans`) then resolve to the Fixiyi tokens instead
+ * of Tailwind's own defaults, so the apps and @fixiyi/ui share one scale.
+ *
+ * `inline`: utilities reference the --fixiyi-* variables directly, so a
+ * token re-pointed at runtime (e.g. the font under :lang(ar)) is followed.
+ * `--radius-*: initial` / `--shadow-*: initial` drop Tailwind's defaults:
+ * an off-scale `rounded-3xl` or `shadow-2xl` simply generates nothing.
+ */
+@theme inline {
+  --font-sans: var(--fixiyi-font-sans);
+
+  /* Every spacing utility is N x 4px, the token grid. */
+  --spacing: var(--fixiyi-space-1);
+
+  --radius-*: initial;
+  --radius-sm: var(--fixiyi-radius-sm);
+  --radius-md: var(--fixiyi-radius-md);
+  --radius-lg: var(--fixiyi-radius-lg);
+  --radius-xl: var(--fixiyi-radius-xl);
+  --radius-2xl: var(--fixiyi-radius-2xl);
+  --radius-3xl: var(--fixiyi-radius-3xl);
+  --radius-full: var(--fixiyi-radius-full);
+  --radius-control: var(--fixiyi-radius-control);
+  --radius-card: var(--fixiyi-radius-card);
+  --radius-bubble-tail: var(--fixiyi-radius-bubble-tail);
+  --radius-inset: var(--fixiyi-radius-inset);
+  --radius-overlay: var(--fixiyi-radius-overlay);
+  --radius-pill: var(--fixiyi-radius-pill);
+
+  --shadow-*: initial;
+  --shadow-sm: var(--fixiyi-shadow-sm);
+  --shadow-md: var(--fixiyi-shadow-md);
+  --shadow-lg: var(--fixiyi-shadow-lg);
+  --shadow-xl: var(--fixiyi-shadow-xl);
+  --shadow-2xl: var(--fixiyi-shadow-2xl);
+  --shadow-raised: var(--fixiyi-elevation-raised);
+  --shadow-hover: var(--fixiyi-elevation-hover);
+  --shadow-overlay: var(--fixiyi-elevation-overlay);
+}

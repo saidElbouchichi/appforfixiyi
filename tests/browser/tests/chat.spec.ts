@@ -83,8 +83,8 @@ test("a client and a provider chat live, and a phone number stays masked", async
   // --------------------------------------------------------- read receipt
   // The client has the thread on screen, so it acknowledges "read"; the provider's tick turns to READ live.
   await expect(providerPage.getByTestId("message-bubble").last().locator("[data-status='READ']")).toBeVisible({ timeout: 10_000 });
-  await page.screenshot({ path: "screenshots/20-chat-client.png" });
-  await providerPage.screenshot({ path: "screenshots/21-chat-provider.png" });
+  await page.screenshot({ path: "screenshots/20-chat-client.png", animations: "disabled" });
+  await providerPage.screenshot({ path: "screenshots/21-chat-provider.png", animations: "disabled" });
 
   // ------------------------------------------------------- reply, both ways
   await page.getByTestId("reply-button").last().click();
@@ -95,7 +95,7 @@ test("a client and a provider chat live, and a phone number stays masked", async
   const reply = providerPage.getByTestId("message-bubble").last();
   await expect(reply).toContainText("je prefere echanger ici", { timeout: 10_000 });
   await expect(reply).toContainText("Bonjour, appelez-moi au [•••] ce soir");
-  await providerPage.screenshot({ path: "screenshots/22-chat-reply.png" });
+  await providerPage.screenshot({ path: "screenshots/22-chat-reply.png", animations: "disabled" });
 
   // ---------------------------------------- nothing survives a reload
   // The socket is never the source of truth: after a full reload the thread comes back from the database.
