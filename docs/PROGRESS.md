@@ -2,12 +2,13 @@
 
 ## Derniere mise a jour
 
-2026-09-21 - Inspection ECC des Phases 0-5 + refonte du Design System.
-Phase 5 reste la derniere phase TERMINEE ; Phase 6 non demarree.
+2026-09-21 - Phase 6 (Chat) DEMARREE ("GO PHASE 6" recu). Plan ecrit :
+`docs/phases/PHASE_6_PLAN.md`.
 
 ## Phase actuelle
 
-Phase 5 - Matching - **TERMINEE**. STOP, en attente de "GO PHASE 6".
+Phase 6 - Chat - **EN COURS** (realtime, messages, attachments,
+anti-contact). Plan : `docs/phases/PHASE_6_PLAN.md`.
 
 ## Phases terminees
 
@@ -173,8 +174,8 @@ Aucun. Phase 5 terminee sans blocage technique residuel.
 - [x] pour demarrer Phase 3 ("GO PHASE 3" recu)
 - [x] pour demarrer Phase 4 ("GO PHASE 4" recu)
 - [x] pour demarrer Phase 5 ("GO PHASE 5" recu)
-- [ ] pour demarrer Phase 6 (en attente — Phase 5 terminee, "GO PHASE 6"
-  pas encore recu)
+- [x] pour demarrer Phase 6 ("GO PHASE 6" recu)
+- [ ] pour demarrer Phase 7 (a demander en fin de Phase 6)
 
 ## Prompt de reprise pour la prochaine session
 
