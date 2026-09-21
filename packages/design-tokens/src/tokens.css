@@ -1,51 +1,121 @@
 /**
- * CSS custom properties mirroring tokens.ts, for Tailwind v4 `@theme inline`
- * consumption in apps/web and apps/admin.
+ * Fixiyi Design System V2 — CSS custom properties mirroring the TypeScript
+ * token modules (colors.ts, typography.ts, spacing.ts, radius.ts,
+ * shadows.ts, transitions.ts, z-index.ts).
  *
- * Kept in sync with tokens.ts by `tokens.test.ts`, which parses BOTH files
- * and fails if a token exists on one side and not the other. The Phase 1
- * note here used to say "kept in sync by hand ... revisit with a generator
- * if drift becomes a real problem" — the drift was real (spacing, shadows,
- * typography, z-index and easing existed in tokens.ts and were missing
- * here, which is why styles.css hard-coded shadows and font sizes). A test
- * is cheaper than a generator and catches the same class of bug.
+ * Kept in sync by `tokens.test.ts`, which parses THIS file and fails if a
+ * token exists on one side only or with a different value (Decision 48).
+ * Roles are declared as `var()` references to the scale; the test resolves
+ * them before comparing.
+ *
+ * Components use ROLES (`--fixiyi-color-action`, `--fixiyi-color-text`...),
+ * not raw scale steps: not every step of the board is accessible for every
+ * use (D1, docs/design/DECISIONS.md).
  */
 :root {
-  /* ------------------------------------------------------------- colours */
-  --fixiyi-color-primary-50: #eef7f7;
-  --fixiyi-color-primary-100: #d3ebea;
-  --fixiyi-color-primary-200: #a7d7d5;
-  --fixiyi-color-primary-300: #79c0bd;
-  --fixiyi-color-primary-400: #4ba7a3;
-  --fixiyi-color-primary-500: #2f8b87;
-  --fixiyi-color-primary-600: #256f6c;
-  --fixiyi-color-primary-700: #1d5754;
-  --fixiyi-color-primary-800: #153e3c;
-  --fixiyi-color-primary-900: #0d2726;
+  /* ------------------------------------------------------------ primary */
+  --fixiyi-color-primary-50: #FFF7ED;
+  --fixiyi-color-primary-100: #FFEDD5;
+  --fixiyi-color-primary-200: #FED7AA;
+  --fixiyi-color-primary-300: #FDBA74;
+  --fixiyi-color-primary-400: #FB923C;
+  --fixiyi-color-primary-500: #F97316;
+  --fixiyi-color-primary-600: #EA580C;
+  --fixiyi-color-primary-700: #C2410C;
+  --fixiyi-color-primary-800: #9A3412;
+  --fixiyi-color-primary-900: #7C2D12;
 
-  --fixiyi-color-neutral-0: #ffffff;
-  --fixiyi-color-neutral-50: #f7f8f8;
-  --fixiyi-color-neutral-100: #eceeee;
-  --fixiyi-color-neutral-200: #d7dbdb;
-  --fixiyi-color-neutral-300: #b8bfbf;
-  --fixiyi-color-neutral-400: #8f9898;
-  --fixiyi-color-neutral-500: #6b7373;
-  --fixiyi-color-neutral-600: #4f5656;
-  --fixiyi-color-neutral-700: #383e3e;
-  --fixiyi-color-neutral-800: #232727;
-  --fixiyi-color-neutral-900: #141717;
-  --fixiyi-color-neutral-1000: #000000;
+  /* ------------------------------------------------------------- accent */
+  --fixiyi-color-accent-50: #FFFBEB;
+  --fixiyi-color-accent-100: #FEF3C7;
+  --fixiyi-color-accent-200: #FDE68A;
+  --fixiyi-color-accent-500: #FBBF24;
+  --fixiyi-color-accent-600: #F59E0B;
+  --fixiyi-color-accent-700: #B45309;
 
-  --fixiyi-color-success-500: #2e9e5b;
-  --fixiyi-color-success-700: #1f7042;
-  --fixiyi-color-warning-500: #c98a1c;
-  --fixiyi-color-warning-700: #8f6212;
-  --fixiyi-color-danger-500: #c94c2f;
-  --fixiyi-color-danger-700: #8f351f;
-  --fixiyi-color-info-500: #2f7cc9;
-  --fixiyi-color-info-700: #1f588f;
+  /* ------------------------------------------------------------ neutral */
+  --fixiyi-color-neutral-0: #FFFFFF;
+  --fixiyi-color-neutral-50: #FAFAF9;
+  --fixiyi-color-neutral-100: #F5F5F4;
+  --fixiyi-color-neutral-200: #E7E5E4;
+  --fixiyi-color-neutral-300: #D6D3D1;
+  --fixiyi-color-neutral-400: #A8A29E;
+  --fixiyi-color-neutral-500: #78716C;
+  --fixiyi-color-neutral-600: #57534E;
+  --fixiyi-color-neutral-700: #44403C;
+  --fixiyi-color-neutral-800: #292524;
+  --fixiyi-color-neutral-900: #1C1917;
 
-  /* ------------------------------------------------------------- spacing */
+  /* ---------------------------------------------------------- semantics */
+  --fixiyi-color-success-50: #F0FDF4;
+  --fixiyi-color-success-500: #16A34A;
+  --fixiyi-color-success-600: #15803D;
+  --fixiyi-color-warning-50: #FFFBEB;
+  --fixiyi-color-warning-500: #F59E0B;
+  --fixiyi-color-warning-600: #D97706;
+  --fixiyi-color-warning-700: #B45309;
+  --fixiyi-color-error-50: #FEF2F2;
+  --fixiyi-color-error-500: #DC2626;
+  --fixiyi-color-error-600: #B91C1C;
+  --fixiyi-color-info-50: #F0F9FF;
+  --fixiyi-color-info-500: #0EA5E9;
+  --fixiyi-color-info-600: #0284C7;
+  --fixiyi-color-info-700: #0369A1;
+
+  /* ------------------------------------------------------------- trades */
+  --fixiyi-color-trade-electrician: #EAB308;
+  --fixiyi-color-trade-plumber: #06B6D4;
+  --fixiyi-color-trade-hvac: #3B82F6;
+  --fixiyi-color-trade-locksmith: #8B5CF6;
+  --fixiyi-color-trade-painter: #EC4899;
+  --fixiyi-color-trade-carpenter: #A16207;
+  --fixiyi-color-trade-appliance: #F43F5E;
+  --fixiyi-color-trade-it: #64748B;
+  --fixiyi-color-trade-cleaning: #10B981;
+  --fixiyi-color-trade-gardening: #84CC16;
+
+  /* ------------------------------------------------------------ avatars */
+  --fixiyi-color-avatar-electrician-bg: var(--fixiyi-color-trade-electrician);
+  --fixiyi-color-avatar-electrician-fg: var(--fixiyi-color-neutral-900);
+  --fixiyi-color-avatar-plumber-bg: var(--fixiyi-color-trade-plumber);
+  --fixiyi-color-avatar-plumber-fg: var(--fixiyi-color-neutral-900);
+  --fixiyi-color-avatar-hvac-bg: var(--fixiyi-color-trade-hvac);
+  --fixiyi-color-avatar-hvac-fg: var(--fixiyi-color-neutral-900);
+  --fixiyi-color-avatar-locksmith-bg: #7C3AED;
+  --fixiyi-color-avatar-locksmith-fg: var(--fixiyi-color-neutral-0);
+  --fixiyi-color-avatar-painter-bg: var(--fixiyi-color-trade-painter);
+  --fixiyi-color-avatar-painter-fg: var(--fixiyi-color-neutral-900);
+  --fixiyi-color-avatar-carpenter-bg: var(--fixiyi-color-trade-carpenter);
+  --fixiyi-color-avatar-carpenter-fg: var(--fixiyi-color-neutral-0);
+
+  /* -------------------------------------------------------------- roles */
+  --fixiyi-color-brand: var(--fixiyi-color-primary-500);
+  --fixiyi-color-action: var(--fixiyi-color-primary-700);
+  --fixiyi-color-action-hover: var(--fixiyi-color-primary-800);
+  --fixiyi-color-action-subtle: var(--fixiyi-color-primary-50);
+  --fixiyi-color-on-action: var(--fixiyi-color-neutral-0);
+  --fixiyi-color-focus: var(--fixiyi-color-primary-600);
+  --fixiyi-color-icon-accent: var(--fixiyi-color-primary-600);
+  --fixiyi-color-surface: var(--fixiyi-color-neutral-0);
+  --fixiyi-color-surface-muted: var(--fixiyi-color-neutral-50);
+  --fixiyi-color-surface-sunken: var(--fixiyi-color-neutral-100);
+  --fixiyi-color-text: var(--fixiyi-color-neutral-900);
+  --fixiyi-color-text-muted: var(--fixiyi-color-neutral-600);
+  --fixiyi-color-text-subtle: var(--fixiyi-color-neutral-500);
+  --fixiyi-color-border: var(--fixiyi-color-neutral-200);
+  --fixiyi-color-border-control: var(--fixiyi-color-neutral-500);
+  --fixiyi-color-success-text: var(--fixiyi-color-success-600);
+  --fixiyi-color-success-surface: var(--fixiyi-color-success-50);
+  --fixiyi-color-warning-text: var(--fixiyi-color-warning-700);
+  --fixiyi-color-warning-surface: var(--fixiyi-color-warning-50);
+  --fixiyi-color-error-text: var(--fixiyi-color-error-600);
+  --fixiyi-color-error-surface: var(--fixiyi-color-error-50);
+  --fixiyi-color-info-text: var(--fixiyi-color-info-700);
+  --fixiyi-color-info-surface: var(--fixiyi-color-info-50);
+  --fixiyi-color-danger-action: var(--fixiyi-color-error-600);
+  --fixiyi-color-on-danger: var(--fixiyi-color-neutral-0);
+
+  /* ------------------------------------------------------------ spacing */
   --fixiyi-space-0: 0px;
   --fixiyi-space-1: 4px;
   --fixiyi-space-2: 8px;
@@ -53,25 +123,33 @@
   --fixiyi-space-4: 16px;
   --fixiyi-space-5: 20px;
   --fixiyi-space-6: 24px;
+  --fixiyi-space-7: 28px;
   --fixiyi-space-8: 32px;
   --fixiyi-space-10: 40px;
   --fixiyi-space-12: 48px;
+  --fixiyi-space-14: 56px;
   --fixiyi-space-16: 64px;
   --fixiyi-space-20: 80px;
   --fixiyi-space-24: 96px;
+  --fixiyi-space-32: 128px;
 
-  /* -------------------------------------------------------------- radius */
+  /* ------------------------------------------------------------- radius */
   --fixiyi-radius-none: 0px;
-  --fixiyi-radius-sm: 4px;
+  --fixiyi-radius-sm: 6px;
   --fixiyi-radius-md: 8px;
   --fixiyi-radius-lg: 12px;
   --fixiyi-radius-xl: 16px;
+  --fixiyi-radius-2xl: 24px;
+  --fixiyi-radius-3xl: 32px;
   --fixiyi-radius-full: 9999px;
 
-  /* ---------------------------------------------------------- typography */
+  /* --------------------------------------------------------- typography */
   --fixiyi-font-sans:
     Inter, "Noto Sans Arabic", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --fixiyi-font-arabic:
+    "Noto Sans Arabic", Inter, -apple-system, "Segoe UI", system-ui, sans-serif;
 
+  --fixiyi-font-size-2xs: 11px;
   --fixiyi-font-size-xs: 12px;
   --fixiyi-font-size-sm: 14px;
   --fixiyi-font-size-md: 16px;
@@ -79,18 +157,69 @@
   --fixiyi-font-size-xl: 20px;
   --fixiyi-font-size-2xl: 24px;
   --fixiyi-font-size-3xl: 30px;
+  --fixiyi-font-size-4xl: 36px;
+  --fixiyi-font-size-5xl: 48px;
 
   --fixiyi-font-weight-regular: 400;
   --fixiyi-font-weight-medium: 500;
   --fixiyi-font-weight-semibold: 600;
   --fixiyi-font-weight-bold: 700;
+  --fixiyi-font-weight-extrabold: 800;
 
-  /* ------------------------------------------------------------- shadows */
-  --fixiyi-shadow-sm: 0 1px 2px rgba(20, 23, 23, 0.06);
-  --fixiyi-shadow-md: 0 4px 8px rgba(20, 23, 23, 0.08);
-  --fixiyi-shadow-lg: 0 12px 24px rgba(20, 23, 23, 0.12);
+  --fixiyi-text-display-size: var(--fixiyi-font-size-5xl);
+  --fixiyi-text-display-line-height: 56px;
+  --fixiyi-text-display-weight: var(--fixiyi-font-weight-extrabold);
+  --fixiyi-text-display-tracking: -0.02em;
+  --fixiyi-text-h1-size: var(--fixiyi-font-size-4xl);
+  --fixiyi-text-h1-line-height: 44px;
+  --fixiyi-text-h1-weight: var(--fixiyi-font-weight-extrabold);
+  --fixiyi-text-h1-tracking: -0.02em;
+  --fixiyi-text-h2-size: var(--fixiyi-font-size-3xl);
+  --fixiyi-text-h2-line-height: 38px;
+  --fixiyi-text-h2-weight: var(--fixiyi-font-weight-bold);
+  --fixiyi-text-h2-tracking: -0.015em;
+  --fixiyi-text-h3-size: var(--fixiyi-font-size-2xl);
+  --fixiyi-text-h3-line-height: 32px;
+  --fixiyi-text-h3-weight: var(--fixiyi-font-weight-bold);
+  --fixiyi-text-h3-tracking: -0.01em;
+  --fixiyi-text-h4-size: var(--fixiyi-font-size-xl);
+  --fixiyi-text-h4-line-height: 28px;
+  --fixiyi-text-h4-weight: var(--fixiyi-font-weight-semibold);
+  --fixiyi-text-h4-tracking: -0.01em;
+  --fixiyi-text-h5-size: var(--fixiyi-font-size-lg);
+  --fixiyi-text-h5-line-height: 26px;
+  --fixiyi-text-h5-weight: var(--fixiyi-font-weight-semibold);
+  --fixiyi-text-h5-tracking: 0em;
+  --fixiyi-text-body-lg-size: var(--fixiyi-font-size-lg);
+  --fixiyi-text-body-lg-line-height: 28px;
+  --fixiyi-text-body-lg-weight: var(--fixiyi-font-weight-regular);
+  --fixiyi-text-body-lg-tracking: 0em;
+  --fixiyi-text-body-size: var(--fixiyi-font-size-md);
+  --fixiyi-text-body-line-height: 24px;
+  --fixiyi-text-body-weight: var(--fixiyi-font-weight-regular);
+  --fixiyi-text-body-tracking: 0em;
+  --fixiyi-text-body-sm-size: var(--fixiyi-font-size-sm);
+  --fixiyi-text-body-sm-line-height: 20px;
+  --fixiyi-text-body-sm-weight: var(--fixiyi-font-weight-regular);
+  --fixiyi-text-body-sm-tracking: 0em;
+  --fixiyi-text-caption-size: var(--fixiyi-font-size-xs);
+  --fixiyi-text-caption-line-height: 16px;
+  --fixiyi-text-caption-weight: var(--fixiyi-font-weight-medium);
+  --fixiyi-text-caption-tracking: 0em;
+  --fixiyi-text-overline-size: var(--fixiyi-font-size-2xs);
+  --fixiyi-text-overline-line-height: 16px;
+  --fixiyi-text-overline-weight: var(--fixiyi-font-weight-semibold);
+  --fixiyi-text-overline-tracking: 0.08em;
 
-  /* ------------------------------------------------------------- z-index */
+  /* ------------------------------------------------------------ shadows */
+  --fixiyi-shadow-none: none;
+  --fixiyi-shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.06);
+  --fixiyi-shadow-md: 0 4px 6px rgba(28, 25, 23, 0.07);
+  --fixiyi-shadow-lg: 0 10px 15px rgba(28, 25, 23, 0.08);
+  --fixiyi-shadow-xl: 0 20px 25px rgba(28, 25, 23, 0.10);
+  --fixiyi-shadow-2xl: 0 25px 50px rgba(28, 25, 23, 0.15);
+
+  /* ------------------------------------------------------------ z-index */
   --fixiyi-z-base: 0;
   --fixiyi-z-dropdown: 1000;
   --fixiyi-z-sticky: 1100;
@@ -98,12 +227,16 @@
   --fixiyi-z-modal: 1300;
   --fixiyi-z-toast: 1400;
 
-  /* -------------------------------------------------------------- motion */
-  --fixiyi-motion-fast: 120ms;
+  /* ------------------------------------------------------------- motion */
+  --fixiyi-motion-instant: 0ms;
+  --fixiyi-motion-fast: 150ms;
   --fixiyi-motion-normal: 200ms;
-  --fixiyi-motion-slow: 320ms;
+  --fixiyi-motion-slow: 300ms;
+  --fixiyi-motion-slower: 500ms;
 
-  --fixiyi-ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --fixiyi-ease-decelerate: cubic-bezier(0, 0, 0, 1);
-  --fixiyi-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --fixiyi-ease-linear: linear;
+  --fixiyi-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --fixiyi-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --fixiyi-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --fixiyi-ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077 22.3%, 1.121, 1.149 28.4%, 1.155, 1.151 32.9%, 1.087 39.8%, 1.048 44.7%, 1.012 52.7%, 0.993 59.4%, 0.988 66.6%, 0.998 88.9%, 1);
 }

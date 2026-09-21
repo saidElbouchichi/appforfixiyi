@@ -82,6 +82,20 @@ prompt et du « GO Refonte Design ».
   - **jamais** de photo d'artisan inventee ou de banque d'images presentee
     comme un vrai prestataire.
 - Statut : **en attente du fichier logo.**
+- **Precision de l'utilisateur (2026-09-21)** : pas de logo SVG pour
+  l'instant ; placeholders autorises :
+  - logo : **texte « Fixiyi » en Inter 800, couleur `#C2410C`** (4,96:1 sur
+    `#FAFAF9`). Option retenue plutot que l'icone composite « cle + eclair »
+    proposee en alternative : dessiner un pictogramme reviendrait a creer un
+    logo de marque non fourni ;
+  - avatars : **initiales sur fond de couleur metier** (6 metiers). Les
+    initiales sont du texte, donc soumises a 4,5:1 : paires fond/texte
+    mesurees et testees — texte fonce `#1C1917` sur Electricien, Plombier,
+    Climatisation, Peintre ; texte blanc sur Menuisier ; Serrurier passe a
+    la nuance `#7C3AED` (5,70:1), `#8B5CF6` n'atteignant 4,5:1 ni en blanc
+    (4,23) ni en fonce (4,13) ;
+  - interdits : photos d'artisans inventees, illustrations de banque
+    d'images, logos non fournis.
 - Date : 2026-09-21
 
 ## D5 - Architecture : le monorepo existant, pas de React Native

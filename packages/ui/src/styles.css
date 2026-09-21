@@ -44,7 +44,7 @@
 .fx-modal__close:focus-visible,
 .fx-modal:focus-visible,
 .fx-icon-button:focus-visible {
-  outline: 2px solid var(--fixiyi-color-primary-600);
+  outline: 2px solid var(--fixiyi-color-focus);
   outline-offset: 2px;
 }
 
@@ -71,7 +71,7 @@
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-2xl);
   font-weight: var(--fixiyi-font-weight-semibold);
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
   margin-block: 0;
 }
 
@@ -86,7 +86,7 @@
 .fx-text-muted {
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-sm);
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
 }
 
 .fx-stack {
@@ -121,10 +121,10 @@
   text-align: center;
   cursor: pointer;
   transition:
-    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
-    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
-    box-shadow var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
-    transform var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out),
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out),
+    box-shadow var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out),
+    transform var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
 }
 
 /* Retour tactile : l'enfoncement doit etre percu, pas juste colore. */
@@ -138,45 +138,45 @@
 }
 
 .fx-button--primary {
-  background-color: var(--fixiyi-color-primary-600);
-  color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-action);
+  color: var(--fixiyi-color-on-action);
   box-shadow: var(--fixiyi-shadow-sm);
 }
 
 .fx-button--primary:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--fixiyi-color-primary-600) 85%, black);
+  background-color: var(--fixiyi-color-action-hover);
   box-shadow: var(--fixiyi-shadow-md);
 }
 
 .fx-button--secondary {
-  background-color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-surface);
   border-color: var(--fixiyi-color-neutral-300);
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
 }
 
 .fx-button--secondary:hover:not(:disabled) {
-  background-color: var(--fixiyi-color-neutral-100);
+  background-color: var(--fixiyi-color-surface-sunken);
   border-color: var(--fixiyi-color-neutral-400);
 }
 
 .fx-button--danger {
-  background-color: var(--fixiyi-color-danger-700);
-  color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-danger-action);
+  color: var(--fixiyi-color-on-danger);
   box-shadow: var(--fixiyi-shadow-sm);
 }
 
 .fx-button--danger:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--fixiyi-color-danger-700) 85%, black);
+  background-color: color-mix(in srgb, var(--fixiyi-color-danger-action) 85%, black);
   box-shadow: var(--fixiyi-shadow-md);
 }
 
 .fx-button--ghost {
   background-color: transparent;
-  color: var(--fixiyi-color-primary-700);
+  color: var(--fixiyi-color-action);
 }
 
 .fx-button--ghost:hover:not(:disabled) {
-  background-color: var(--fixiyi-color-primary-50);
+  background-color: var(--fixiyi-color-action-subtle);
 }
 
 .fx-button--block {
@@ -196,11 +196,11 @@
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-sm);
   font-weight: var(--fixiyi-font-weight-medium);
-  color: var(--fixiyi-color-neutral-700);
+  color: var(--fixiyi-color-text);
 }
 
 .fx-field__required {
-  color: var(--fixiyi-color-danger-700);
+  color: var(--fixiyi-color-error-text);
   margin-inline-start: 2px;
 }
 
@@ -208,33 +208,33 @@
   min-block-size: 44px;
   padding-inline: var(--fixiyi-space-3);
   padding-block: 10px;
-  border: 1px solid var(--fixiyi-color-neutral-300);
+  border: 1px solid var(--fixiyi-color-border-control);
   border-radius: var(--fixiyi-radius-md);
-  background-color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-surface);
   font-family: var(--fixiyi-font-sans);
   font-size: 15px;
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
   inline-size: 100%;
   transition:
-    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
-    box-shadow var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out),
+    box-shadow var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
 }
 
 .fx-field__control:hover:not(:disabled) {
-  border-color: var(--fixiyi-color-neutral-400);
+  border-color: var(--fixiyi-color-neutral-600);
 }
 
 .fx-field__control::placeholder {
-  color: var(--fixiyi-color-neutral-400);
+  color: var(--fixiyi-color-text-subtle);
 }
 
 .fx-field__control:disabled {
-  background-color: var(--fixiyi-color-neutral-100);
+  background-color: var(--fixiyi-color-surface-sunken);
   cursor: not-allowed;
 }
 
 .fx-field__control[aria-invalid="true"] {
-  border-color: var(--fixiyi-color-danger-700);
+  border-color: var(--fixiyi-color-error-text);
 }
 
 .fx-field__control--textarea {
@@ -245,13 +245,13 @@
 .fx-field__hint {
   font-family: var(--fixiyi-font-sans);
   font-size: 13px;
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
 }
 
 .fx-field__error {
   font-family: var(--fixiyi-font-sans);
   font-size: 13px;
-  color: var(--fixiyi-color-danger-700);
+  color: var(--fixiyi-color-error-text);
 }
 
 /* --------------------------------------------------------------- choices */
@@ -272,41 +272,41 @@
   gap: var(--fixiyi-space-2);
   min-block-size: 44px;
   padding-inline: var(--fixiyi-space-3);
-  border: 1px solid var(--fixiyi-color-neutral-300);
+  border: 1px solid var(--fixiyi-color-border-control);
   border-radius: var(--fixiyi-radius-md);
-  background-color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-surface);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-sm);
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
   cursor: pointer;
   transition:
-    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
-    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out),
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
 }
 
 .fx-choice:hover {
-  background-color: var(--fixiyi-color-neutral-50);
-  border-color: var(--fixiyi-color-neutral-400);
+  background-color: var(--fixiyi-color-surface-muted);
+  border-color: var(--fixiyi-color-neutral-600);
 }
 
 /* L'etat selectionne n'est jamais porte par la seule couleur : la puce radio
    native reste visible a cote du libelle (WCAG 2.2 AA 1.4.1). */
 .fx-choice:has(input:checked) {
-  border-color: var(--fixiyi-color-primary-600);
-  background-color: var(--fixiyi-color-primary-50);
-  color: var(--fixiyi-color-primary-800);
+  border-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-action);
 }
 
 .fx-choice:has(input:focus-visible) {
-  outline: 2px solid var(--fixiyi-color-primary-600);
+  outline: 2px solid var(--fixiyi-color-focus);
   outline-offset: 2px;
 }
 
 /* ------------------------------------------------------------------ card */
 
 .fx-card {
-  background-color: var(--fixiyi-color-neutral-0);
-  border: 1px solid var(--fixiyi-color-neutral-200);
+  background-color: var(--fixiyi-color-surface);
+  border: 1px solid var(--fixiyi-color-border);
   border-radius: var(--fixiyi-radius-lg);
   padding: var(--fixiyi-space-5);
   box-shadow: var(--fixiyi-shadow-sm);
@@ -317,7 +317,7 @@
   font-family: var(--fixiyi-font-sans);
   font-size: 17px;
   font-weight: var(--fixiyi-font-weight-semibold);
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
   margin-block: 0 var(--fixiyi-space-3);
 }
 
@@ -337,23 +337,23 @@
 }
 
 .fx-badge--info {
-  background-color: color-mix(in srgb, var(--fixiyi-color-info-500) 15%, white);
-  color: var(--fixiyi-color-info-700);
+  background-color: var(--fixiyi-color-info-surface);
+  color: var(--fixiyi-color-info-text);
 }
 
 .fx-badge--success {
-  background-color: color-mix(in srgb, var(--fixiyi-color-success-500) 15%, white);
-  color: var(--fixiyi-color-success-700);
+  background-color: var(--fixiyi-color-success-surface);
+  color: var(--fixiyi-color-success-text);
 }
 
 .fx-badge--warning {
-  background-color: color-mix(in srgb, var(--fixiyi-color-warning-500) 18%, white);
-  color: var(--fixiyi-color-warning-700);
+  background-color: var(--fixiyi-color-warning-surface);
+  color: var(--fixiyi-color-warning-text);
 }
 
 .fx-badge--error {
-  background-color: color-mix(in srgb, var(--fixiyi-color-danger-500) 15%, white);
-  color: var(--fixiyi-color-danger-700);
+  background-color: var(--fixiyi-color-error-surface);
+  color: var(--fixiyi-color-error-text);
 }
 
 /* ------------------------------------------------------------------ icon */
@@ -382,13 +382,13 @@
   border: none;
   border-radius: var(--fixiyi-radius-md);
   background-color: transparent;
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
   cursor: pointer;
-  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
 }
 
 .fx-icon-button:hover:not(:disabled) {
-  background-color: var(--fixiyi-color-neutral-100);
+  background-color: var(--fixiyi-color-surface-sunken);
 }
 
 /* --------------------------------------------------------------- loading */
@@ -398,7 +398,7 @@
   inline-size: 20px;
   block-size: 20px;
   border: 2px solid var(--fixiyi-color-neutral-300);
-  border-block-start-color: var(--fixiyi-color-primary-600);
+  border-block-start-color: var(--fixiyi-color-icon-accent);
   border-radius: var(--fixiyi-radius-full);
   animation: fx-spin var(--fixiyi-motion-slow) linear infinite;
 }
@@ -411,9 +411,9 @@
 
 .fx-skeleton {
   display: block;
-  background-color: var(--fixiyi-color-neutral-100);
+  background-color: var(--fixiyi-color-surface-sunken);
   border-radius: var(--fixiyi-radius-sm);
-  animation: fx-pulse 1.4s var(--fixiyi-ease-standard) infinite;
+  animation: fx-pulse 1.4s var(--fixiyi-ease-in-out) infinite;
 }
 
 .fx-loading {
@@ -422,7 +422,7 @@
   gap: 10px;
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-sm);
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
 }
 
 /* ----------------------------------------------------- empty/error state */
@@ -445,19 +445,19 @@
 }
 
 .fx-state--error .fx-state__icon {
-  color: var(--fixiyi-color-danger-700);
+  color: var(--fixiyi-color-error-text);
 }
 
 .fx-state__title {
   font-size: 17px;
   font-weight: var(--fixiyi-font-weight-semibold);
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
   margin-block: 0;
 }
 
 .fx-state__message {
   font-size: var(--fixiyi-font-size-sm);
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
   margin-block: 0;
   max-inline-size: 46ch;
 }
@@ -476,7 +476,7 @@
 }
 
 .fx-modal {
-  background-color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-surface);
   border-radius: var(--fixiyi-radius-lg);
   box-shadow: var(--fixiyi-shadow-lg);
   inline-size: 100%;
@@ -498,7 +498,7 @@
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-lg);
   font-weight: var(--fixiyi-font-weight-semibold);
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
   margin-block: 0;
 }
 
@@ -512,13 +512,13 @@
   border: none;
   border-radius: var(--fixiyi-radius-md);
   background-color: transparent;
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
   cursor: pointer;
-  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
 }
 
 .fx-modal__close:hover {
-  background-color: var(--fixiyi-color-neutral-100);
+  background-color: var(--fixiyi-color-surface-sunken);
 }
 
 .fx-modal__footer {
@@ -571,22 +571,22 @@
 }
 
 .fx-bubble--own {
-  background-color: var(--fixiyi-color-primary-600);
-  color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-action);
+  color: var(--fixiyi-color-on-action);
   border-end-end-radius: var(--fixiyi-radius-sm);
 }
 
 .fx-bubble--other {
-  background-color: var(--fixiyi-color-neutral-0);
-  border: 1px solid var(--fixiyi-color-neutral-200);
-  color: var(--fixiyi-color-neutral-900);
+  background-color: var(--fixiyi-color-surface);
+  border: 1px solid var(--fixiyi-color-border);
+  color: var(--fixiyi-color-text);
   border-end-start-radius: var(--fixiyi-radius-sm);
 }
 
 .fx-bubble--deleted {
   background-color: transparent;
   border: 1px dashed var(--fixiyi-color-neutral-300);
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
   box-shadow: none;
 }
 
@@ -677,16 +677,16 @@
   gap: var(--fixiyi-space-1);
   padding-inline: var(--fixiyi-space-2);
   padding-block: 2px;
-  border: 1px solid var(--fixiyi-color-neutral-200);
+  border: 1px solid var(--fixiyi-color-border);
   border-radius: var(--fixiyi-radius-full);
-  background-color: var(--fixiyi-color-neutral-0);
+  background-color: var(--fixiyi-color-surface);
   font-family: var(--fixiyi-font-sans);
   font-size: 13px;
 }
 
 .fx-reaction--mine {
-  border-color: var(--fixiyi-color-primary-600);
-  background-color: var(--fixiyi-color-primary-50);
+  border-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action-subtle);
 }
 
 .fx-typing {
@@ -696,7 +696,7 @@
   padding-inline: var(--fixiyi-space-4);
   font-family: var(--fixiyi-font-sans);
   font-size: var(--fixiyi-font-size-sm);
-  color: var(--fixiyi-color-neutral-600);
+  color: var(--fixiyi-color-text-muted);
 }
 
 .fx-typing__dots {
@@ -711,7 +711,7 @@
   block-size: 6px;
   border-radius: var(--fixiyi-radius-full);
   background-color: var(--fixiyi-color-neutral-400);
-  animation: fx-pulse calc(var(--fixiyi-motion-slow) * 4) var(--fixiyi-ease-standard) infinite;
+  animation: fx-pulse calc(var(--fixiyi-motion-slow) * 4) var(--fixiyi-ease-in-out) infinite;
 }
 
 .fx-typing__dots > span:nth-child(2) {
@@ -727,8 +727,8 @@
   align-items: flex-end;
   gap: var(--fixiyi-space-2);
   padding: var(--fixiyi-space-3);
-  border-block-start: 1px solid var(--fixiyi-color-neutral-200);
-  background-color: var(--fixiyi-color-neutral-0);
+  border-block-start: 1px solid var(--fixiyi-color-border);
+  background-color: var(--fixiyi-color-surface);
 }
 
 .fx-composer__input {
@@ -737,16 +737,16 @@
   max-block-size: 160px;
   padding-inline: var(--fixiyi-space-3);
   padding-block: 10px;
-  border: 1px solid var(--fixiyi-color-neutral-300);
+  border: 1px solid var(--fixiyi-color-border-control);
   border-radius: var(--fixiyi-radius-lg);
   font-family: var(--fixiyi-font-sans);
   font-size: 15px;
-  color: var(--fixiyi-color-neutral-900);
+  color: var(--fixiyi-color-text);
   resize: none;
 }
 
 .fx-composer__input:focus-visible {
-  outline: 2px solid var(--fixiyi-color-primary-600);
+  outline: 2px solid var(--fixiyi-color-focus);
   outline-offset: 2px;
 }
 

@@ -185,8 +185,13 @@ la refonte.**
 - Audit : `docs/design/AUDIT.md`, ecarts : `docs/design/AUDIT_NOTES.md`.
 - 7 decisions validees : `docs/design/DECISIONS.md` (et Decision 62 pour
   le modele du catalogue).
-- En attente : parties 2/3 et 3/3 du master prompt, fichier du logo, puis
-  « GO Refonte Design ». **Aucune modification de code avant.**
+- Master prompt recu en entier (parties 1 a 3B) ; demarrage sur
+  « continue la refonte avec ces placeholders » (logo texte, D4).
+- Plan : `docs/design/PLAN.md` (14 phases).
+- **Phase 1 (Design tokens) TERMINEE** — `docs/design/PHASE_1_REPORT.md` :
+  palette par roles, 31 contrastes testes, 576 tests. Une decision attendue :
+  couleur de Domotique.
+- Prochaine : Phase 2 (typographie).
 
 ## Derniere action effectuee
 

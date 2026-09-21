@@ -95,21 +95,21 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
 
                 <p className="mb-3">{match.description}</p>
 
-                <p className="mb-1 text-sm text-[var(--fixiyi-color-neutral-600)]" data-testid="approximate-location">
+                <p className="mb-1 text-sm text-[var(--fixiyi-color-text-muted)]" data-testid="approximate-location">
                   Zone approximative : {match.approximateLocation.coordinates[1].toFixed(2)},{" "}
                   {match.approximateLocation.coordinates[0].toFixed(2)}
                 </p>
-                <p className="mb-1 text-sm text-[var(--fixiyi-color-neutral-600)]">
+                <p className="mb-1 text-sm text-[var(--fixiyi-color-text-muted)]">
                   Adresse exacte communiquee apres acceptation de l&apos;offre.
                 </p>
-                <p className="mb-3 text-sm text-[var(--fixiyi-color-neutral-600)]" data-testid="transport-quote">
+                <p className="mb-3 text-sm text-[var(--fixiyi-color-text-muted)]" data-testid="transport-quote">
                   Deplacement :{" "}
                   {match.transportQuote.isFree ? "inclus" : formatMoney(match.transportQuote.amountMinor, match.transportQuote.currency)} ·{" "}
                   {match.transportQuote.travelTimeMinutes.toString()} min estimees
                 </p>
 
                 {match.mediaCount > 0 ? (
-                  <p className="mb-3 text-sm text-[var(--fixiyi-color-neutral-600)]">
+                  <p className="mb-3 text-sm text-[var(--fixiyi-color-text-muted)]">
                     {match.mediaCount.toString()} media(s) joint(s) par le client
                   </p>
                 ) : null}

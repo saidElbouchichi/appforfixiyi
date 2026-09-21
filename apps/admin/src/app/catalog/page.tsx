@@ -252,7 +252,7 @@ function TreeNodeRow({
     <li style={{ marginInlineStart: depth * 16 }}>
       <div className="fx-row py-1">
         <Badge variant={node.active ? "info" : "warning"}>{node.level}</Badge>
-        <span className={node.active ? "" : "text-[var(--fixiyi-color-neutral-400)] line-through"}>{node.name}</span>
+        <span className={node.active ? "" : "text-[var(--fixiyi-color-text-subtle)] line-through"}>{node.name}</span>
         <Button
           variant="ghost"
           disabled={busy}

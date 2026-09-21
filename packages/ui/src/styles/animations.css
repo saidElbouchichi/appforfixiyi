@@ -77,20 +77,20 @@
 /* ------------------------------------------------------------- utilities */
 
 .fx-animate-fade-in {
-  animation: fx-fade-in var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+  animation: fx-fade-in var(--fixiyi-motion-normal) var(--fixiyi-ease-out) both;
 }
 
 .fx-animate-fade-out {
-  animation: fx-fade-out var(--fixiyi-motion-fast) var(--fixiyi-ease-accelerate) both;
+  animation: fx-fade-out var(--fixiyi-motion-fast) var(--fixiyi-ease-in) both;
 }
 
 .fx-animate-slide-in-bottom {
-  animation: fx-slide-in-from-bottom var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+  animation: fx-slide-in-from-bottom var(--fixiyi-motion-normal) var(--fixiyi-ease-out) both;
 }
 
 .fx-animate-slide-in-inline {
   --fx-slide-offset: 12px;
-  animation: fx-slide-in-inline var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+  animation: fx-slide-in-inline var(--fixiyi-motion-normal) var(--fixiyi-ease-out) both;
 }
 
 [dir="rtl"] .fx-animate-slide-in-inline {
@@ -98,7 +98,7 @@
 }
 
 .fx-animate-pulse {
-  animation: fx-pulse var(--fixiyi-motion-slow) var(--fixiyi-ease-standard) infinite;
+  animation: fx-pulse var(--fixiyi-motion-slow) var(--fixiyi-ease-in-out) infinite;
 }
 
 .fx-animate-spin {
@@ -111,7 +111,7 @@
  * lag rather than as polish, so later children simply share the last delay.
  */
 .fx-animate-stagger > * {
-  animation: fx-slide-in-from-bottom var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+  animation: fx-slide-in-from-bottom var(--fixiyi-motion-normal) var(--fixiyi-ease-out) both;
 }
 
 .fx-animate-stagger > :nth-child(1) {
