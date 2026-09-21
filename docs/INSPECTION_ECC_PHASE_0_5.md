@@ -187,3 +187,86 @@ Bonus verifie au passage, index `devices` :
   distinction est **la cle du diagnostic du bug frontend** (voir Phase 5).
 
 **Verdict Phase 2 : OK — aucun ecart structurel, TTL confirmes par la base.**
+
+---
+
+## Phase 3 — Marketplace — **OK**
+
+### Lecture effectuee
+`docs/phases/PHASE_2_REPORT.md`, `docs/phases/PHASE_3_PLAN.md`,
+`docs/phases/PHASE_3_REPORT.md`, `docs/DECISIONS.md` (Decisions 26 a 34).
+
+### Verifications structurelles
+
+| Module | Attendu | Constate | Verdict |
+|---|---|---|---|
+| `apps/api/src/catalog/` | 5 fichiers | **5** | OK |
+| `apps/api/src/providers/` | 4 fichiers | **4** | OK |
+| `apps/api/src/companies/` | 5 fichiers | **5** | OK |
+| `apps/api/src/verification/` | 6 fichiers | **6** | OK |
+| `apps/api/src/media/` | 6 fichiers | **6** | OK |
+| Back-office admin | oui | `apps/admin` : `login/page.tsx`, `catalog/page.tsx`, store/client d'auth | OK |
+
+Les six comptes correspondent **exactement** a ce qu'annonce le rapport de
+Phase 3 — aucun fichier fantome, aucun fichier manquant.
+
+### Verification MongoDB reelle (base `fixiyi`)
+
+```
+catalog_nodes:      25 documents
+provider_profiles:   4 documents
+```
+
+Index `provider_profiles` :
+
+```
+{"key":{"_id":1}}
+{"key":{"userId":1},"unique":true}
+{"key":{"serviceAreas.center":"2dsphere"}}   <- 2dsphere confirme
+{"key":{"availabilityStatus":1}}
+```
+
+L'index **2dsphere** demande est bien present, sur
+`serviceAreas.center` — c'est-a-dire sur le centre de zone de service, ce
+qui est le bon champ pour la requete de proximite du matching (et non sur
+une position ponctuelle du fournisseur).
+
+Index `catalog_nodes` : `{level, parentId, name}` **unique** — c'est cet
+index qui rend impossible deux noeuds homonymes sous le meme parent au
+meme niveau, et c'est lui qui a fait surface la race condition du seed
+(Decision 31). La contrainte est donc reellement portee par la base, pas
+seulement par le code applicatif.
+
+### Verification de l'execution reelle (base `fixiyi_test`)
+
+La base de dev `fixiyi` affiche `companies: 0` et `verification_cases: 0`,
+ce qui pourrait laisser croire que ces modules n'ont jamais tourne. **Ce
+n'est pas le cas** : les tests e2e ecrivent dans `fixiyi_test`
+(`.env.test.example` -> `DATABASE_URL=.../fixiyi_test`), ou l'on trouve :
+
+```
+companies:               66      company_members:         88
+verification_cases:      11      verification_documents:  11
+verification_decisions:  11      provider_profiles:      214
+catalog_nodes:          313      media:                   18
+```
+
+Les flux entreprise et verification ont donc bien ete exerces contre une
+vraie base, avec de vrais documents — la Decision 29 (« upload MinIO
+reel ») est corroboree par 11 `verification_documents` reellement ecrits.
+
+### Observations
+
+- **[MEDIUM] La base de test n'est pas purgee entre les runs.**
+  `fixiyi_test` accumule (819 `users`, 852 `user_sessions`, 852
+  `devices`). Les suites restent vertes aujourd'hui parce qu'elles se
+  scopent sur leurs propres identifiants, mais c'est exactement le terrain
+  qui a produit le bug de la Phase 5 ou « les fournisseurs globaux d'un
+  test e2e remplissaient le batch du test suivant » (Decision 46). Le
+  risque de flakiness croit avec le volume accumule. A traiter avant que
+  la Phase 6 (chat) n'ajoute ses propres collections.
+- Rappel de la Phase 1 : MinIO n'est pas un `service:` du workflow CI, donc
+  la partie du pipeline verification/media qui parle a S3 ne peut pas
+  s'executer en CI comme en local.
+
+**Verdict Phase 3 : OK — 1 observation MEDIUM (hygiene de la base de test).**
