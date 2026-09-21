@@ -12,9 +12,10 @@ import { IdSchema, IsoDateTimeSchema } from "./common.js";
  * `VerificationTargetType`/`targetId` (Decision 28) — a generic
  * "what is this attached to" pair rather than a `requestId`-only field, so
  * a later phase (e.g. chat attachments, Phase 6) can add a new target type
- * without a breaking contract change. Only `REQUEST` exists today.
+ * without a breaking contract change — which is exactly what `CONVERSATION`
+ * (chat attachments, Phase 6) did.
  */
-export const MediaTargetTypeSchema = z.enum(["REQUEST"]);
+export const MediaTargetTypeSchema = z.enum(["REQUEST", "CONVERSATION"]);
 export type MediaTargetType = z.infer<typeof MediaTargetTypeSchema>;
 
 export const MediaKindSchema = z.enum(["IMAGE", "VIDEO", "AUDIO"]);
