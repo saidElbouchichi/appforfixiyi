@@ -349,3 +349,220 @@ exactement ce que la Phase 4 promettait, et la donnee le confirme.
 
 **Verdict Phase 4 : OK — les 3 bugs sont corriges dans le code, le
 scenario navigateur passe et ecrit de vraies donnees.**
+
+---
+
+## Phase 5 — Matching — **OK avec reserves** (bug frontend confirme)
+
+### Lecture effectuee
+`docs/phases/PHASE_4_REPORT.md`, `docs/phases/PHASE_5_REPORT.md`,
+`docs/DECISIONS.md` (Decisions 40 a 46), `docs/prompt/06_SCOPE.md`
+(perimetre Phase 5).
+
+### Verifications structurelles
+
+| Point | Attendu | Constate | Verdict |
+|---|---|---|---|
+| `apps/api/src/matching/` | 12 fichiers | **12** | OK |
+| `apps/api/src/configuration/` | 5 fichiers | **5** | OK |
+| `apps/api/src/geo/` | 5 fichiers | **5** | OK |
+| `@fixiyi/ui` | 8 composants, 52 tests | **8 composants**, **52 tests passes** | OK |
+| Tests matching (ranking) | 19 | `ranking.test.ts` -> **19 tests passes** | OK |
+
+### Gates du monorepo re-executes
+
+```
+pnpm lint       -> 15 taches / 15, 0 erreur
+pnpm typecheck  -> 15 taches / 15, 0 erreur
+pnpm test       -> 13 taches / 13, 55 fichiers, 320 tests, 0 echec
+pnpm build      -> 10 taches / 10, succes
+```
+
+Repartition reelle des 320 tests : api 153, contracts 69, ui 52,
+shared-utils 27, config 11, i18n 3, design-tokens 3, worker 2.
+
+### Verification MongoDB reelle — le dispatch progressif est-il vraiment borne ?
+
+C'est la promesse centrale de la phase, donc elle est verifiee sur la
+donnee et non sur le rapport. Configuration reellement en base :
+
+```json
+{"_id":"system","matching":{"weights":{"distance":0.4,"availability":0.2,
+ "verificationLevel":0.2,"experience":0.1,"exploration":0.1,
+ "reputation":0,"reliability":0,"history":0,"currentLoad":0},
+ "defaultRadiusKm":10,"maxRadiusKm":50,"radiusExpansionStepKm":10,
+ "batchSize":3,"batchWaitSeconds":120,"urgentBatchSize":5,
+ "urgentBatchWaitSeconds":45,"explorationSlotsPerBatch":1,
+ "maxBatchesPerMatch":5,"candidateExpirySeconds":900}, ...}
+```
+
+Les quatre signaux sans donnees reelles (`reputation`, `reliability`,
+`history`, `currentLoad`) sont bien a **0** — la Decision 40 (« jamais de
+valeur inventee ») est tenue par la donnee.
+
+Candidats par match, confrontes a `batchSize: 3` :
+
+```
+match ...e8100c42 -> 4 candidats, vagues [0,1]
+match ...408b9f803 -> 3 candidats, vague  [0]
+match ...737eef41 -> 2 candidats, vague  [0]
+match ...01b6e62d -> 2 candidats, vagues [0,1]
+```
+
+**Aucune vague ne depasse 3 candidats.** Le seul match a 4 candidats les
+repartit sur 2 vagues. Le batch est donc reellement borne en base, pas
+seulement dans l'intention du code.
+
+Siege d'exploration visible dans les scores reels : `0.78` contre `0.68`
+pour des fournisseurs par ailleurs identiques — le bonus d'exploration
+(`explorationSlotsPerBatch: 1`) produit un effet mesurable.
+
+Les 4 matches sont `EXHAUSTED` a `currentRadiusKm: 50`, soit exactement
+`maxRadiusKm` : l'expansion de rayon va bien jusqu'a son plafond puis
+s'arrete au lieu de boucler.
+
+### Verification Redis reelle
+
+```
+docker exec fixiyi-redis redis-cli --scan --pattern "bull:matching:*"
+  bull:matching:id
+  bull:matching:events
+  bull:matching:meta          (db0 — stack de dev)
+  39 cles                     (db1 — base des tests e2e)
+```
+
+La queue BullMQ `matching` existe reellement dans les deux
+environnements — conforme a la Decision 43.
+
+---
+
+## BUG FRONTEND — « Invalid or expired access token » — **CONFIRME, reproduit**
+
+### Reproduction
+
+Reproduit de facon **deterministe** via un harnais Playwright temporaire
+contre la vraie stack Docker (supprime apres la mesure ; capture d'ecran
+conservee : `docs/evidence/bug-expired-token-repro.png`) :
+
+```
+REPRO: refreshToken persisted in localStorage = true
+REPRO: calls to /auth/refresh                 = 0
+REPRO: dead session still in localStorage     = true
+  ok 1 REPRO: an expired access token is never refreshed and never recovered
+```
+
+Scenario : login OTP reel -> session valide -> l'`accessToken` persiste
+est remplace par un token expire (effet identique a l'attente naturelle de
+`JWT_ACCESS_TTL`) -> rechargement de `/requests/new`.
+
+### Cause racine
+
+Ce n'est **pas** un bug d'hydratation (celui-la a ete corrige en Phase 5,
+Decision 46, et `useAuthHydrated()` fait correctement son travail). C'est
+une **fonctionnalite absente** :
+
+1. `JWT_ACCESS_TTL = 15m`, `JWT_REFRESH_TTL = 30d`
+   (`packages/config/src/env-schema.ts:28-29`, `.env:24-25`).
+2. `apps/web` et `apps/admin` persistent `accessToken` **et**
+   `refreshToken` dans `localStorage` via `zustand/persist`
+   (`apps/web/src/lib/auth-store.ts`, cle `fixiyi-web-auth`).
+3. `apiFetch` attache `Authorization: Bearer <accessToken>`
+   (`apps/web/src/lib/api-client.ts:26-31`) — mais **aucune ligne de
+   `apps/web` ni de `apps/admin` n'appelle jamais
+   `POST /api/v1/auth/refresh`**. Le `refreshToken` est ecrit dans le
+   store et **jamais relu** (verifie par grep : uniquement des
+   declarations de type et l'ecriture au login).
+4. L'endpoint existe pourtant cote API, complet et rate-limite
+   (`apps/api/src/auth/auth.controller.ts:69`, 60 appels/h).
+5. Passe 15 minutes, chaque appel `auth: true` prend donc un 401. Le
+   message vient de `AuthGuard`
+   (`apps/api/src/auth/guards/auth.guard.ts:39` — branche « verification
+   JWT echouee », a distinguer de `"Session has been revoked or
+   expired"`).
+6. Sur `/requests/new` c'est immediat et visible, parce que
+   `initializeDraft()` appelle `GET /api/v1/requests/mine` des le montage.
+7. **Aucune recuperation** : `apiFetch` leve une `ApiError`, la page
+   affiche le message, la session morte **reste dans `localStorage`
+   indefiniment** et l'utilisateur n'est meme pas renvoye vers `/login`.
+   Il est bloque sur un ecran inutilisable jusqu'a vidage manuel du
+   navigateur.
+
+### Correction proposee (NON APPLIQUEE — hors perimetre d'une inspection)
+
+Dans `apiFetch` : sur un 401 pour une requete `auth: true`, tenter **une
+fois** `POST /api/v1/auth/refresh` avec le `refreshToken` stocke, ranger
+le couple rote via `setSession`, rejouer la requete d'origine ; si le
+refresh echoue a son tour, `clearSession()` puis redirection vers
+`/login`.
+
+Deux precautions indispensables :
+
+- **Serialiser les refresh concurrents** derriere une seule promesse en
+  vol : `/requests/new` declenche plusieurs appels authentifies
+  simultanes, et N refresh paralleles sur un token rotatif
+  declencheraient la detection de rejeu (`REUSE_DETECTED`,
+  `session.service.ts`) — qui revoque toute la session. Le remede naif
+  serait donc pire que le mal.
+- **Ne pas dupliquer le correctif** : `apps/web/src/lib/api-client.ts` et
+  `apps/admin/src/lib/api-client.ts` sont aujourd'hui identiques au
+  caractere pres. Le corriger deux fois recreerait exactement la
+  divergence que la Decision 39 a deja fait payer une fois. La forme
+  juste est d'extraire le client dans un package partage.
+
+---
+
+## Findings de securite (agent ECC `ecc:security-reviewer`, re-verifies a la main)
+
+Chaque finding ci-dessous a ete **re-verifie dans le code** avant d'etre
+retenu ; les items non confirmes ne figurent pas dans cette liste.
+
+| # | Severite | Fichier | Defaut |
+|---|---|---|---|
+| S1 | **HIGH** | `infrastructure/storage/storage.service.ts:57-61`, `media/media.service.ts`, `requests/request.controller.ts` | Upload presigne non borne + aucun nettoyage |
+| S2 | MEDIUM | `auth/schemas/user.schema.ts:37` | `User.status` defini mais jamais applique |
+| S3 | MEDIUM | `main.ts:16`, `auth/rate-limit/rate-limit.guard.ts:25` | `trustProxy` non configure |
+| S4 | LOW | `requests/request.service.ts:113`, `media/media.service.ts:142` | `finalize` ne verifie pas que le media appartient a CETTE demande |
+| S5 | LOW | `auth/auth.service.ts:218` | Oracle d'inscription sur `POST /auth/email` |
+
+**S1 (HIGH)** — re-verifie point par point :
+- `createPresignedUploadUrl` ne pose que `Bucket`/`Key`/`ContentType` :
+  **ni `ContentLength`, ni condition de taille**. L'URL presignee accepte
+  donc un PUT de n'importe quelle taille.
+- `grep -rn "DeleteObject" apps packages` -> **aucun resultat**. Un objet
+  rejete (trop gros, mauvaise signature) reste dans MinIO **pour
+  toujours**.
+- `request.controller.ts` n'a **aucun** `@RateLimit` sur ses 9 routes, y
+  compris `POST /requests` et `POST /:id/media`.
+
+Scenario : un client authentifie ouvre une session d'upload en declarant
+1 Ko, PUT un fichier de plusieurs Go sur l'URL presignee (rien ne borne la
+taille au PUT), puis finalise. Le document media passe `REJECTED` — mais
+l'objet de plusieurs Go reste dans le bucket. Sans rate limit, l'operation
+est repetable a volonte : saturation du stockage par un seul compte.
+
+**S2 (MEDIUM)** re-verifie : `user.status` n'est lu qu'en
+`auth.service.ts:311`, pour le projeter dans la reponse. Aucun guard ne le
+consulte. Dormant aujourd'hui (aucun endpoint ne desactive un compte),
+mais le jour ou un compte passe `DEACTIVATED`, ses sessions continuent de
+vivre et son refresh token continue de tourner.
+
+**S4 (LOW)** re-verifie : `requestService.finalizeMedia` verifie que la
+demande est editable et possedee, puis `mediaService.finalize` ->
+`requireOwned` ne verifie que `ownerUserId`. **Personne ne verifie que
+`media.targetId === id`.** Borne au meme utilisateur (pas d'IDOR
+inter-comptes), donc integrite de donnees plutot que faille
+d'autorisation.
+
+### Points juges sains par l'audit (et confirmes)
+
+OTP (HMAC-SHA256, jamais de code en clair, `timingSafeEqual`, 5 tentatives
+par sujet), rotation/rejeu du refresh token (`REUSE_DETECTED` revoque la
+session entiere), CSRF double-submit, **non-confiance au `Content-Type`
+client** (la decision accepter/rejeter vient des vrais magic bytes),
+absence de secret en dur, absence d'injection Mongo et de traversee de
+chemin sur les cles d'objet.
+
+**Verdict Phase 5 : OK sur le perimetre livre (dispatch borne, expansion,
+ponderations, geo — tous confirmes par la donnee reelle). Deux reserves
+hors perimetre Phase 5 : le bug frontend de rafraichissement de token
+(HIGH, reproduit) et le finding S1 (HIGH, upload non borne).**
