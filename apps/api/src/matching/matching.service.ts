@@ -170,10 +170,7 @@ export class MatchingService {
 
   async markViewed(candidateId: string, providerUserId: string): Promise<ProviderMatch> {
     const candidate = await this.requireOwnCandidate(candidateId, providerUserId);
-    if (candidate.status === "NOTIFIED") {
-      candidate.status = "VIEWED";
-      await candidate.save();
-    }
+    await this.ensureViewed(candidate);
     const matches = await this.listForProvider(providerUserId);
     const match = matches.find((entry) => entry.candidateId === candidateId);
     if (!match) {
@@ -252,6 +249,63 @@ export class MatchingService {
     return match;
   }
 
+  /**
+   * The chat's view of a dispatch (Phase 6). Deliberately narrow: the chat
+   * module never reads `MatchCandidate` itself (01_SPEC_PRODUCT.md #51 — each
+   * module owns its boundaries). Returns the most recent candidacy of this
+   * provider on this request, whatever its status.
+   */
+  async findCandidacy(requestId: string, providerUserId: string): Promise<Candidacy | null> {
+    const candidate = await this.candidateModel.findOne({ requestId, providerUserId }).sort({ dispatchedAt: -1 });
+    if (!candidate) {
+      return null;
+    }
+    return {
+      candidateId: candidate._id,
+      providerId: candidate.providerId,
+      live: isLiveCandidacy(candidate, new Date()),
+    };
+  }
+
+  /**
+   * `findCandidacy` for many (request, provider) pairs in one query, keyed
+   * `requestId:providerUserId`. Where a provider has several candidacies on
+   * one request, the most recent wins — same rule as `findCandidacy`.
+   */
+  async findCandidacies(pairs: { requestId: string; providerUserId: string }[]): Promise<Map<string, Candidacy>> {
+    if (pairs.length === 0) {
+      return new Map();
+    }
+    const docs = await this.candidateModel.find({ $or: pairs }).sort({ dispatchedAt: 1 });
+    const now = new Date();
+    // Ascending sort + later overwrite = the most recent candidacy per pair.
+    return new Map(
+      docs.map((doc) => [
+        candidacyKey(doc.requestId, doc.providerUserId),
+        { candidateId: doc._id, providerId: doc.providerId, live: isLiveCandidacy(doc, now) },
+      ]),
+    );
+  }
+
+  /**
+   * Engaging with a dispatch — opening its conversation — counts as viewing
+   * it. Only NOTIFIED candidacies expire, so without this a conversation the
+   * provider had actually started would be cut off by the next batch.
+   */
+  async markCandidacyViewed(candidateId: string): Promise<void> {
+    const candidate = await this.candidateModel.findById(candidateId);
+    if (candidate) {
+      await this.ensureViewed(candidate);
+    }
+  }
+
+  private async ensureViewed(candidate: MatchCandidateDocument): Promise<void> {
+    if (candidate.status === "NOTIFIED") {
+      candidate.status = "VIEWED";
+      await candidate.save();
+    }
+  }
+
   private async requireOwnCandidate(candidateId: string, providerUserId: string): Promise<MatchCandidateDocument> {
     const candidate = await this.candidateModel.findById(candidateId);
     if (!candidate) {
@@ -262,6 +316,27 @@ export class MatchingService {
     }
     return candidate;
   }
+}
+
+export function candidacyKey(requestId: string, providerUserId: string): string {
+  return `${requestId}:${providerUserId}`;
+}
+
+export interface Candidacy {
+  candidateId: string;
+  providerId: string;
+  /** Still a legitimate conversation partner: VIEWED, or NOTIFIED and not yet past its expiry. */
+  live: boolean;
+}
+
+/**
+ * Expiry is written by the next batch, not to the second (PHASE_5_REPORT
+ * limitation), so a NOTIFIED candidacy past `expiresAt` is treated as
+ * expired here even if no batch has run yet to mark it.
+ */
+function isLiveCandidacy(candidate: MatchCandidateDocument, now: Date): boolean {
+  if (candidate.status === "VIEWED") return true;
+  return candidate.status === "NOTIFIED" && candidate.expiresAt > now;
 }
 
 function toMatch(doc: MatchDocument, candidateCount: number): Match {

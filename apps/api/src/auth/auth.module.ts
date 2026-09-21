@@ -49,6 +49,6 @@ import { TokenService } from "./token/token.service.js";
   // class in @UseGuards() against the *consuming* module's reachable providers, not just
   // AuthModule's (verified: omitting these throws "Nest can't resolve dependencies of the
   // AuthGuard ... TokenService ... is available in the CatalogModule module").
-  exports: [AuthGuard, RolesGuard, ResourceOwnerGuard, CsrfGuard, TokenService, SessionService, CsrfService],
+  exports: [AuthGuard, RolesGuard, ResourceOwnerGuard, CsrfGuard, RateLimitGuard, RateLimitService, TokenService, SessionService, CsrfService],
 })
 export class AuthModule {}

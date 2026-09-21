@@ -55,6 +55,16 @@ export class ProviderService {
     return doc ? toProviderProfile(doc) : null;
   }
 
+  /** Many profiles in one query, keyed by id; unknown ids are simply absent. */
+  async findManyByIds(ids: string[]): Promise<Map<string, ProviderProfile>> {
+    const unique = [...new Set(ids)];
+    if (unique.length === 0) {
+      return new Map();
+    }
+    const docs = await this.model.find({ _id: { $in: unique } });
+    return new Map(docs.map((doc) => [doc._id, toProviderProfile(doc)]));
+  }
+
   async create(userId: string, input: CreateProviderProfileInput): Promise<ProviderProfile> {
     const existing = await this.model.findOne({ userId });
     if (existing) {

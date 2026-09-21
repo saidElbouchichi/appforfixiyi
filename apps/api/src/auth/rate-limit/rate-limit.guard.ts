@@ -7,7 +7,19 @@ import { DomainHttpException } from "../../common/exceptions/domain-http.excepti
 import { RATE_LIMIT_KEY, type RateLimitOptions } from "./rate-limit.decorator.js";
 import { RateLimitService } from "./rate-limit.service.js";
 
-/** IP-keyed complement to the phone/email-keyed limits enforced inside OtpService (02_SPEC_ENGINEERING.md #152). */
+function rateLimitKey(options: RateLimitOptions, request: FastifyRequest): string {
+  if (options.key === "user") {
+    // Fail closed: a user-keyed limit on a route AuthGuard does not protect is
+    // a wiring bug, and silently falling back to the IP would hide it.
+    if (!request.user) {
+      throw new Error(`RateLimit "${options.scope}" is keyed by user but the route is not authenticated.`);
+    }
+    return `${options.scope}:user:${request.user.id}`;
+  }
+  return `${options.scope}:ip:${request.ip}`;
+}
+
+/** Rate limiting per route (02_SPEC_ENGINEERING.md #152, #634, #640): by IP by default, by user where `key: "user"`. */
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(
@@ -22,7 +34,7 @@ export class RateLimitGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<FastifyRequest>();
-    const result = await this.rateLimit.consume(`${options.scope}:ip:${request.ip}`, options.limit, options.windowSeconds);
+    const result = await this.rateLimit.consume(rateLimitKey(options, request), options.limit, options.windowSeconds);
 
     if (!result.allowed) {
       const reply = context.switchToHttp().getResponse<FastifyReply>();

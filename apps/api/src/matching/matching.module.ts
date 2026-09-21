@@ -48,6 +48,7 @@ import { MatchEntity, MatchEntitySchema } from "./schemas/match.schema.js";
     MatchingService,
     MatchingProcessor,
   ],
+  exports: [MatchingService],
 })
 export class MatchingModule implements OnApplicationShutdown {
   constructor(@Inject(MATCHING_QUEUE) private readonly queue: MatchingQueue) {}

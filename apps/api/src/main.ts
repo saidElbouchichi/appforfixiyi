@@ -6,6 +6,7 @@ import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fa
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 import { AppModule } from "./app.module.js";
+import { configureRealtime } from "./chat/realtime.adapter.js";
 import { ProblemDetailsFilter } from "./common/filters/problem-details.filter.js";
 
 async function bootstrap(): Promise<void> {
@@ -24,6 +25,8 @@ async function bootstrap(): Promise<void> {
   // blocking every real-browser PATCH/DELETE call (found via Phase 4's
   // Playwright test hitting PATCH /requests/:id — see Decision 35's report).
   app.enableCors({ methods: ["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE"] });
+  // Socket.IO on the same HTTP server, behind the Redis adapter (chat, Phase 6).
+  await configureRealtime(app, env);
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle(env.APP_NAME)

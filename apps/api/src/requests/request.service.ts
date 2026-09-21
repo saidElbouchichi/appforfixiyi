@@ -27,6 +27,12 @@ const CANCELLABLE_STATUSES: RequestStatus[] = ["DRAFT", "REQUESTED", "MATCHING"]
  * is a valid, tested contract state but nothing here transitions into it —
  * that's Phase 5's job once a real matching engine exists.
  */
+export interface RequestSummary {
+  id: string;
+  clientUserId: string;
+  status: ServiceRequest["status"];
+}
+
 @Injectable()
 export class RequestService {
   constructor(
@@ -54,6 +60,20 @@ export class RequestService {
   async findById(id: string): Promise<ServiceRequest | null> {
     const doc = await this.model.findById(id);
     return doc ? this.toServiceRequest(doc) : null;
+  }
+
+  /**
+   * Who owns a request and where it stands — all the chat needs, for any
+   * number of requests in one query (no per-conversation lookup). Lean on
+   * purpose: the full `ServiceRequest` view resolves media too.
+   */
+  async findSummaries(ids: string[]): Promise<Map<string, RequestSummary>> {
+    const unique = [...new Set(ids)];
+    if (unique.length === 0) {
+      return new Map();
+    }
+    const docs = await this.model.find({ _id: { $in: unique } }).select("_id clientUserId status");
+    return new Map(docs.map((doc) => [doc._id, { id: doc._id, clientUserId: doc.clientUserId, status: doc.status }]));
   }
 
   /**

@@ -3,6 +3,7 @@ import { Module, type DynamicModule } from "@nestjs/common";
 
 import { AuthModule } from "./auth/auth.module.js";
 import { CatalogModule } from "./catalog/catalog.module.js";
+import { ChatModule } from "./chat/chat.module.js";
 import { CompanyModule } from "./companies/company.module.js";
 import { ConfigurationModule } from "./configuration/configuration.module.js";
 import { GeoModule } from "./geo/geo.module.js";
@@ -36,6 +37,7 @@ export class AppModule {
         ConfigurationModule,
         GeoModule,
         MatchingModule,
+        ChatModule,
       ],
     };
   }

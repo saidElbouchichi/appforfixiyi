@@ -13,6 +13,12 @@ import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
 import { ENV } from "../env.token.js";
 
 const PRESIGNED_UPLOAD_TTL_SECONDS = 15 * 60;
+/**
+ * Short on purpose: a download URL is a bearer credential — anyone holding it
+ * reads the file. It is re-issued on every read by an authorised participant,
+ * so a short life costs nothing and bounds how long a leaked link works.
+ */
+export const PRESIGNED_DOWNLOAD_TTL_SECONDS = 5 * 60;
 
 export interface PresignedUpload {
   url: string;
@@ -101,6 +107,13 @@ export class StorageService implements OnModuleInit {
    */
   async deleteObject(objectKey: string): Promise<void> {
     await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: objectKey }));
+  }
+
+  /** Signing is a local HMAC computation (no network call), so issuing one per read is cheap. */
+  async createPresignedDownloadUrl(objectKey: string): Promise<PresignedUpload> {
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: objectKey });
+    const url = await getSignedUrl(this.publicClient, command, { expiresIn: PRESIGNED_DOWNLOAD_TTL_SECONDS });
+    return { url, expiresInSeconds: PRESIGNED_DOWNLOAD_TTL_SECONDS };
   }
 
   /** Real existence check against the object store — never trust the client's word that an upload happened. */

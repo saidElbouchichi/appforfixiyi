@@ -18,6 +18,19 @@ import { extractImageDimensions } from "./media-metadata.js";
 import { matchesSignature, SIGNATURE_PREFIX_BYTES } from "./media-signature.js";
 import { MediaEntity, type MediaDocument } from "./schemas/media.schema.js";
 
+/** What a consumer needs to render an attachment — including a short-lived download URL. */
+export interface MediaDisplay {
+  mediaId: string;
+  kind: Media["kind"];
+  contentType: string;
+  fileName: string;
+  sizeBytes: number;
+  width: number | null;
+  height: number | null;
+  url: string;
+  urlExpiresAt: Date;
+}
+
 /** Enough of an image's header to reach dimension data for the formats we accept (JPEG/PNG/WEBP). */
 const IMAGE_METADATA_PREFIX_BYTES = 256 * 1024;
 
@@ -122,6 +135,56 @@ export class MediaService {
     doc.status = "READY";
     await doc.save();
     return toMedia(doc);
+  }
+
+  /**
+   * The media a sender may attach to something on `targetType`/`targetId`:
+   * theirs, uploaded against that very target, and scanned READY. One
+   * failing id fails the whole set — a message silently missing an
+   * attachment its sender believed was sent is worse than a clear refusal.
+   */
+  async requireAttachable(mediaIds: string[], ownerUserId: string, targetType: MediaTargetType, targetId: string): Promise<void> {
+    if (mediaIds.length === 0) {
+      return;
+    }
+    const unique = [...new Set(mediaIds)];
+    const count = await this.model.countDocuments({ _id: { $in: unique }, ownerUserId, targetType, targetId, status: "READY" });
+    if (count !== unique.length) {
+      throw new DomainHttpException(
+        HttpStatus.BAD_REQUEST,
+        "MEDIA_NOT_ATTACHABLE",
+        "Every attachment must be your own upload to this conversation, finalized as READY.",
+      );
+    }
+  }
+
+  /** Display data for many media at once (one query), keyed by id; unknown ids are simply absent. */
+  async describeForDisplay(mediaIds: string[]): Promise<Map<string, MediaDisplay>> {
+    const unique = [...new Set(mediaIds)];
+    if (unique.length === 0) {
+      return new Map();
+    }
+    const docs = await this.model.find({ _id: { $in: unique }, status: "READY" });
+    const entries = await Promise.all(
+      docs.map(async (doc): Promise<[string, MediaDisplay]> => {
+        const download = await this.storage.createPresignedDownloadUrl(doc.objectKey);
+        return [
+          doc._id,
+          {
+            mediaId: doc._id,
+            kind: doc.kind,
+            contentType: doc.contentType,
+            fileName: doc.fileName,
+            sizeBytes: doc.actualSizeBytes ?? doc.declaredSizeBytes,
+            width: doc.width,
+            height: doc.height,
+            url: download.url,
+            urlExpiresAt: new Date(Date.now() + download.expiresInSeconds * 1000),
+          },
+        ];
+      }),
+    );
+    return new Map(entries);
   }
 
   /** Reusable by other modules (e.g. `RequestService` computing `ServiceRequest.mediaIds`) — only successfully-scanned media counts as "attached". */

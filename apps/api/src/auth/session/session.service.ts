@@ -96,6 +96,20 @@ export class SessionService {
     return this.sessionModel.findOne({ _id: sessionId, status: "ACTIVE" });
   }
 
+  /**
+   * Which of these sessions are still ACTIVE — one query for any number of
+   * ids. Lets a long-lived connection (the chat socket) honour a remote
+   * logout the way `AuthGuard` does per HTTP request, without a database
+   * round trip per connected socket.
+   */
+  async filterActiveIds(sessionIds: string[]): Promise<Set<string>> {
+    if (sessionIds.length === 0) {
+      return new Set();
+    }
+    const active = await this.sessionModel.find({ _id: { $in: sessionIds }, status: "ACTIVE" }).select("_id");
+    return new Set(active.map((session) => session._id));
+  }
+
   async touchLastUsed(sessionId: string): Promise<void> {
     await this.sessionModel.updateOne({ _id: sessionId }, { $set: { lastUsedAt: new Date() } });
   }
