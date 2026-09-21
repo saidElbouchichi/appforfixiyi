@@ -9,6 +9,7 @@ const EXPECTED_ICONS: Record<string, IconName[]> = {
   actions: ["add", "edit", "delete", "close", "check", "arrow"],
   status: ["success", "warning", "error", "info", "loading"],
   metier: ["wrench", "tools", "calendar", "map", "star", "shield"],
+  chat: ["send", "reply", "attach", "check-double"],
 };
 
 describe("Icon — coverage", () => {
@@ -108,9 +109,12 @@ describe("Icon — RTL", () => {
   // `svg.className` is an SVGAnimatedString, not a string — read the attribute.
   const classesOf = (container: HTMLElement): string => container.querySelector("svg")?.getAttribute("class") ?? "";
 
-  it("marks a direction-dependent icon so dir=rtl can mirror it", () => {
-    const { container } = render(<Icon name="arrow" />);
-    expect(classesOf(container)).toContain("fx-icon--directional");
+  it("marks every direction-dependent icon so dir=rtl can mirror it", () => {
+    for (const name of ["arrow", "send", "reply"] as IconName[]) {
+      const { container, unmount } = render(<Icon name={name} />);
+      expect(classesOf(container), name).toContain("fx-icon--directional");
+      unmount();
+    }
   });
 
   it("does not mirror an icon whose meaning is direction-independent", () => {

@@ -159,12 +159,14 @@ export type Conversation = z.infer<typeof ConversationSchema>;
 
 /**
  * A client opens a conversation with one of the providers the engine
- * contacted, so it names that provider. A provider opens the conversation
- * about a request it was dispatched to, so it names nobody.
+ * contacted, so it names that CANDIDACY: the dispatch the engine created,
+ * which is itself the proof that this provider was contacted. A provider
+ * opens the conversation about a request it was dispatched to, so it names
+ * nobody.
  */
 export const OpenConversationInputSchema = z.object({
   requestId: IdSchema,
-  providerUserId: IdSchema.optional(),
+  candidateId: IdSchema.optional(),
 });
 export type OpenConversationInput = z.infer<typeof OpenConversationInputSchema>;
 

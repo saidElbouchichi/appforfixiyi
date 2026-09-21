@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { ApiError, apiFetch } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
+import { openConversation } from "../../../lib/chat-api";
 
 const ProviderMatchListSchema = z.array(ProviderMatchSchema);
 const PROVIDER_MATCHES_KEY = ["provider-matches"];
@@ -40,6 +41,14 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
     queryKey: PROVIDER_MATCHES_KEY,
     queryFn: async (): Promise<ProviderMatch[]> => ProviderMatchListSchema.parse(await apiFetch("/api/v1/matches/mine", { auth: true })),
     enabled: hydrated && user !== null,
+  });
+
+  // Opening a conversation also marks the dispatch as viewed server-side, so it will not expire mid-discussion.
+  const chatMutation = useMutation({
+    mutationFn: (requestId: string) => openConversation({ requestId }),
+    onSuccess: (conversation) => {
+      router.push(`/conversations/${conversation.id}`);
+    },
   });
 
   const declineMutation = useMutation({
@@ -105,17 +114,34 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
                   </p>
                 ) : null}
 
-                <Button
-                  variant="secondary"
-                  loading={declineMutation.isPending}
-                  onClick={() => {
-                    declineMutation.mutate(match.candidateId);
-                  }}
-                  testId="decline-button"
-                >
-                  <Icon name="close" size="sm" />
-                  Refuser
-                </Button>
+                <div className="fx-row">
+                  <Button
+                    loading={chatMutation.isPending && chatMutation.variables === match.requestId}
+                    onClick={() => {
+                      chatMutation.mutate(match.requestId);
+                    }}
+                    testId="chat-with-client-button"
+                  >
+                    <Icon name="message" size="sm" />
+                    Discuter avec le client
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    loading={declineMutation.isPending}
+                    onClick={() => {
+                      declineMutation.mutate(match.candidateId);
+                    }}
+                    testId="decline-button"
+                  >
+                    <Icon name="close" size="sm" />
+                    Refuser
+                  </Button>
+                </div>
+                {chatMutation.error ? (
+                  <p className="fx-field__error" role="alert">
+                    {chatMutation.error instanceof ApiError ? chatMutation.error.message : "Impossible d'ouvrir la conversation."}
+                  </p>
+                ) : null}
               </Card>
             </li>
           ))}

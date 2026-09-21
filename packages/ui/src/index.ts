@@ -1,9 +1,22 @@
 export { Badge, type BadgeProps, type BadgeVariant } from "./components/Badge.js";
 export { Button, type ButtonProps, type ButtonVariant } from "./components/Button.js";
 export { Card, type CardProps } from "./components/Card.js";
+export {
+  DeliveryStatus,
+  MessageBubble,
+  ReplyQuote,
+  TypingIndicator,
+  type DeliveryState,
+  type DeliveryStatusProps,
+  type MessageBubbleProps,
+  type ReactionSummary,
+  type ReplyQuoteProps,
+  type TypingIndicatorProps,
+} from "./components/Chat.js";
 export { EmptyState, type EmptyStateProps } from "./components/EmptyState.js";
 export { ErrorState, type ErrorStateProps } from "./components/ErrorState.js";
 export { Icon, ICON_NAMES, ICON_SIZES, type IconName, type IconProps, type IconSize } from "./components/Icon.js";
+export { IconButton, type IconButtonProps } from "./components/IconButton.js";
 export { Input, type InputProps, type InputType } from "./components/Input.js";
 export { Loading, Skeleton, Spinner, type LoadingProps, type SkeletonProps, type SpinnerProps } from "./components/Loading.js";
 export { Modal, type ModalProps } from "./components/Modal.js";

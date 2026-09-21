@@ -14,7 +14,7 @@ export class ApiError extends Error {
 }
 
 interface RequestOptions {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   auth?: boolean;
 }
@@ -79,7 +79,12 @@ async function performRefresh(): Promise<boolean> {
   }
 }
 
-function refreshSession(): Promise<boolean> {
+/**
+ * Exported for the chat socket: a reconnect after the access token expired
+ * must refresh through the SAME single in-flight promise as HTTP, or the two
+ * would race and trip the refresh-token replay detection.
+ */
+export function refreshSession(): Promise<boolean> {
   refreshInFlight ??= performRefresh().finally(() => {
     refreshInFlight = null;
   });

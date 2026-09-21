@@ -267,6 +267,21 @@ export class MatchingService {
     };
   }
 
+  /** A candidacy by its own id: how a client designates the provider it wants to write to. */
+  async findCandidacyById(candidateId: string): Promise<(Candidacy & { requestId: string; providerUserId: string }) | null> {
+    const candidate = await this.candidateModel.findById(candidateId);
+    if (!candidate) {
+      return null;
+    }
+    return {
+      candidateId: candidate._id,
+      providerId: candidate.providerId,
+      live: isLiveCandidacy(candidate, new Date()),
+      requestId: candidate.requestId,
+      providerUserId: candidate.providerUserId,
+    };
+  }
+
   /**
    * `findCandidacy` for many (request, provider) pairs in one query, keyed
    * `requestId:providerUserId`. Where a provider has several candidacies on

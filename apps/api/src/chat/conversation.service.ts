@@ -50,6 +50,10 @@ function computeCanSend(conversation: ConversationEntity, request: RequestSummar
   return candidacy?.live ?? false;
 }
 
+function notDispatched(): DomainHttpException {
+  return new DomainHttpException(HttpStatus.FORBIDDEN, "CONVERSATION_NOT_DISPATCHED", "This provider was not contacted for this request.");
+}
+
 function isDuplicateKeyError(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === 11000;
 }
@@ -76,12 +80,7 @@ export class ConversationService {
       throw new NotFoundException("Request not found");
     }
     const isClient = request.clientUserId === userId;
-    const providerUserId = this.resolveProviderUserId(userId, isClient, input);
-
-    const candidacy = await this.matching.findCandidacy(request.id, providerUserId);
-    if (!candidacy) {
-      throw new DomainHttpException(HttpStatus.FORBIDDEN, "CONVERSATION_NOT_DISPATCHED", "This provider was not contacted for this request.");
-    }
+    const { providerUserId, candidacy } = await this.resolveCandidacy(userId, isClient, input);
     if (!isClient) {
       await this.matching.markCandidacyViewed(candidacy.candidateId);
     }
@@ -207,18 +206,36 @@ export class ConversationService {
     return view;
   }
 
-  private resolveProviderUserId(userId: string, isClient: boolean, input: OpenConversationInput): string {
+  /**
+   * Which dispatch this conversation is about. The client designates one of
+   * its request's candidacies; a provider can only ever speak for its own.
+   * Either way, no candidacy on THIS request means no conversation.
+   */
+  private async resolveCandidacy(
+    userId: string,
+    isClient: boolean,
+    input: OpenConversationInput,
+  ): Promise<{ providerUserId: string; candidacy: Candidacy }> {
     if (isClient) {
-      if (!input.providerUserId) {
-        throw new DomainHttpException(HttpStatus.BAD_REQUEST, "CONVERSATION_PROVIDER_REQUIRED", "Name the provider you want to write to.");
+      if (!input.candidateId) {
+        throw new DomainHttpException(HttpStatus.BAD_REQUEST, "CONVERSATION_CANDIDATE_REQUIRED", "Name the dispatched provider you want to write to.");
       }
-      return input.providerUserId;
+      const candidacy = await this.matching.findCandidacyById(input.candidateId);
+      // A candidacy of another request is as good as none: it proves nothing about this one.
+      if (candidacy?.requestId !== input.requestId) {
+        throw notDispatched();
+      }
+      return { providerUserId: candidacy.providerUserId, candidacy };
     }
-    // A provider opens the conversation about its own dispatch — it cannot open one on someone else's behalf.
-    if (input.providerUserId && input.providerUserId !== userId) {
-      throw new ForbiddenException("A provider can only open its own conversation.");
+
+    if (input.candidateId) {
+      throw new ForbiddenException("A provider opens its own conversation and names no candidacy.");
     }
-    return userId;
+    const candidacy = await this.matching.findCandidacy(input.requestId, userId);
+    if (!candidacy) {
+      throw notDispatched();
+    }
+    return { providerUserId: userId, candidacy };
   }
 
   /** Create, or — if a concurrent open won the unique index race — return the winner's. */

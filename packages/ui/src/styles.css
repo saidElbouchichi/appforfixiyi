@@ -529,6 +529,227 @@
   margin-block-start: var(--fixiyi-space-5);
 }
 
+/* ------------------------------------------------------------------ chat */
+
+/* The scrolling message list. `min-block-size: 0` lets it shrink inside a
+   flex column, which is what makes it scroll instead of pushing the composer
+   off screen. */
+.fx-chat-log {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fixiyi-space-3);
+  min-block-size: 0;
+  padding: var(--fixiyi-space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* flex-start / flex-end follow the writing direction, so "own" messages sit
+   at the inline end in LTR and RTL alike — no mirror stylesheet. */
+.fx-bubble-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--fixiyi-space-1);
+}
+
+.fx-bubble-row--own {
+  align-items: flex-end;
+}
+
+.fx-bubble {
+  max-inline-size: min(80%, 36rem);
+  padding-block: var(--fixiyi-space-2);
+  padding-inline: var(--fixiyi-space-3);
+  border-radius: var(--fixiyi-radius-lg);
+  font-family: var(--fixiyi-font-sans);
+  font-size: 15px;
+  line-height: 1.4;
+  box-shadow: var(--fixiyi-shadow-sm);
+  text-align: start;
+}
+
+.fx-bubble--own {
+  background-color: var(--fixiyi-color-primary-600);
+  color: var(--fixiyi-color-neutral-0);
+  border-end-end-radius: var(--fixiyi-radius-sm);
+}
+
+.fx-bubble--other {
+  background-color: var(--fixiyi-color-neutral-0);
+  border: 1px solid var(--fixiyi-color-neutral-200);
+  color: var(--fixiyi-color-neutral-900);
+  border-end-start-radius: var(--fixiyi-radius-sm);
+}
+
+.fx-bubble--deleted {
+  background-color: transparent;
+  border: 1px dashed var(--fixiyi-color-neutral-300);
+  color: var(--fixiyi-color-neutral-600);
+  box-shadow: none;
+}
+
+.fx-bubble__text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.fx-bubble__text--deleted {
+  font-style: italic;
+}
+
+.fx-bubble__notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-block: 6px 0;
+  font-size: var(--fixiyi-font-size-xs);
+}
+
+.fx-bubble__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-block-start: var(--fixiyi-space-1);
+  font-size: var(--fixiyi-font-size-xs);
+  opacity: 0.85;
+}
+
+.fx-bubble__actions {
+  display: flex;
+  gap: var(--fixiyi-space-1);
+}
+
+.fx-bubble__media {
+  display: block;
+  max-inline-size: 100%;
+  border-radius: var(--fixiyi-radius-md);
+  margin-block-end: 6px;
+}
+
+.fx-delivery {
+  display: inline-flex;
+  opacity: 0.75;
+}
+
+.fx-delivery--read {
+  opacity: 1;
+  color: var(--fixiyi-color-primary-100);
+}
+
+.fx-reply-quote {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--fixiyi-space-1);
+  padding-inline: var(--fixiyi-space-2);
+  margin-block-end: 6px;
+  border-inline-start: 3px solid currentcolor;
+  border-radius: var(--fixiyi-radius-sm);
+  background-color: rgb(0 0 0 / 8%);
+  font-size: 13px;
+}
+
+.fx-reply-quote__author {
+  font-weight: var(--fixiyi-font-weight-semibold);
+}
+
+.fx-reply-quote__excerpt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.fx-reactions {
+  display: flex;
+  gap: var(--fixiyi-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fx-reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fixiyi-space-1);
+  padding-inline: var(--fixiyi-space-2);
+  padding-block: 2px;
+  border: 1px solid var(--fixiyi-color-neutral-200);
+  border-radius: var(--fixiyi-radius-full);
+  background-color: var(--fixiyi-color-neutral-0);
+  font-family: var(--fixiyi-font-sans);
+  font-size: 13px;
+}
+
+.fx-reaction--mine {
+  border-color: var(--fixiyi-color-primary-600);
+  background-color: var(--fixiyi-color-primary-50);
+}
+
+.fx-typing {
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  padding-inline: var(--fixiyi-space-4);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-font-size-sm);
+  color: var(--fixiyi-color-neutral-600);
+}
+
+.fx-typing__dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+/* A typing cycle wants ~1 s, longer than any motion token; derived from the
+   slowest one rather than hard-coded, so it scales with the motion scale. */
+.fx-typing__dots > span {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: var(--fixiyi-radius-full);
+  background-color: var(--fixiyi-color-neutral-400);
+  animation: fx-pulse calc(var(--fixiyi-motion-slow) * 4) var(--fixiyi-ease-standard) infinite;
+}
+
+.fx-typing__dots > span:nth-child(2) {
+  animation-delay: var(--fixiyi-motion-fast);
+}
+
+.fx-typing__dots > span:nth-child(3) {
+  animation-delay: var(--fixiyi-motion-normal);
+}
+
+.fx-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--fixiyi-space-2);
+  padding: var(--fixiyi-space-3);
+  border-block-start: 1px solid var(--fixiyi-color-neutral-200);
+  background-color: var(--fixiyi-color-neutral-0);
+}
+
+.fx-composer__input {
+  flex: 1;
+  min-block-size: 44px;
+  max-block-size: 160px;
+  padding-inline: var(--fixiyi-space-3);
+  padding-block: 10px;
+  border: 1px solid var(--fixiyi-color-neutral-300);
+  border-radius: var(--fixiyi-radius-lg);
+  font-family: var(--fixiyi-font-sans);
+  font-size: 15px;
+  color: var(--fixiyi-color-neutral-900);
+  resize: none;
+}
+
+.fx-composer__input:focus-visible {
+  outline: 2px solid var(--fixiyi-color-primary-600);
+  outline-offset: 2px;
+}
+
 /* --------------------------------------------------- reduced motion (2.3.3) */
 
 /**
@@ -541,6 +762,11 @@
   .fx-skeleton {
     animation-duration: 0.01ms;
     animation-iteration-count: 1;
+  }
+
+  /* The dots still say "typing" when still — the text label carries the meaning. */
+  .fx-typing__dots > span {
+    animation: none;
   }
 
   .fx-button,

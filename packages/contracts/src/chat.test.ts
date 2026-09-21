@@ -99,6 +99,11 @@ describe("other chat inputs", () => {
     expect(OpenConversationInputSchema.safeParse({ requestId: ID }).success).toBe(true);
   });
 
+  it("lets a client name the candidacy it wants to talk to", () => {
+    expect(OpenConversationInputSchema.safeParse({ requestId: ID, candidateId: OTHER_ID }).success).toBe(true);
+    expect(OpenConversationInputSchema.safeParse({ requestId: ID, candidateId: "nope" }).success).toBe(false);
+  });
+
   it("rejects a negative receipt watermark", () => {
     expect(MarkReceiptInputSchema.safeParse({ upToSeq: -1 }).success).toBe(false);
   });

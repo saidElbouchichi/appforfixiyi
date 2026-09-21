@@ -75,17 +75,17 @@ describe("Chat — access and anti-contact (e2e)", () => {
       const fromProvider = await openAsProvider(dispatch);
       const fromClient = await harness.openConversation(dispatch.client, {
         requestId: dispatch.client.requestId,
-        providerUserId: dispatch.provider.userId,
+        candidateId: dispatch.provider.candidateId,
       });
       expect(fromClient.status).toBe(201);
       expect(ConversationSchema.parse(fromClient.body).id).toBe(fromProvider);
     });
 
-    it("makes the client name the provider it wants to write to", async () => {
+    it("makes the client name the dispatched provider it wants to write to", async () => {
       const dispatch = await harness.dispatch();
       const response = await harness.openConversation(dispatch.client, { requestId: dispatch.client.requestId });
       expect(response.status).toBe(400);
-      expect(ProblemDetailsSchema.parse(response.body).code).toBe("CONVERSATION_PROVIDER_REQUIRED");
+      expect(ProblemDetailsSchema.parse(response.body).code).toBe("CONVERSATION_CANDIDATE_REQUIRED");
     });
 
     it("refuses a provider the engine never dispatched to this request", async () => {
@@ -96,11 +96,12 @@ describe("Chat — access and anti-contact (e2e)", () => {
       expect(ProblemDetailsSchema.parse(response.body).code).toBe("CONVERSATION_NOT_DISPATCHED");
     });
 
-    it("refuses a client writing to a provider that was never contacted", async () => {
-      const dispatch = await harness.dispatch();
-      const outsider = await harness.undispatchedProvider();
-      const response = await harness.openConversation(dispatch.client, { requestId: dispatch.client.requestId, providerUserId: outsider.userId });
+    it("refuses a client pointing at a candidacy of ANOTHER request", async () => {
+      const mine = await harness.dispatch();
+      const theirs = await harness.dispatch();
+      const response = await harness.openConversation(mine.client, { requestId: mine.client.requestId, candidateId: theirs.provider.candidateId });
       expect(response.status).toBe(403);
+      expect(ProblemDetailsSchema.parse(response.body).code).toBe("CONVERSATION_NOT_DISPATCHED");
     });
 
     it("keeps a stranger out of the conversation, its messages and its search", async () => {

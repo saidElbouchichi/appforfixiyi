@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { ApiError, apiFetch } from "../../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../../lib/auth-store";
+import { openConversation } from "../../../../lib/chat-api";
 
 const CandidateListSchema = z.array(MatchCandidateSchema);
 
@@ -75,6 +76,17 @@ export default function MatchPage(): React.JSX.Element | null {
     await queryClient.invalidateQueries({ queryKey: ["match", requestId] });
     await queryClient.invalidateQueries({ queryKey: ["match-candidates", requestId] });
   };
+
+  // The client designates the candidacy the engine created — itself the proof this provider was contacted.
+  const chatMutation = useMutation({
+    mutationFn: (candidateId: string) => openConversation({ requestId, candidateId }),
+    onSuccess: (conversation) => {
+      router.push(`/conversations/${conversation.id}`);
+    },
+    onError: (error: unknown) => {
+      setActionError(error instanceof ApiError ? error.message : "Impossible d'ouvrir la conversation.");
+    },
+  });
 
   const startMutation = useMutation({
     mutationFn: () => apiFetch(`/api/v1/requests/${requestId}/match`, { method: "POST", auth: true, body: {} }),
@@ -198,6 +210,20 @@ export default function MatchPage(): React.JSX.Element | null {
                       vague {(candidate.batchIndex + 1).toString()} · {candidate.distanceKm.toFixed(1)} km · score{" "}
                       {candidate.score.toFixed(2)}
                     </span>
+                    {candidate.status === "NOTIFIED" || candidate.status === "VIEWED" ? (
+                      <Button
+                        variant="ghost"
+                        loading={chatMutation.isPending && chatMutation.variables === candidate.id}
+                        onClick={() => {
+                          setActionError(null);
+                          chatMutation.mutate(candidate.id);
+                        }}
+                        testId="chat-with-provider-button"
+                      >
+                        <Icon name="message" size="sm" />
+                        Envoyer un message
+                      </Button>
+                    ) : null}
                   </li>
                 ))}
               </ul>

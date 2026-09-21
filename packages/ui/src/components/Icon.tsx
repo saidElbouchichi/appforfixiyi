@@ -16,6 +16,11 @@ export type IconName =
   | "close"
   | "check"
   | "arrow"
+  // chat
+  | "send"
+  | "reply"
+  | "attach"
+  | "check-double"
   // status
   | "success"
   | "warning"
@@ -40,7 +45,9 @@ export const ICON_SIZES: Record<IconSize, number> = { sm: 16, md: 20, lg: 24, xl
  * points the other way in Arabic, and shipping it unflipped would point at
  * the previous step (01_SPEC_PRODUCT.md #5 — ar/ary are first-class).
  */
-const DIRECTIONAL_ICONS = new Set<IconName>(["arrow"]);
+// "send" and "reply" point along the reading direction too: a reply arrow that
+// points forward in Arabic reads as "forward", not "reply".
+const DIRECTIONAL_ICONS = new Set<IconName>(["arrow", "send", "reply"]);
 
 /**
  * Single 24x24 stroke grid for every glyph, so icons keep one optical weight
@@ -60,6 +67,11 @@ const PATHS: Record<IconName, string[]> = {
   close: ["m6 6 12 12", "M18 6 6 18"],
   check: ["m4 12.5 5 5.5L20 6"],
   arrow: ["M5 12h14", "m13 6 6 6-6 6"],
+
+  send: ["M4 12 20 4l-4 16-4-7z", "m12 13 8-9"],
+  reply: ["M9 7 4 12l5 5", "M4 12h10a6 6 0 0 1 6 6v1"],
+  attach: ["m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.2 17.2a1.7 1.7 0 0 1-2.4-2.4L14 7.6"],
+  "check-double": ["m2 12.5 5 5.5L16 7", "m10 16 2 2 10-11"],
 
   success: ["M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z", "m8 12.5 2.5 2.5L16 9.5"],
   warning: ["M12 4 2.5 20.5h19z", "M12 10v4", "M12 17h.01"],
