@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import { expect, test, type Page } from "@playwright/test";
-import { Badge, Button, Card, Checkbox, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
+import { Alert, Avatar, Badge, Button, Card, Checkbox, ProgressBar, ProgressCircle, Rating, RatingInput, Stepper, Tooltip, IconButton, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
 
 import { contrastRatio, renderUi } from "../support/ui-harness";
 
@@ -248,5 +248,59 @@ test.describe("form controls on a touch screen", () => {
     await renderUi(page, controlsGallery);
     expect((await page.getByRole("button", { name: "Plomberie" }).boundingBox())?.height).toBeCloseTo(44, 0);
     expect((await page.getByRole("button", { name: "Retirer Casablanca" }).boundingBox())?.height).toBeCloseTo(44, 0);
+  });
+});
+
+const TRADES = ["electrician", "plumber", "hvac", "locksmith", "painter", "carpenter"] as const;
+
+const feedbackGallery = (
+  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    {(["info", "success", "warning", "error"] as const).map((variant) => (
+      <Alert key={variant} variant={variant} title={`Titre ${variant}`} onDismiss={noop} testId={`alert-${variant}`}>
+        Message de l'alerte, sur deux lignes si besoin pour verifier le retour a la ligne.
+      </Alert>
+    ))}
+    <ProgressBar label="Envoi des photos" value={60} showValue />
+    <ProgressBar label="Recherche d'un artisan" />
+    <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+      <ProgressCircle label="Profil" value={25} size="sm" />
+      <ProgressCircle label="Profil" value={50} />
+      <ProgressCircle label="Profil" value={75} size="lg" />
+    </div>
+    <Stepper label="Etapes" steps={[{ label: "Service" }, { label: "Adresse" }, { label: "Photos" }, { label: "Envoi" }]} current={2} />
+    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+      {TRADES.map((trade, index) => (
+        <Avatar key={trade} name={`Artisan ${trade}`} trade={trade} status={index === 0 ? "online" : undefined} testId={`avatar-${trade}`} />
+      ))}
+      <Avatar name="Karim Benali" size="lg" status="busy" />
+    </div>
+    <Rating value={4.3} count={12} />
+    <RatingInput label="Votre note" value={3} onChange={noop} />
+    <div style={{ paddingBlockStart: 40 }}>
+      <Tooltip content="Visible par le client apres acceptation">{(describedBy) => <IconButton label="Aide" icon="info" describedBy={describedBy} />}</Tooltip>
+    </div>
+  </div>
+);
+
+test.describe("feedback and identity", () => {
+  test("render the batch D gallery with readable alerts and avatars", async ({ page }) => {
+    await renderUi(page, feedbackGallery);
+    for (const variant of ["info", "success", "warning", "error"]) {
+      expect(await textContrast(page, `alert-${variant}`), variant).toBeGreaterThanOrEqual(4.5);
+    }
+    for (const trade of TRADES) {
+      const [color, background] = await page.getByTestId(`avatar-${trade}`).evaluate((avatar) => [getComputedStyle(avatar).color, getComputedStyle(avatar).backgroundColor]);
+      expect(contrastRatio(color ?? "", background ?? ""), trade).toBeGreaterThanOrEqual(4.5);
+    }
+    // Show the tooltip as focus would, for the capture.
+    await page.locator(".fx-tooltip__bubble").evaluate((bubble) => {
+      bubble.setAttribute("data-open", "true");
+    });
+    await page.screenshot({ path: "screenshots/ds-06-feedback-identity.png", fullPage: true, animations: "disabled" });
+  });
+
+  test("keeps the horizontal stepper inside a 360px phone", async ({ page }) => {
+    await renderUi(page, <Stepper label="Etapes" steps={[{ label: "Service" }, { label: "Adresse" }, { label: "Photos" }, { label: "Envoi" }]} current={1} />, { width: 360 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
   });
 });

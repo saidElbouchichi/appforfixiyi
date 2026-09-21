@@ -1,0 +1,238 @@
+/* @fixiyi/ui — Avatar, Rating, RatingInput, Tooltip. */
+
+/* ---------------------------------------------------------------- avatar */
+
+.fx-avatar {
+  --fx-avatar-size: var(--fixiyi-size-control-md);
+
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--fx-avatar-size);
+  block-size: var(--fx-avatar-size);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-action);
+  font-family: var(--fixiyi-font-sans);
+  font-weight: var(--fixiyi-font-weight-bold);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: 1;
+}
+
+.fx-avatar--sm {
+  --fx-avatar-size: var(--fixiyi-size-control-sm);
+
+  font-size: var(--fixiyi-text-caption-size);
+}
+
+.fx-avatar--lg {
+  --fx-avatar-size: var(--fixiyi-size-control-xl);
+
+  font-size: var(--fixiyi-text-h5-size);
+}
+
+.fx-avatar--xl {
+  --fx-avatar-size: var(--fixiyi-space-20);
+
+  font-size: var(--fixiyi-text-h3-size);
+}
+
+.fx-avatar--trade-electrician {
+  background-color: var(--fixiyi-color-avatar-electrician-bg);
+  color: var(--fixiyi-color-avatar-electrician-fg);
+}
+
+.fx-avatar--trade-plumber {
+  background-color: var(--fixiyi-color-avatar-plumber-bg);
+  color: var(--fixiyi-color-avatar-plumber-fg);
+}
+
+.fx-avatar--trade-hvac {
+  background-color: var(--fixiyi-color-avatar-hvac-bg);
+  color: var(--fixiyi-color-avatar-hvac-fg);
+}
+
+.fx-avatar--trade-locksmith {
+  background-color: var(--fixiyi-color-avatar-locksmith-bg);
+  color: var(--fixiyi-color-avatar-locksmith-fg);
+}
+
+.fx-avatar--trade-painter {
+  background-color: var(--fixiyi-color-avatar-painter-bg);
+  color: var(--fixiyi-color-avatar-painter-fg);
+}
+
+.fx-avatar--trade-carpenter {
+  background-color: var(--fixiyi-color-avatar-carpenter-bg);
+  color: var(--fixiyi-color-avatar-carpenter-fg);
+}
+
+/* The dot sits on a surface-coloured ring so it reads on any avatar colour. */
+.fx-avatar__status {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  inline-size: 30%;
+  block-size: 30%;
+  border: 2px solid var(--fixiyi-color-surface);
+  border-radius: var(--fixiyi-radius-pill);
+}
+
+.fx-avatar__status--online {
+  background-color: var(--fixiyi-color-success-text);
+}
+
+.fx-avatar__status--busy {
+  background-color: var(--fixiyi-color-warning-text);
+}
+
+.fx-avatar__status--offline {
+  background-color: var(--fixiyi-color-border-control);
+}
+
+/* ---------------------------------------------------------------- rating */
+
+.fx-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  color: var(--fixiyi-color-text);
+}
+
+.fx-rating__stars {
+  position: relative;
+  display: inline-block;
+}
+
+.fx-rating__row {
+  display: flex;
+  gap: var(--fixiyi-space-1);
+  color: var(--fixiyi-color-accent-700);
+}
+
+/* The filled row is clipped to the average's share, from the inline start. */
+.fx-rating__row--filled {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  overflow: hidden;
+  inline-size: var(--fx-rating-share, 0%);
+}
+
+.fx-rating__row--filled .fx-icon {
+  fill: var(--fixiyi-color-accent-500);
+}
+
+.fx-rating__value {
+  font-weight: var(--fixiyi-font-weight-semibold);
+}
+
+.fx-rating__count {
+  font-weight: var(--fixiyi-font-weight-regular);
+  color: var(--fixiyi-color-text-muted);
+}
+
+/* ---------------------------------------------------------- rating input */
+
+.fx-rating-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.fx-rating-input__stars {
+  display: flex;
+}
+
+/* Each star is a 44px target; the outline says "star" even when empty. */
+.fx-rating-input__star {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--fixiyi-size-touch-target);
+  min-block-size: var(--fixiyi-size-touch-target);
+  border-radius: var(--fixiyi-radius-control);
+  color: var(--fixiyi-color-border-control);
+  cursor: pointer;
+}
+
+.fx-rating-input__star--on {
+  color: var(--fixiyi-color-accent-700);
+}
+
+.fx-rating-input__star--on .fx-icon {
+  fill: var(--fixiyi-color-accent-500);
+}
+
+.fx-rating-input__star:has(input:focus-visible) {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: -2px;
+}
+
+/* --------------------------------------------------------------- tooltip */
+
+.fx-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Anchored on the trigger's start edge (not centred): a trigger near the
+   screen edge must not push the text off screen. */
+.fx-tooltip__bubble {
+  position: absolute;
+  inset-inline-start: 0;
+  z-index: var(--fixiyi-z-dropdown);
+  inline-size: max-content;
+  max-inline-size: 240px;
+  padding-block: var(--fixiyi-space-1);
+  padding-inline: var(--fixiyi-space-2);
+  border-radius: var(--fixiyi-radius-mark);
+  background-color: var(--fixiyi-color-text);
+  color: var(--fixiyi-color-surface);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-caption-size);
+  line-height: var(--fixiyi-text-caption-line-height);
+  font-weight: var(--fixiyi-font-weight-medium);
+  text-align: start;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity var(--fixiyi-motion-fast) var(--fixiyi-ease-out),
+    visibility var(--fixiyi-motion-fast) var(--fixiyi-ease-out);
+}
+
+.fx-tooltip__bubble--top {
+  inset-block-end: calc(100% + var(--fixiyi-space-2));
+}
+
+.fx-tooltip__bubble--bottom {
+  inset-block-start: calc(100% + var(--fixiyi-space-2));
+}
+
+/* A bridge over the gap, so the pointer can travel to the bubble (1.4.13 hoverable). */
+.fx-tooltip__bubble::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  block-size: var(--fixiyi-space-2);
+}
+
+.fx-tooltip__bubble--top::before {
+  inset-block-start: 100%;
+}
+
+.fx-tooltip__bubble--bottom::before {
+  inset-block-end: 100%;
+}
+
+.fx-tooltip__bubble[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+}

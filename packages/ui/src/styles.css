@@ -31,5 +31,8 @@
 @import "./styles/badge.css";
 @import "./styles/icon.css";
 @import "./styles/feedback.css";
+@import "./styles/alert.css";
+@import "./styles/progress.css";
+@import "./styles/identity.css";
 @import "./styles/modal.css";
 @import "./styles/chat.css";

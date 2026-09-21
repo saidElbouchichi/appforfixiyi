@@ -20,12 +20,14 @@ export interface IconButtonProps {
   pressed?: boolean;
   /** For a button that opens something (a menu, a picker). */
   expanded?: boolean;
+  /** Id of an element that describes the button further (a Tooltip). */
+  describedBy?: string | undefined;
   className?: string;
   testId?: string;
 }
 
 /** 44px target whatever the glyph size (WCAG 2.2 AA 2.5.8), always `type="button"`. */
-export function IconButton({ label, icon, children, onClick, disabled = false, pressed, expanded, className, testId }: IconButtonProps): JSX.Element {
+export function IconButton({ label, icon, children, onClick, disabled = false, pressed, expanded, describedBy, className, testId }: IconButtonProps): JSX.Element {
   return (
     <button
       type="button"
@@ -34,6 +36,7 @@ export function IconButton({ label, icon, children, onClick, disabled = false, p
       title={label}
       aria-pressed={pressed}
       aria-expanded={expanded}
+      aria-describedby={describedBy}
       disabled={disabled}
       onClick={onClick}
       data-testid={testId}

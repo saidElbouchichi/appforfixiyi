@@ -1,4 +1,4 @@
-import { controlHeight, elevation, radiusRoles, spacing, textStyles, touchTarget } from "@fixiyi/design-tokens";
+import { avatarColors, controlHeight, elevation, radiusRoles, spacing, textStyles, touchTarget } from "@fixiyi/design-tokens";
 import { describe, expect, it } from "vitest";
 
 import { readStylesheet } from "./css-source.js";
@@ -126,8 +126,8 @@ describe("styles.css — spacing, shape and elevation (design phase 3)", () => {
     expect(offGrid).toEqual([]);
   });
 
-  it("rounds corners only through a shape role, never a raw step or a literal", () => {
-    const allowed = new Set(Object.keys(radiusRoles).map((role) => `var(--fixiyi-radius-${kebab(role)})`));
+  it("rounds corners only through a shape role (or squares them with 0), never a raw step or a literal", () => {
+    const allowed = new Set([...Object.keys(radiusRoles).map((role) => `var(--fixiyi-radius-${kebab(role)})`), "0"]);
     const values = valuesOf(/border(?:-[a-z-]+)?-radius/);
     expect(values.length).toBeGreaterThan(15);
     expect(values.filter((value) => !allowed.has(value))).toEqual([]);
@@ -148,5 +148,15 @@ describe("styles.css — spacing, shape and elevation (design phase 3)", () => {
 
   it("dims the page behind a modal with the scrim token, not an ad-hoc black", () => {
     expect(blockOf(".fx-modal__overlay")).toContain("var(--fixiyi-scrim)");
+  });
+});
+
+describe("styles.css — avatar colours", () => {
+  it("gives every trade of the avatar palette its class, on its measured pair", () => {
+    for (const trade of Object.keys(avatarColors)) {
+      const block = blockOf(`.fx-avatar--trade-${trade}`);
+      expect(block, trade).toContain(`var(--fixiyi-color-avatar-${trade}-bg)`);
+      expect(block, trade).toContain(`var(--fixiyi-color-avatar-${trade}-fg)`);
+    }
   });
 });

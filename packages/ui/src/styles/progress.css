@@ -1,0 +1,205 @@
+/* @fixiyi/ui — ProgressBar, ProgressCircle, Stepper. */
+
+/* ------------------------------------------------------------ progress bar */
+
+.fx-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-2);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  color: var(--fixiyi-color-text);
+}
+
+.fx-progress__header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--fixiyi-space-3);
+}
+
+.fx-progress__value {
+  font-weight: var(--fixiyi-font-weight-semibold);
+  color: var(--fixiyi-color-action);
+}
+
+.fx-progress__track {
+  position: relative;
+  overflow: hidden;
+  block-size: var(--fixiyi-space-2);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface-sunken);
+}
+
+/* inline-size grows from the inline start: right to left in Arabic. */
+.fx-progress__bar {
+  display: block;
+  block-size: 100%;
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-action);
+  transition: inline-size var(--fixiyi-motion-slow) var(--fixiyi-ease-out);
+}
+
+.fx-progress__track--indeterminate .fx-progress__bar {
+  inline-size: 40%;
+  animation: fx-indeterminate calc(var(--fixiyi-motion-slower) * 3) var(--fixiyi-ease-in-out) infinite;
+}
+
+[dir="rtl"] .fx-progress__track--indeterminate .fx-progress__bar {
+  animation-direction: reverse;
+}
+
+/* --------------------------------------------------------- progress circle */
+
+.fx-progress-circle {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--fx-progress-size);
+  block-size: var(--fx-progress-size);
+  font-family: var(--fixiyi-font-sans);
+}
+
+/* Starts at twelve o'clock and runs clockwise. */
+.fx-progress-circle svg {
+  transform: rotate(-90deg);
+}
+
+.fx-progress-circle__track,
+.fx-progress-circle__bar {
+  fill: none;
+  stroke-width: 3;
+}
+
+.fx-progress-circle__track {
+  stroke: var(--fixiyi-color-surface-sunken);
+}
+
+.fx-progress-circle__bar {
+  stroke: var(--fixiyi-color-action);
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--fixiyi-motion-slow) var(--fixiyi-ease-out);
+}
+
+.fx-progress-circle__value {
+  position: absolute;
+  font-size: var(--fixiyi-text-caption-size);
+  line-height: var(--fixiyi-text-caption-line-height);
+  font-weight: var(--fixiyi-font-weight-semibold);
+  color: var(--fixiyi-color-text);
+}
+
+.fx-progress-circle--lg .fx-progress-circle__value {
+  font-size: var(--fixiyi-text-body-sm-size);
+}
+
+/* ---------------------------------------------------------------- stepper */
+
+.fx-stepper {
+  display: flex;
+  gap: var(--fixiyi-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--fixiyi-font-sans);
+}
+
+.fx-stepper--vertical {
+  flex-direction: column;
+  gap: var(--fixiyi-space-4);
+}
+
+.fx-stepper__step {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--fixiyi-space-2);
+  min-inline-size: 0;
+}
+
+.fx-stepper--horizontal .fx-stepper__step {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Connector to the next step, from this indicator's edge to the next one's,
+   through the indicators' centre line (--fx-step-half: half an indicator). */
+.fx-stepper__step {
+  --fx-step-half: calc(var(--fixiyi-size-control-sm) / 2);
+}
+
+.fx-stepper--horizontal .fx-stepper__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(var(--fx-step-half) - 1px);
+  inset-inline-start: calc(50% + var(--fx-step-half) + var(--fixiyi-space-1));
+  inset-inline-end: calc(-50% + var(--fx-step-half) + var(--fixiyi-space-1));
+  block-size: 2px;
+  background-color: var(--fixiyi-color-border);
+}
+
+.fx-stepper--vertical .fx-stepper__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-block: calc(var(--fixiyi-size-control-sm) + var(--fixiyi-space-1)) calc(var(--fixiyi-space-3) * -1);
+  inset-inline-start: calc(var(--fx-step-half) - 1px);
+  inline-size: 2px;
+  background-color: var(--fixiyi-color-border);
+}
+
+.fx-stepper__step--complete:not(:last-child)::after {
+  background-color: var(--fixiyi-color-action);
+}
+
+.fx-stepper__indicator {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--fixiyi-size-control-sm);
+  block-size: var(--fixiyi-size-control-sm);
+  border: 2px solid var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface);
+  color: var(--fixiyi-color-text-muted);
+  font-size: var(--fixiyi-text-body-sm-size);
+  font-weight: var(--fixiyi-font-weight-semibold);
+}
+
+.fx-stepper__step--current .fx-stepper__indicator {
+  border-color: var(--fixiyi-color-action);
+  color: var(--fixiyi-color-action);
+}
+
+.fx-stepper__step--complete .fx-stepper__indicator {
+  border-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action);
+  color: var(--fixiyi-color-on-action);
+}
+
+.fx-stepper__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+  min-inline-size: 0;
+  padding-block-start: var(--fixiyi-space-1);
+}
+
+.fx-stepper__label {
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  font-weight: var(--fixiyi-font-weight-medium);
+  color: var(--fixiyi-color-text-muted);
+}
+
+.fx-stepper__step--current .fx-stepper__label {
+  font-weight: var(--fixiyi-font-weight-semibold);
+  color: var(--fixiyi-color-text);
+}
+
+.fx-stepper__description {
+  font-size: var(--fixiyi-text-caption-size);
+  line-height: var(--fixiyi-text-caption-line-height);
+  color: var(--fixiyi-color-text-muted);
+}

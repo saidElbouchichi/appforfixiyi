@@ -1,0 +1,202 @@
+/* @fixiyi/ui — Alert / Banner and Toast. */
+
+/* ----------------------------------------------------------------- alert */
+
+.fx-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fixiyi-space-3);
+  padding: var(--fixiyi-space-4);
+  border: 1px solid color-mix(in srgb, currentcolor 25%, transparent);
+  border-inline-start: 4px solid currentcolor;
+  border-radius: var(--fixiyi-radius-control);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  text-align: start;
+}
+
+/* Text colour = the variant's text role on its surface role (measured pairs). */
+.fx-alert--info {
+  background-color: var(--fixiyi-color-info-surface);
+  color: var(--fixiyi-color-info-text);
+}
+
+.fx-alert--success {
+  background-color: var(--fixiyi-color-success-surface);
+  color: var(--fixiyi-color-success-text);
+}
+
+.fx-alert--warning {
+  background-color: var(--fixiyi-color-warning-surface);
+  color: var(--fixiyi-color-warning-text);
+}
+
+.fx-alert--error {
+  background-color: var(--fixiyi-color-error-surface);
+  color: var(--fixiyi-color-error-text);
+}
+
+.fx-alert--banner {
+  border-width: 0;
+  border-block-end-width: 1px;
+  border-radius: 0;
+}
+
+.fx-alert__icon {
+  flex: none;
+  margin-block-start: var(--fixiyi-space-1);
+}
+
+.fx-alert__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+  min-inline-size: 0;
+}
+
+.fx-alert__title {
+  margin: 0;
+  font-size: var(--fixiyi-text-body-size);
+  line-height: var(--fixiyi-text-body-line-height);
+  font-weight: var(--fixiyi-font-weight-semibold);
+}
+
+.fx-alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fixiyi-space-2);
+  margin-block-start: var(--fixiyi-space-2);
+}
+
+/* The close button takes the message colour, not the neutral icon-button grey. */
+.fx-alert .fx-alert__dismiss {
+  margin-block: calc(var(--fixiyi-space-2) * -1);
+  margin-inline-end: calc(var(--fixiyi-space-2) * -1);
+  color: inherit;
+}
+
+/* ----------------------------------------------------------------- toast */
+
+/* Bottom of the screen on a phone (thumb reach), bottom inline-end on a desktop. */
+.fx-toast-region {
+  position: fixed;
+  inset-block-end: var(--fixiyi-space-4);
+  inset-inline: var(--fixiyi-space-4);
+  z-index: var(--fixiyi-z-toast);
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .fx-toast-region {
+    inset-inline-start: auto;
+    inline-size: 400px;
+  }
+}
+
+.fx-toast-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fx-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fixiyi-space-3);
+  padding-block: var(--fixiyi-space-3);
+  padding-inline: var(--fixiyi-space-4) var(--fixiyi-space-2);
+  border: 1px solid var(--fixiyi-color-border);
+  border-inline-start-width: 4px;
+  border-radius: var(--fixiyi-radius-control);
+  background-color: var(--fixiyi-color-surface);
+  box-shadow: var(--fixiyi-elevation-overlay);
+  color: var(--fixiyi-color-text);
+  font-family: var(--fixiyi-font-sans);
+  text-align: start;
+  pointer-events: auto;
+  animation: fx-slide-in-from-bottom var(--fixiyi-motion-normal) var(--fixiyi-ease-out) both;
+}
+
+.fx-toast--info {
+  border-inline-start-color: var(--fixiyi-color-info-text);
+}
+
+.fx-toast--success {
+  border-inline-start-color: var(--fixiyi-color-success-text);
+}
+
+.fx-toast--warning {
+  border-inline-start-color: var(--fixiyi-color-warning-text);
+}
+
+.fx-toast--error {
+  border-inline-start-color: var(--fixiyi-color-error-text);
+}
+
+.fx-toast--info .fx-toast__icon {
+  color: var(--fixiyi-color-info-text);
+}
+
+.fx-toast--success .fx-toast__icon {
+  color: var(--fixiyi-color-success-text);
+}
+
+.fx-toast--warning .fx-toast__icon {
+  color: var(--fixiyi-color-warning-text);
+}
+
+.fx-toast--error .fx-toast__icon {
+  color: var(--fixiyi-color-error-text);
+}
+
+.fx-toast__icon {
+  flex: none;
+  margin-block-start: var(--fixiyi-space-1);
+}
+
+.fx-toast__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+  min-inline-size: 0;
+  padding-block: var(--fixiyi-space-1);
+}
+
+.fx-toast__title {
+  margin: 0;
+  font-size: var(--fixiyi-text-body-size);
+  line-height: var(--fixiyi-text-body-line-height);
+  font-weight: var(--fixiyi-font-weight-semibold);
+}
+
+.fx-toast__message {
+  margin: 0;
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  color: var(--fixiyi-color-text-muted);
+}
+
+.fx-toast__action {
+  align-self: flex-start;
+  min-block-size: var(--fixiyi-size-touch-target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--fixiyi-color-action);
+  font: inherit;
+  font-size: var(--fixiyi-text-body-sm-size);
+  font-weight: var(--fixiyi-font-weight-semibold);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.fx-toast__action:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
