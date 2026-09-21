@@ -74,6 +74,27 @@ Phase 5.
 > pour `packages/contracts` (65) et `shared-utils` (25) etaient errones ;
 > les vrais etaient 58 et 22. `PHASE_4_REPORT.md` a ete corrige.
 
+## Inspection ECC des Phases 0-5 (2026-09-21)
+
+Inspection complete des Phases 0 a 5 sous ECC v2.2.2 — voir
+`docs/INSPECTION_ECC_PHASE_0_5.md`. Les 6 phases sont **conformes a leurs
+rapports** : 320/320 tests, 2/2 scenarios Playwright, gates 15/15 15/15
+13/13 10/10, 0 regression. Verifie sur la donnee reelle et non sur
+declaration (TTL Mongo, index 2dsphere, bornage du batch a 3, ecart de
+score d'exploration, lignes ecrites par le run navigateur).
+
+**7 findings, aucun corrige** (une inspection constate, elle ne modifie
+pas) — dont 2 HIGH a planifier avant la production :
+
+- **B1 (HIGH)** — le bug signale par l'utilisateur. `apps/web` et
+  `apps/admin` stockent un `refreshToken` mais n'appellent **jamais**
+  `POST /api/v1/auth/refresh`. Passe `JWT_ACCESS_TTL` (15 min), toute page
+  authentifiee affiche « Invalid or expired access token » et la session
+  morte reste dans `localStorage` sans redirection vers `/login`.
+  Reproduit sous Playwright ; correction proposee, non appliquee.
+- **B2 (HIGH)** — upload presigne non borne en taille, objets rejetes
+  jamais supprimes de MinIO, aucun rate limit sur les routes de demande.
+
 ## Derniere action effectuee
 
 Gates complets du monorepo (tous verts), verification manuelle par

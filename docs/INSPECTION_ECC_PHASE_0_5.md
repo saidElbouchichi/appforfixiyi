@@ -566,3 +566,106 @@ chemin sur les cles d'objet.
 ponderations, geo — tous confirmes par la donnee reelle). Deux reserves
 hors perimetre Phase 5 : le bug frontend de rafraichissement de token
 (HIGH, reproduit) et le finding S1 (HIGH, upload non borne).**
+
+---
+
+# RESUME GLOBAL
+
+## Chiffres
+
+| Indicateur | Valeur |
+|---|---|
+| Phases inspectees | 6 (0 a 5) |
+| Tests passes | **320 / 320** (55 fichiers, 13 taches turbo) |
+| Scenarios navigateur | **2 / 2** (Playwright, vraie stack Docker) |
+| Gates | lint 15/15, typecheck 15/15, test 13/13, build 10/10 — **0 erreur** |
+| Collections MongoDB interrogees | 17 (bases `fixiyi` et `fixiyi_test`) |
+| Index verifies a la main | 8 (dont 2 TTL et 2 `2dsphere`) |
+| Bugs trouves | **7** (2 HIGH, 3 MEDIUM, 2 LOW) |
+| Bugs corriges pendant l'inspection | **0** — volontairement (voir ci-dessous) |
+| Regressions trouvees | **0** |
+
+### Pourquoi 0 bug corrige
+
+Une inspection constate ; elle ne modifie pas le code qu'elle evalue. Les
+7 findings sont documentes avec fichier, ligne, scenario et correction
+proposee, mais **aucun n'a ete applique** : corriger le token frontend ou
+brider l'upload media, ce n'est pas verifier la Phase 5, c'est commencer
+un lot de travail qui merite ses propres tests et sa propre validation.
+Ils sont remontes en entree de Phase 6, pas traites en douce ici.
+
+## Synthese par phase
+
+| Phase | Verdict | Reserve |
+|---|---|---|
+| Phase 0 — Audit | **OK** | aucune |
+| Phase 1 — Foundation | **OK** | MinIO absent du CI (MEDIUM) |
+| Phase 2 — Auth | **OK** | aucune |
+| Phase 3 — Marketplace | **OK** | base de test jamais purgee (MEDIUM) |
+| Phase 4 — Requests | **OK** | aucune |
+| Phase 5 — Matching | **OK avec reserves** | bug token frontend (HIGH), upload non borne (HIGH) |
+
+Ce que l'inspection confirme sur la donnee reelle, et pas sur declaration :
+les TTL Mongo existent vraiment (`expireAfterSeconds` lu en base), les
+index `2dsphere` existent vraiment, le batch de dispatch est vraiment
+borne a 3 (compte des candidats par vague), le bonus d'exploration produit
+vraiment un ecart de score (0,78 vs 0,68), le scenario Playwright ecrit
+vraiment des lignes (compte avant/apres), et la taille de media annoncee
+par le client est vraiment recoupee avec `HeadObject`
+(`declaredSizeBytes` vs `actualSizeBytes`).
+
+## Bugs trouves
+
+| # | Severite | Titre | Statut |
+|---|---|---|---|
+| **B1** | **HIGH** | Token d'acces jamais rafraichi cote client, aucune recuperation sur 401 | reproduit, non corrige |
+| **B2** | **HIGH** | Upload presigne non borne en taille + objets rejetes jamais supprimes + aucun rate limit | verifie, non corrige |
+| B3 | MEDIUM | `User.status` (`DEACTIVATED`) defini mais applique par aucun guard | verifie, non corrige |
+| B4 | MEDIUM | `trustProxy` non configure -> rate limiting par IP degenere derriere un proxy | verifie, non corrige |
+| B5 | MEDIUM | MinIO absent des `services:` du workflow CI | verifie, non corrige |
+| B6 | MEDIUM | `fixiyi_test` jamais purgee (819 users, 852 sessions accumules) | verifie, non corrige |
+| B7 | LOW | `finalize` ne verifie pas que le media appartient a la demande de l'URL | verifie, non corrige |
+
+**B1** est celui signale par l'utilisateur. Cause racine : il n'existe
+**aucun** appel a `POST /api/v1/auth/refresh` dans `apps/web` ni
+`apps/admin`, alors que le `refreshToken` y est stocke et que l'endpoint
+existe cote API. Passe `JWT_ACCESS_TTL` (15 min), toute page authentifiee
+casse, et la session morte reste dans `localStorage` sans redirection vers
+`/login`. Detail complet, reproduction et correction proposee : section
+Phase 5.
+
+## Verdict
+
+**OK — avec 2 HIGH a traiter avant la mise en production.**
+
+Les Phases 0 a 5 sont conformes a ce que leurs rapports annoncent :
+aucune affirmation de rapport n'a ete prise en defaut par la donnee, aucun
+fichier manquant, aucun test en echec, aucune regression. Les deux HIGH ne
+sont pas des regressions mais des **manques** : B1 est une fonctionnalite
+d'authentification jamais implementee cote client, B2 un durcissement
+jamais fait sur le pipeline media. Ni l'un ni l'autre ne remet en cause le
+travail livre ; les deux doivent etre planifies.
+
+## Recommandations pour la Phase 6
+
+1. **Corriger B1 avant d'ajouter le chat.** Le chat temps reel tiendra une
+   connexion longue authentifiee : une expiration de token non geree y
+   sera bien plus penible que sur un formulaire. Corriger le
+   rafraichissement **maintenant**, avec la serialisation des refresh
+   concurrents (sinon la detection de rejeu revoquera les sessions).
+2. **Extraire `api-client.ts` et `auth-store.ts` dans un package
+   partage.** Les deux copies web/admin sont identiques au caractere pres.
+   La Decision 39 a deja fait payer une fois cette duplication (le bug
+   Content-Type a du etre corrige deux fois). Le faire avant que B1 n'y
+   ajoute une troisieme couche de logique dupliquee.
+3. **Traiter B2 avec le pipeline d'attachments du chat.** La Phase 6
+   apporte des pieces jointes, donc reutilise le pipeline media : borner
+   la taille a la signature, supprimer les objets rejetes, poser un rate
+   limit sur les routes de creation de session d'upload.
+4. **Purger `fixiyi_test` entre les runs** (B6) avant d'y ajouter les
+   collections de messages, pendant que le volume est encore gerable.
+5. **Ajouter MinIO au workflow CI** (B5) pour que la chaine media soit
+   couverte en integration continue comme elle l'est en local.
+6. Rappeler que `POST /auth/refresh` est **deja rate-limite** (60/h) :
+   inutile d'en ajouter un second, mais la boucle client devra respecter
+   ce plafond plutot que de retenter en rafale.
