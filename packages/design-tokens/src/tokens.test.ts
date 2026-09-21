@@ -13,6 +13,7 @@ import {
   easing,
   fontFamily,
   fontSize,
+  fontVariables,
   fontWeight,
   radius,
   roles,
@@ -88,7 +89,14 @@ for (const [name, value] of Object.entries(easing)) put(`--fixiyi-ease-${name}`,
 
 /** Font stacks are compared as family lists: CSS quotes multi-word names, TS does not. */
 const FONT_VARIABLES = { "--fixiyi-font-sans": fontFamily.sans, "--fixiyi-font-arabic": fontFamily.arabic } as const;
-const families = (value: string): string[] => value.split(",").map((part) => part.trim().replace(/^["']|["']$/g, "").toLowerCase());
+/** `var(--fixiyi-font-inter, Inter)` counts as its fallback family; the variable names are checked apart. */
+const LOADED_FONT = /var\((--[a-z0-9-]+),\s*([^)]+)\)/g;
+const families = (value: string): string[] =>
+  value
+    .replace(LOADED_FONT, "$2")
+    .split(",")
+    .map((part) => part.trim().replace(/^["']|["']$/g, "").toLowerCase());
+const loadedFontVariables = (value: string): string[] => [...value.matchAll(LOADED_FONT)].map((match) => match[1] ?? "");
 
 // -------------------------------------------------------------------- tests
 
@@ -161,6 +169,11 @@ describe("tokens.css mirrors the TypeScript tokens", () => {
     for (const [name, value] of Object.entries(FONT_VARIABLES)) {
       expect(families(declared.get(name) ?? ""), name).toEqual(families(value));
     }
+  });
+
+  it("lets next/font supply each family through the variables the apps set", () => {
+    expect(loadedFontVariables(declared.get("--fixiyi-font-sans") ?? "")).toEqual([fontVariables.latin, fontVariables.arabic]);
+    expect(loadedFontVariables(declared.get("--fixiyi-font-arabic") ?? "")).toEqual([fontVariables.arabic, fontVariables.latin]);
   });
 
   it("exposes roles as references to the scale, so a role is re-pointed in one place", () => {

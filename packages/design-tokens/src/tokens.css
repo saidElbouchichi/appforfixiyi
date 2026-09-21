@@ -144,10 +144,13 @@
   --fixiyi-radius-full: 9999px;
 
   /* --------------------------------------------------------- typography */
+  /* next/font fills the two inner variables (fontVariables in typography.ts). */
   --fixiyi-font-sans:
-    Inter, "Noto Sans Arabic", -apple-system, "Segoe UI", system-ui, sans-serif;
+    var(--fixiyi-font-inter, Inter), var(--fixiyi-font-noto-arabic, "Noto Sans Arabic"),
+    -apple-system, "Segoe UI", system-ui, sans-serif;
   --fixiyi-font-arabic:
-    "Noto Sans Arabic", Inter, -apple-system, "Segoe UI", system-ui, sans-serif;
+    var(--fixiyi-font-noto-arabic, "Noto Sans Arabic"), var(--fixiyi-font-inter, Inter),
+    -apple-system, "Segoe UI", system-ui, sans-serif;
 
   --fixiyi-font-size-2xs: 11px;
   --fixiyi-font-size-xs: 12px;

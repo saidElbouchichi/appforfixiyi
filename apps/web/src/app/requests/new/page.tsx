@@ -377,12 +377,12 @@ export default function NewRequestPage(): React.JSX.Element | null {
             onChange={(event) => {
               handleFilesSelected(event.target.files);
             }}
-            className="text-sm"
+            className="fx-text-body-sm"
           />
         </div>
 
         {pendingMedia.length > 0 ? (
-          <ul className="fx-animate-stagger mt-3 flex flex-col gap-2 text-sm" data-testid="media-list">
+          <ul className="fx-animate-stagger mt-3 flex flex-col gap-2 fx-text-body-sm" data-testid="media-list">
             {pendingMedia.map((item) => (
               <li key={item.file.name} className="fx-row">
                 <span>{item.file.name}</span>

@@ -7,6 +7,17 @@
 
 const systemFallback = ["-apple-system", "Segoe UI", "system-ui", "sans-serif"];
 
+/**
+ * The CSS variables `next/font` sets on `<html>` (`src/app/fonts.ts` of web and admin).
+ * They hold the self-hosted family plus its metric-matched fallback, so the
+ * stacks in tokens.css read `var(--fixiyi-font-inter, Inter)`: the loaded
+ * font when an app provides it, the plain family name otherwise.
+ */
+export const fontVariables = {
+  latin: "--fixiyi-font-inter",
+  arabic: "--fixiyi-font-noto-arabic",
+} as const;
+
 export const fontFamily = {
   sans: ["Inter", "Noto Sans Arabic", ...systemFallback].join(", "),
   arabic: ["Noto Sans Arabic", "Inter", ...systemFallback].join(", "),
@@ -58,4 +69,4 @@ export const textStyles = {
 } as const satisfies Record<string, TextStyle>;
 
 /** Kept as a single object for consumers that read typography as a whole. */
-export const typography = { fontFamily, fontSize, fontWeight, textStyles } as const;
+export const typography = { fontFamily, fontVariables, fontSize, fontWeight, textStyles } as const;

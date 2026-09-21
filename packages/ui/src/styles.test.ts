@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { textStyles } from "@fixiyi/design-tokens";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -11,6 +12,12 @@ import { describe, expect, it } from "vitest";
  */
 const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "styles.css"), "utf8");
 const declarations = css.replace(/\/\*[\s\S]*?\*\//g, "");
+
+/** Body of the rule whose selector is exactly `selector` ("" when absent). */
+function blockOf(selector: string): string {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(String.raw`(?:^|\})\s*${escaped}\s*\{([^}]*)\}`).exec(declarations)?.[1] ?? "";
+}
 
 describe("styles.css — RTL safety", () => {
   it("uses no physical direction properties (logical properties only)", () => {
@@ -60,5 +67,34 @@ describe("styles.css — WCAG 2.2 AA", () => {
   it("ships a visually-hidden helper that stays readable by screen readers", () => {
     expect(declarations).toContain(".fx-visually-hidden");
     expect(declarations).not.toMatch(/\.fx-visually-hidden\s*\{[^}]*display\s*:\s*none/);
+  });
+});
+
+describe("styles.css — typography (design phase 2)", () => {
+  it("sets no literal font size: every text sits on the token scale", () => {
+    expect(declarations.match(/font-size\s*:\s*\d/g)).toBeNull();
+  });
+
+  it("uses no literal line height either (a unitless 1 that boxes an icon glyph excepted)", () => {
+    expect(declarations.match(/line-height\s*:\s*(?!1\s*;)[\d.]+(?:px)?\s*;/g)).toBeNull();
+  });
+
+  it("offers one utility class per text style, built from that style's variables", () => {
+    for (const style of Object.keys(textStyles)) {
+      const block = blockOf(`.fx-text-${style}`);
+      expect(block, style).toContain(`var(--fixiyi-text-${style}-size)`);
+      expect(block, style).toContain(`var(--fixiyi-text-${style}-line-height)`);
+      expect(block, style).toContain(`var(--fixiyi-text-${style}-weight)`);
+    }
+  });
+
+  it("keeps form controls at 16px or more, so iOS Safari does not zoom on focus", () => {
+    for (const selector of [".fx-field__control", ".fx-composer__input"]) {
+      expect(blockOf(selector), selector).toContain("var(--fixiyi-text-body-size)");
+    }
+  });
+
+  it("switches Arabic and darija content to the Arabic-first stack", () => {
+    expect(declarations).toMatch(/:lang\(ar\),\s*:lang\(ary\)\s*\{\s*--fixiyi-font-sans:\s*var\(--fixiyi-font-arabic\)/);
   });
 });

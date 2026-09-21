@@ -191,7 +191,10 @@ la refonte.**
 - **Phase 1 (Design tokens) TERMINEE** — `docs/design/PHASE_1_REPORT.md` :
   palette par roles, 31 contrastes testes, 576 tests. Une decision attendue :
   couleur de Domotique.
-- Prochaine : Phase 2 (typographie).
+- **Phase 2 (Typographie) TERMINEE** — `docs/design/PHASE_2_REPORT.md` :
+  Inter + Noto Sans Arabic auto-hebergees par `next/font`, tout le texte sur
+  l'echelle V2, 582 tests + 9 Playwright.
+- Prochaine : Phase 3 (espacements, rayons, ombres).
 
 ## Derniere action effectuee
 

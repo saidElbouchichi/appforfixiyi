@@ -72,7 +72,7 @@ function ConversationThread({ conversation, userId }: { conversation: Conversati
     <main className="fx-page fx-page--narrow" style={{ blockSize: "100dvh", paddingBlock: 0, gap: 0 }}>
       <header className="fx-page__header" style={{ paddingBlock: "var(--fixiyi-space-3)" }}>
         <div className="fx-row">
-          <h1 className="fx-page__title" style={{ fontSize: "var(--fixiyi-font-size-xl)" }} data-testid="conversation-title">
+          <h1 className="fx-page__title fx-text-h4" data-testid="conversation-title">
             {counterpartName}
           </h1>
           <Badge variant={conversation.counterpart.role === "PROVIDER" ? "info" : "success"}>
