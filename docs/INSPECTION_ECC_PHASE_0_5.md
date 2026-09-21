@@ -105,3 +105,85 @@ du critere « 48+ » du plan de Phase 1.
   perime.
 
 **Verdict Phase 1 : OK — 1 observation MEDIUM (MinIO/CI), aucune regression.**
+
+---
+
+## Phase 2 — Auth — **OK**
+
+### Lecture effectuee
+`docs/phases/PHASE_1_REPORT.md`, `docs/phases/PHASE_2_PLAN.md`,
+`docs/phases/PHASE_2_REPORT.md`, `docs/VERIFICATION_PHASE_1_2.md`,
+`docs/DECISIONS.md` (Decisions 16 a 25).
+
+### Verifications structurelles
+
+| Point | Attendu | Constate | Verdict |
+|---|---|---|---|
+| Module auth | 38 fichiers | **38 fichiers exactement** dans `apps/api/src/auth/` | OK |
+| OTP phone + email | oui | `otp/otp.service.ts`, `sms/` (interface + provider dev), `email/` (interface + provider dev), `verification-code.ts` | OK |
+| Sessions + refresh rotation | oui | `session/session.service.ts`, `token/token.service.ts`, `schemas/user-session.schema.ts`, route `POST /api/v1/auth/refresh` | OK |
+| Devices | oui | `schemas/device.schema.ts` | OK |
+| RBAC | oui | `guards/roles.guard.ts` + `roles.decorator.ts` (+ `resource-owner.guard.ts`) | OK |
+| CSRF | oui | `csrf/csrf.guard.ts` + `csrf/csrf.service.ts` | OK |
+| Rate limiting | oui | `rate-limit/` (guard + service + decorateur), applique jusque sur `POST /auth/refresh` (60/h) | OK |
+
+### Tests re-executes
+
+```
+pnpm --filter @fixiyi/api test -> 23 fichiers, 153 tests, 153 passed (191.95 s)
+```
+
+> Precision d'exactitude : les 153 tests sont le total de `apps/api`
+> (auth + catalog + providers + companies + verification + media +
+> requests + matching + geo + configuration + common), **pas** 153 tests
+> d'auth seuls. Le critere « Tests api auth : 153+ » du prompt de mission
+> confond le total applicatif avec le sous-total auth. Le chiffre est
+> atteint, mais il ne veut pas dire ce que le libelle suggere.
+
+Note : la sortie du run contient un `Error: connection string contains a
+password` **attendu** — c'est le test de `problem-details.filter` qui
+verifie justement que ce type de message est capte et assaini ; le test
+passe.
+
+### Verification MongoDB reelle (base `fixiyi`)
+
+```
+users:         25 documents
+user_sessions: 32 documents
+devices:       32 documents
+```
+
+Index `user_sessions` :
+
+```
+{"key":{"_id":1}}
+{"key":{"userId":1}}
+{"key":{"expiresAt":1},"expireAfterSeconds":0}   <- TTL confirme
+```
+
+Le TTL sur `expiresAt` existe bien et est un **vrai index TTL**
+(`expireAfterSeconds: 0`, donc expiration a la date portee par le
+document) — conforme a la Decision 24.
+
+Bonus verifie au passage, index `devices` :
+
+```
+{"key":{"lastSeenAt":1},"expireAfterSeconds":7776000}   <- 90 jours
+```
+
+7 776 000 s = exactement 90 jours — conforme a la Decision 25.
+
+### Observations
+
+- `AuthGuard` (apps/api/src/auth/guards/auth.guard.ts) **re-verifie la
+  session en base a chaque appel** en plus de verifier la signature JWT.
+  C'est ce qui rend le logout distant reellement effectif au lieu de
+  laisser un token revoque vivre jusqu'a son expiration naturelle. Le
+  cout (1 lecture Mongo par requete authentifiee) est assume et
+  documente.
+- Le guard distingue deux messages d'erreur differents — `"Invalid or
+  expired access token"` (echec de verification JWT) et `"Session has been
+  revoked or expired"` (session absente/revoquee en base). Cette
+  distinction est **la cle du diagnostic du bug frontend** (voir Phase 5).
+
+**Verdict Phase 2 : OK — aucun ecart structurel, TTL confirmes par la base.**
