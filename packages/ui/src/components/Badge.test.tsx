@@ -18,4 +18,41 @@ describe("Badge", () => {
     render(<Badge>Brouillon</Badge>);
     expect(screen.getByText("Brouillon").className).toContain("fx-badge--info");
   });
+
+  it("offers neutral and brand variants besides the semantic ones", () => {
+    render(
+      <>
+        <Badge variant="neutral">Brouillon</Badge>
+        <Badge variant="brand">Nouveau</Badge>
+      </>,
+    );
+    expect(screen.getByText("Brouillon").className).toContain("fx-badge--neutral");
+    expect(screen.getByText("Nouveau").className).toContain("fx-badge--brand");
+  });
+
+  it("draws a decorative dot, pulsing only when asked, and keeps the text as the meaning", () => {
+    render(
+      <>
+        <Badge variant="success" dot>
+          Disponible
+        </Badge>
+        <Badge variant="warning" pulse>
+          Urgent
+        </Badge>
+      </>,
+    );
+    const available = screen.getByText("Disponible").querySelector(".fx-badge__dot");
+    expect(available?.getAttribute("aria-hidden")).toBe("true");
+    expect(available?.className).not.toContain("fx-badge__dot--pulse");
+    expect(screen.getByText("Urgent").querySelector(".fx-badge__dot--pulse")).not.toBeNull();
+  });
+
+  it("renders an optional icon, hidden from assistive tech", () => {
+    render(
+      <Badge variant="info" icon="shield">
+        Verifie
+      </Badge>,
+    );
+    expect(screen.getByText("Verifie").querySelector('[data-icon="shield"]')?.getAttribute("aria-hidden")).toBe("true");
+  });
 });

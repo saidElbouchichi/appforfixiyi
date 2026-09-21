@@ -1,0 +1,70 @@
+/* @fixiyi/ui — Modal. */
+
+/* ----------------------------------------------------------------- modal */
+
+.fx-modal__overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--fixiyi-space-4);
+  background-color: var(--fixiyi-scrim);
+  z-index: var(--fixiyi-z-modal);
+}
+
+.fx-modal {
+  background-color: var(--fixiyi-color-surface);
+  border-radius: var(--fixiyi-radius-overlay);
+  box-shadow: var(--fixiyi-elevation-overlay);
+  inline-size: 100%;
+  max-inline-size: 520px;
+  max-block-size: 85vh;
+  overflow-y: auto;
+  padding: var(--fixiyi-space-5);
+  text-align: start;
+}
+
+.fx-modal__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fixiyi-space-3);
+  margin-block-end: var(--fixiyi-space-3);
+}
+
+.fx-modal__title {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h5-size);
+  line-height: var(--fixiyi-text-h5-line-height);
+  font-weight: var(--fixiyi-text-h5-weight);
+  letter-spacing: var(--fixiyi-text-h5-tracking);
+  color: var(--fixiyi-color-text);
+  margin-block: 0;
+}
+
+.fx-modal__close {
+  margin-inline-start: auto;
+  min-inline-size: var(--fixiyi-size-touch-target);
+  min-block-size: var(--fixiyi-size-touch-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--fixiyi-radius-control);
+  background-color: transparent;
+  color: var(--fixiyi-color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
+}
+
+.fx-modal__close:hover {
+  background-color: var(--fixiyi-color-surface-sunken);
+}
+
+.fx-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fixiyi-space-2);
+  justify-content: flex-end;
+  margin-block-start: var(--fixiyi-space-5);
+}

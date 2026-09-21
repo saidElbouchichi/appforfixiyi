@@ -1,0 +1,65 @@
+/* @fixiyi/ui — Badge: a status label, never interactive (see chip.css). */
+
+/* ----------------------------------------------------------------- badge */
+
+.fx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fixiyi-space-1);
+  padding-inline: var(--fixiyi-space-3);
+  padding-block: var(--fixiyi-space-1);
+  border-radius: var(--fixiyi-radius-pill);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-caption-size);
+  font-weight: var(--fixiyi-font-weight-semibold);
+  line-height: var(--fixiyi-text-caption-line-height);
+  white-space: nowrap;
+}
+
+.fx-badge--neutral {
+  background-color: var(--fixiyi-color-surface-sunken);
+  color: var(--fixiyi-color-text-muted);
+}
+
+.fx-badge--brand {
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-action);
+}
+
+.fx-badge--info {
+  background-color: var(--fixiyi-color-info-surface);
+  color: var(--fixiyi-color-info-text);
+}
+
+.fx-badge--success {
+  background-color: var(--fixiyi-color-success-surface);
+  color: var(--fixiyi-color-success-text);
+}
+
+.fx-badge--warning {
+  background-color: var(--fixiyi-color-warning-surface);
+  color: var(--fixiyi-color-warning-text);
+}
+
+.fx-badge--error {
+  background-color: var(--fixiyi-color-error-surface);
+  color: var(--fixiyi-color-error-text);
+}
+
+/* The dot takes the text colour of its variant: same contrast, no new pair. */
+.fx-badge__dot {
+  position: relative;
+  inline-size: var(--fixiyi-space-2);
+  block-size: var(--fixiyi-space-2);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: currentcolor;
+}
+
+.fx-badge__dot--pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: currentcolor;
+  animation: fx-pulse-ring calc(var(--fixiyi-motion-slower) * 3) var(--fixiyi-ease-out) 3 both;
+}

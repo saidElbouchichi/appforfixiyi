@@ -2,6 +2,8 @@ import { useId, type JSX } from "react";
 
 import { cx } from "../cx.js";
 
+import { Icon, type IconName } from "./Icon.js";
+
 export type InputType = "text" | "tel" | "email" | "number" | "password" | "search";
 
 export interface InputProps {
@@ -20,6 +22,9 @@ export interface InputProps {
   disabled?: boolean;
   name?: string;
   autoComplete?: string;
+  /** Decorative glyph at the inline start of a single-line field (e.g. `search`, `phone`). */
+  iconStart?: IconName;
+  maxLength?: number;
   testId?: string;
 }
 
@@ -43,6 +48,8 @@ export function Input({
   disabled = false,
   name,
   autoComplete,
+  iconStart,
+  maxLength,
   testId,
 }: InputProps): JSX.Element {
   const generatedId = useId();
@@ -60,6 +67,7 @@ export function Input({
     required,
     disabled,
     autoComplete,
+    maxLength,
     "aria-invalid": error !== null,
     "aria-describedby": describedBy.length > 0 ? describedBy : undefined,
     "data-testid": testId,
@@ -86,14 +94,17 @@ export function Input({
           }}
         />
       ) : (
-        <input
-          {...shared}
-          type={type}
-          className="fx-field__control"
-          onChange={(event) => {
-            onChange(event.target.value);
-          }}
-        />
+        <div className={cx("fx-field__control-wrap", iconStart && "fx-field__control-wrap--icon")}>
+          {iconStart ? <Icon name={iconStart} className="fx-field__icon" /> : null}
+          <input
+            {...shared}
+            type={type}
+            className="fx-field__control"
+            onChange={(event) => {
+              onChange(event.target.value);
+            }}
+          />
+        </div>
       )}
 
       {hint ? (
@@ -108,4 +119,14 @@ export function Input({
       ) : null}
     </div>
   );
+}
+
+export type TextareaProps = Omit<InputProps, "multiline" | "type" | "iconStart">;
+
+/**
+ * Multi-line field (part 2B "Textarea"). An alias of `<Input multiline>`, not
+ * a second implementation: one label/error/hint wiring for every field.
+ */
+export function Textarea(props: TextareaProps): JSX.Element {
+  return <Input {...props} multiline />;
 }

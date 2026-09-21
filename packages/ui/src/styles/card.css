@@ -1,0 +1,130 @@
+/* @fixiyi/ui — Card (master prompt part 2B §20). */
+
+/* ------------------------------------------------------------------ card */
+
+.fx-card {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--fixiyi-color-surface);
+  border: 1px solid var(--fixiyi-color-border);
+  border-radius: var(--fixiyi-radius-card);
+  box-shadow: var(--fixiyi-elevation-raised);
+  text-align: start;
+}
+
+.fx-card__body {
+  padding: var(--fixiyi-space-5);
+}
+
+.fx-card__title {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h5-size);
+  line-height: var(--fixiyi-text-h5-line-height);
+  font-weight: var(--fixiyi-text-h5-weight);
+  letter-spacing: var(--fixiyi-text-h5-tracking);
+  color: var(--fixiyi-color-text);
+  margin-block: 0 var(--fixiyi-space-3);
+}
+
+.fx-card__media > img,
+.fx-card__media > video {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.fx-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fixiyi-space-4);
+  padding-block: var(--fixiyi-space-3);
+  padding-inline: var(--fixiyi-space-5);
+  border-block-start: 1px solid var(--fixiyi-color-border);
+  background-color: var(--fixiyi-color-surface-muted);
+}
+
+.fx-card__corner {
+  position: absolute;
+  inset-block-start: var(--fixiyi-space-3);
+  inset-inline-end: var(--fixiyi-space-3);
+}
+
+/* ------------------------------------------------------------ interactive */
+
+.fx-card--interactive {
+  cursor: pointer;
+  transition:
+    box-shadow var(--fixiyi-motion-normal) var(--fixiyi-ease-out),
+    transform var(--fixiyi-motion-normal) var(--fixiyi-ease-out);
+}
+
+/* Part 2B: "hover (shadow-lg + translate-y -2px)". */
+.fx-card--interactive:hover {
+  box-shadow: var(--fixiyi-elevation-hover);
+  transform: translateY(-2px);
+}
+
+/* The card shows the focus of its primary action, so the ring outlines what a click hits. */
+.fx-card--interactive:has(.fx-card__primary-action:focus-visible) {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+.fx-card__primary-action:focus-visible {
+  outline: none;
+}
+
+/* Stretched over the whole card: a click anywhere follows the primary action. */
+.fx-card__primary-action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* Other controls in the card stay above the stretched area. */
+.fx-card--interactive .fx-card__body :is(a, button, input, select, textarea):not(.fx-card__primary-action),
+.fx-card--interactive .fx-card__footer :is(a, button) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-card--interactive:hover {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------- accents */
+
+.fx-card--highlight {
+  border-inline-start-width: 4px;
+}
+
+.fx-card--highlight-brand {
+  border-inline-start-color: var(--fixiyi-color-icon-accent);
+}
+
+.fx-card--highlight-info {
+  border-inline-start-color: var(--fixiyi-color-info-text);
+}
+
+.fx-card--highlight-success {
+  border-inline-start-color: var(--fixiyi-color-success-text);
+}
+
+.fx-card--highlight-warning {
+  border-inline-start-color: var(--fixiyi-color-warning-text);
+}
+
+.fx-card--highlight-error {
+  border-inline-start-color: var(--fixiyi-color-error-text);
+}
+
+.fx-card--gradient-border {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--fixiyi-color-surface), var(--fixiyi-color-surface)) padding-box,
+    linear-gradient(135deg, var(--fixiyi-color-brand), var(--fixiyi-color-accent-500)) border-box;
+}

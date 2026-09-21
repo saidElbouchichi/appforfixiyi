@@ -236,6 +236,13 @@
   --fixiyi-elevation-overlay: var(--fixiyi-shadow-xl);
   --fixiyi-scrim: rgba(28, 25, 23, 0.45);
 
+  /* -------------------------------------------------------------- sizes */
+  --fixiyi-size-control-sm: 32px;
+  --fixiyi-size-control-md: 40px;
+  --fixiyi-size-control-lg: 48px;
+  --fixiyi-size-control-xl: 56px;
+  --fixiyi-size-touch-target: 44px;
+
   /* ------------------------------------------------------------ z-index */
   --fixiyi-z-base: 0;
   --fixiyi-z-dropdown: 1000;

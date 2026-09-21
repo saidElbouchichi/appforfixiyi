@@ -171,5 +171,9 @@ export const contrastPairs: readonly { fg: string; bg: string; min: 3 | 4.5; use
   { fg: colors.neutral[900], bg: colors.primary[500], min: 4.5, use: "gradient button label, orange end" },
   { fg: colors.neutral[900], bg: colors.accent[500], min: 4.5, use: "gradient button label, yellow end" },
   { fg: roles.action, bg: roles.surfaceMuted, min: 4.5, use: "text logo placeholder (D4)" },
+  { fg: roles.onAction, bg: roles.successText, min: 4.5, use: "button label in its success state" },
+  { fg: roles.textMuted, bg: roles.surfaceSunken, min: 4.5, use: "neutral badge / chip" },
+  { fg: colors.accent[700], bg: roles.surface, min: 3, use: "rating star outline (the filled state is not colour alone)" },
+  { fg: roles.borderControl, bg: roles.surface, min: 3, use: "switch track and checkbox box, off" },
   ...Object.entries(avatarColors).map(([trade, pair]) => ({ fg: pair.fg, bg: pair.bg, min: 4.5 as const, use: `avatar initials, ${trade}` })),
 ];

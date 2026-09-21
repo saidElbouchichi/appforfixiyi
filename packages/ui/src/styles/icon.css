@@ -1,0 +1,36 @@
+/* @fixiyi/ui — Icon and IconButton. */
+
+/* ------------------------------------------------------------------ icon */
+
+.fx-icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+  color: currentcolor;
+}
+
+/* Une fleche « suivant » pointe dans l'autre sens en arabe — voir
+   DIRECTIONAL_ICONS dans Icon.tsx. */
+[dir="rtl"] .fx-icon--directional {
+  transform: scaleX(-1);
+}
+
+/* Bouton reduit a une seule icone : la cible tactile reste a 44px (2.5.8)
+   meme si le glyphe fait 20px. */
+.fx-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--fixiyi-size-touch-target);
+  min-block-size: var(--fixiyi-size-touch-target);
+  border: none;
+  border-radius: var(--fixiyi-radius-control);
+  background-color: transparent;
+  color: var(--fixiyi-color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
+}
+
+.fx-icon-button:hover:not(:disabled) {
+  background-color: var(--fixiyi-color-surface-sunken);
+}

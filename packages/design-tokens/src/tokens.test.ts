@@ -8,6 +8,7 @@ import {
   avatarColors,
   breakpoints,
   colors,
+  controlHeight,
   contrastPairs,
   duration,
   easing,
@@ -23,6 +24,7 @@ import {
   shadows,
   spacing,
   textStyles,
+  touchTarget,
   zIndex,
 } from "./index.js";
 
@@ -92,6 +94,8 @@ for (const [role, step] of Object.entries(radiusRoles)) put(`--fixiyi-radius-${k
 for (const [role, step] of Object.entries(elevation)) put(`--fixiyi-elevation-${role}`, shadows[step]);
 put("--fixiyi-scrim", scrim);
 for (const [name, value] of Object.entries(zIndex)) put(`--fixiyi-z-${name}`, value);
+for (const [name, value] of Object.entries(controlHeight)) put(`--fixiyi-size-control-${name}`, value);
+put("--fixiyi-size-touch-target", touchTarget);
 for (const [name, value] of Object.entries(duration)) put(`--fixiyi-motion-${name}`, value);
 for (const [name, value] of Object.entries(easing)) put(`--fixiyi-ease-${name}`, value);
 

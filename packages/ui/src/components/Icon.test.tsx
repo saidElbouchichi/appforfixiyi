@@ -1,25 +1,52 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Icon, ICON_NAMES, ICON_SIZES, type IconName } from "./Icon.js";
+import { Icon, ICON_ALIASES, ICON_NAMES, ICON_SIZES, resolveIconName, type IconName } from "./Icon.js";
 
-/** The four categories 01_SPEC_PRODUCT.md's screens actually need. */
-const EXPECTED_ICONS: Record<string, IconName[]> = {
-  navigation: ["home", "search", "message", "wallet", "profile"],
-  actions: ["add", "edit", "delete", "close", "check", "arrow"],
-  status: ["success", "warning", "error", "info", "loading"],
-  metier: ["wrench", "tools", "calendar", "map", "star", "shield"],
-  chat: ["send", "reply", "attach", "check-double"],
+/**
+ * The catalogue of master prompt part 2C, category by category, under the
+ * names it uses (aliases included). Social icons are deliberately absent:
+ * brand marks come from each brand's kit, with real Fixiyi account URLs
+ * (design phase 5) — D4 forbids logos that were not provided.
+ */
+const PART_2C: Record<string, IconName[]> = {
+  navigation: ["home", "search", "message", "wallet", "profile", "menu", "close", "arrow-left", "arrow-right", "chevron-down", "chevron-up", "chevron-left"],
+  actions: ["add", "edit", "delete", "check", "x", "save", "share", "copy", "download", "upload", "filter", "sort"],
+  status: ["success", "warning", "error", "info", "loading", "clock"],
+  metier: ["wrench", "tools", "calendar", "map-pin", "star", "shield", "credit-card", "phone", "mail", "bell", "user", "users", "briefcase", "building"],
+  chat: ["send", "reply", "attach", "check-double", "image", "file"],
 };
 
+/** One glyph per catalogue domain of the partie 2A trade palette. */
+const TRADES: IconName[] = ["bolt", "droplet", "snowflake", "key", "paint-roller", "hammer", "washing-machine", "smart-home", "monitor", "sparkles", "leaf"];
+
 describe("Icon — coverage", () => {
-  for (const [category, names] of Object.entries(EXPECTED_ICONS)) {
-    it(`ships every ${category} icon`, () => {
+  for (const [category, names] of Object.entries(PART_2C)) {
+    it(`ships every ${category} icon of part 2C`, () => {
       for (const name of names) {
-        expect(ICON_NAMES).toContain(name);
+        expect(ICON_NAMES, name).toContain(resolveIconName(name));
       }
     });
   }
+
+  it("ships one icon per trade", () => {
+    for (const name of TRADES) expect(ICON_NAMES, name).toContain(name);
+  });
+
+  it("reaches the 55+ target in distinct glyphs, aliases not counted", () => {
+    expect(new Set(ICON_NAMES).size).toBe(ICON_NAMES.length);
+    expect(ICON_NAMES.length).toBeGreaterThanOrEqual(55);
+  });
+
+  it("never draws two names with the same paths (an alias is declared, not copied)", () => {
+    const drawings = ICON_NAMES.map((name) => {
+      const { container, unmount } = render(<Icon name={name} />);
+      const signature = [...container.querySelectorAll("path")].map((path) => path.getAttribute("d")).join("|");
+      unmount();
+      return signature;
+    });
+    expect(new Set(drawings).size).toBe(drawings.length);
+  });
 
   it("renders every declared icon with at least one path", () => {
     for (const name of ICON_NAMES) {
@@ -34,9 +61,26 @@ describe("Icon — coverage", () => {
   });
 });
 
+describe("Icon — aliases", () => {
+  it("renders an alias as its glyph", () => {
+    for (const [alias, glyph] of Object.entries(ICON_ALIASES)) {
+      const { container, unmount } = render(<Icon name={alias as IconName} />);
+      expect(container.querySelector("svg")?.getAttribute("data-icon"), alias).toBe(glyph);
+      unmount();
+    }
+  });
+
+  it("only aliases glyphs that exist, and never shadows a glyph name", () => {
+    for (const [alias, glyph] of Object.entries(ICON_ALIASES)) {
+      expect(ICON_NAMES, alias).toContain(glyph);
+      expect(ICON_NAMES, alias).not.toContain(alias);
+    }
+  });
+});
+
 describe("Icon — sizing", () => {
-  it("maps the four sizes to 16/20/24/32 pixels", () => {
-    expect(ICON_SIZES).toEqual({ sm: 16, md: 20, lg: 24, xl: 32 });
+  it("maps the five sizes of part 2C to 16/20/24/32/48 pixels", () => {
+    expect(ICON_SIZES).toEqual({ sm: 16, md: 20, lg: 24, xl: 32, "2xl": 48 });
   });
 
   it("renders the requested size on both axes", () => {
@@ -110,7 +154,7 @@ describe("Icon — RTL", () => {
   const classesOf = (container: HTMLElement): string => container.querySelector("svg")?.getAttribute("class") ?? "";
 
   it("marks every direction-dependent icon so dir=rtl can mirror it", () => {
-    for (const name of ["arrow", "send", "reply"] as IconName[]) {
+    for (const name of ["arrow-back", "arrow-forward", "chevron-start", "chevron-end", "arrow", "arrow-left", "chevron-right", "send", "reply"] as IconName[]) {
       const { container, unmount } = render(<Icon name={name} />);
       expect(classesOf(container), name).toContain("fx-icon--directional");
       unmount();
@@ -118,7 +162,7 @@ describe("Icon — RTL", () => {
   });
 
   it("does not mirror an icon whose meaning is direction-independent", () => {
-    for (const name of ["home", "star", "calendar", "check", "shield"] as IconName[]) {
+    for (const name of ["home", "star", "calendar", "check", "shield", "chevron-down", "chevron-up", "download", "share"] as IconName[]) {
       const { container, unmount } = render(<Icon name={name} />);
       expect(classesOf(container), `${name} should not flip`).not.toContain("fx-icon--directional");
       unmount();

@@ -2,6 +2,8 @@ import { useId, type JSX } from "react";
 
 import { cx } from "../cx.js";
 
+import { Icon } from "./Icon.js";
+
 export interface SelectOption {
   value: string;
   label: string;
@@ -63,27 +65,30 @@ export function Select({
         ) : null}
       </label>
 
-      <select
-        id={controlId}
-        name={name}
-        className="fx-field__control"
-        value={value}
-        required={required}
-        disabled={disabled || options.length === 0}
-        aria-invalid={error !== null}
-        aria-describedby={describedBy.length > 0 ? describedBy : undefined}
-        data-testid={testId}
-        onChange={(event) => {
-          onChange(event.target.value);
-        }}
-      >
-        <option value="">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <div className="fx-field__control-wrap fx-field__control-wrap--select">
+        <select
+          id={controlId}
+          name={name}
+          className="fx-field__control"
+          value={value}
+          required={required}
+          disabled={disabled || options.length === 0}
+          aria-invalid={error !== null}
+          aria-describedby={describedBy.length > 0 ? describedBy : undefined}
+          data-testid={testId}
+          onChange={(event) => {
+            onChange(event.target.value);
+          }}
+        >
+          <option value="">{placeholder}</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <Icon name="chevron-down" className="fx-field__chevron" />
+      </div>
 
       {hint ? (
         <span className="fx-field__hint" id={hintId}>

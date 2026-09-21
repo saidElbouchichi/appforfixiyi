@@ -62,4 +62,44 @@ describe("Button", () => {
     await userEvent.keyboard("{Enter}");
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it("defaults to the md size and applies the requested one", () => {
+    render(
+      <>
+        <Button>Par defaut</Button>
+        <Button size="xl">Grand</Button>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "Par defaut" }).className).toContain("fx-button--md");
+    expect(screen.getByRole("button", { name: "Grand" }).className).toContain("fx-button--xl");
+  });
+
+  it("offers the gradient and pulse variants of part 2B", () => {
+    render(
+      <>
+        <Button variant="gradient">Trouver un artisan</Button>
+        <Button variant="pulse">Urgence</Button>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "Trouver un artisan" }).className).toContain("fx-button--gradient");
+    expect(screen.getByRole("button", { name: "Urgence" }).className).toContain("fx-button--pulse");
+  });
+
+  it("shows a check in the success state, and keeps the label as the message", () => {
+    render(<Button success>Enregistre</Button>);
+    const button = screen.getByRole("button", { name: "Enregistre" });
+    expect(button.className).toContain("fx-button--success");
+    expect(button.querySelector('[data-icon="check"]')).not.toBeNull();
+  });
+
+  it("shows the spinner, not the success check, while loading", () => {
+    render(
+      <Button success loading>
+        Envoi
+      </Button>,
+    );
+    const button = screen.getByRole("button");
+    expect(button.querySelector(".fx-spinner")).not.toBeNull();
+    expect(button.querySelector('[data-icon="check"]')).toBeNull();
+  });
 });

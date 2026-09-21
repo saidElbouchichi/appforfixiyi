@@ -2,6 +2,7 @@ export * from "./breakpoints.js";
 export * from "./colors.js";
 export * from "./radius.js";
 export * from "./shadows.js";
+export * from "./sizes.js";
 export * from "./spacing.js";
 export * from "./transitions.js";
 export * from "./typography.js";

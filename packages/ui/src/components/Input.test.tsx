@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { Input } from "./Input.js";
+import { Input, Textarea } from "./Input.js";
 
 describe("Input", () => {
   it("associates the label with the control (clicking the label focuses it)", async () => {
@@ -67,5 +67,27 @@ describe("Input", () => {
     const first = screen.getByLabelText("Prenom").getAttribute("aria-describedby");
     const second = screen.getByLabelText("Nom").getAttribute("aria-describedby");
     expect(first).not.toBe(second);
+  });
+
+  it("draws a decorative leading icon without changing the accessible name", () => {
+    render(<Input label="Telephone" value="" onChange={() => undefined} iconStart="phone" />);
+    const field = screen.getByLabelText("Telephone");
+    const icon = field.parentElement?.querySelector('[data-icon="phone"]');
+    expect(icon?.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("passes maxLength to the control", () => {
+    render(<Input label="Code" value="" onChange={() => undefined} maxLength={6} />);
+    expect(screen.getByLabelText("Code").getAttribute("maxlength")).toBe("6");
+  });
+});
+
+describe("Textarea", () => {
+  it("is the multi-line Input, with the same label and error wiring", () => {
+    render(<Textarea label="Description" value="" onChange={() => undefined} error="Trop court" />);
+    const control = screen.getByLabelText("Description");
+    expect(control.tagName).toBe("TEXTAREA");
+    expect(control.getAttribute("aria-invalid")).toBe("true");
+    expect(control.getAttribute("aria-describedby")).toBeTruthy();
   });
 });

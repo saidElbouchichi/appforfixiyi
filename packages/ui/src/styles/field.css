@@ -1,0 +1,160 @@
+/* @fixiyi/ui — Form fields (Input, Select, textarea) and radio choices. */
+
+/* ----------------------------------------------------------------- field */
+
+.fx-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-2);
+  text-align: start;
+}
+
+.fx-field__label {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  font-weight: var(--fixiyi-font-weight-medium);
+  color: var(--fixiyi-color-text);
+}
+
+.fx-field__required {
+  color: var(--fixiyi-color-error-text);
+  margin-inline-start: var(--fixiyi-space-1);
+}
+
+.fx-field__control {
+  min-block-size: var(--fixiyi-size-touch-target);
+  padding-inline: var(--fixiyi-space-3);
+  padding-block: var(--fixiyi-space-2);
+  border: 1px solid var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-control);
+  background-color: var(--fixiyi-color-surface);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-size);
+  line-height: var(--fixiyi-text-body-line-height);
+  color: var(--fixiyi-color-text);
+  inline-size: 100%;
+  transition:
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out),
+    box-shadow var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
+}
+
+/* Select: native control (keyboard, mobile pickers) with the field's own chevron. */
+.fx-field__control-wrap--select .fx-field__control {
+  appearance: none;
+  padding-inline-end: var(--fixiyi-space-10);
+  cursor: pointer;
+}
+
+.fx-field__chevron {
+  position: absolute;
+  inset-inline-end: var(--fixiyi-space-3);
+  color: var(--fixiyi-color-text-muted);
+  pointer-events: none;
+}
+
+/* Part 2B: "Input focus : bordure coloree" — plus the shared focus ring. */
+.fx-field__control:focus {
+  border-color: var(--fixiyi-color-focus);
+}
+
+.fx-field__control-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fx-field__control-wrap--icon .fx-field__control {
+  padding-inline-start: var(--fixiyi-space-10);
+}
+
+.fx-field__icon {
+  position: absolute;
+  inset-inline-start: var(--fixiyi-space-3);
+  color: var(--fixiyi-color-text-muted);
+  pointer-events: none;
+}
+
+.fx-field__control:hover:not(:disabled) {
+  border-color: var(--fixiyi-color-neutral-600);
+}
+
+.fx-field__control::placeholder {
+  color: var(--fixiyi-color-text-subtle);
+}
+
+.fx-field__control:disabled {
+  background-color: var(--fixiyi-color-surface-sunken);
+  cursor: not-allowed;
+}
+
+.fx-field__control[aria-invalid="true"] {
+  border-color: var(--fixiyi-color-error-text);
+}
+
+.fx-field__control--textarea {
+  min-block-size: 96px;
+  resize: vertical;
+}
+
+.fx-field__hint {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  color: var(--fixiyi-color-text-muted);
+}
+
+.fx-field__error {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  color: var(--fixiyi-color-error-text);
+}
+
+/* --------------------------------------------------------------- choices */
+
+.fx-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fixiyi-space-2);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.fx-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  min-block-size: var(--fixiyi-size-touch-target);
+  padding-inline: var(--fixiyi-space-3);
+  border: 1px solid var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-control);
+  background-color: var(--fixiyi-color-surface);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-font-size-sm);
+  color: var(--fixiyi-color-text);
+  cursor: pointer;
+  transition:
+    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out),
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-in-out);
+}
+
+.fx-choice:hover {
+  background-color: var(--fixiyi-color-surface-muted);
+  border-color: var(--fixiyi-color-neutral-600);
+}
+
+/* L'etat selectionne n'est jamais porte par la seule couleur : la puce radio
+   native reste visible a cote du libelle (WCAG 2.2 AA 1.4.1). */
+.fx-choice:has(input:checked) {
+  border-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-action);
+}
+
+.fx-choice:has(input:focus-visible) {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}

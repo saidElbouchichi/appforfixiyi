@@ -1,0 +1,249 @@
+/* @fixiyi/ui — Shared helpers, focus ring, page layout, text styles, Arabic switch, reduced motion. */
+
+/* ---------------------------------------------------------------- shared */
+
+/* Sizes include padding and border for every component of the package: a
+   100%-wide field must not overflow when the host app has no CSS reset. */
+[class^="fx-"],
+[class*=" fx-"],
+[class^="fx-"]::before,
+[class*=" fx-"]::before,
+[class^="fx-"]::after,
+[class*=" fx-"]::after {
+  box-sizing: border-box;
+}
+
+/* A text link in the brand's text colour (D1: #C2410C, 5.18:1 on white). */
+.fx-link {
+  color: var(--fixiyi-color-action);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  font-weight: var(--fixiyi-font-weight-medium);
+}
+
+.fx-link:hover {
+  color: var(--fixiyi-color-action-hover);
+}
+
+.fx-link:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+  border-radius: var(--fixiyi-radius-bubble-tail);
+}
+
+.fx-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/**
+ * Un seul anneau de focus pour tout le systeme (WCAG 2.2 AA 2.4.7/2.4.11).
+ * Liste explicite plutot que `*:focus-visible` : le selecteur universel
+ * ecraserait aussi le focus natif des elements d'une application hote qui
+ * n'appartiennent pas a ce design system.
+ */
+.fx-button:focus-visible,
+.fx-field__control:focus-visible,
+.fx-modal__close:focus-visible,
+.fx-modal:focus-visible,
+.fx-icon-button:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ typography */
+
+.fx-page {
+  margin-inline: auto;
+  padding: var(--fixiyi-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-4);
+  text-align: start;
+}
+
+.fx-page--narrow {
+  max-inline-size: 42rem;
+}
+
+.fx-page--wide {
+  max-inline-size: 56rem;
+}
+
+.fx-page__title {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h3-size);
+  line-height: var(--fixiyi-text-h3-line-height);
+  font-weight: var(--fixiyi-text-h3-weight);
+  letter-spacing: var(--fixiyi-text-h3-tracking);
+  color: var(--fixiyi-color-text);
+  margin-block: 0;
+}
+
+.fx-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fixiyi-space-3);
+}
+
+.fx-text-muted {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-font-size-sm);
+  color: var(--fixiyi-color-text-muted);
+}
+
+.fx-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-4);
+}
+
+.fx-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+}
+
+/* ------------------------------------------------------------ text styles */
+
+/* One class per style of the V2 scale (design-tokens typography.ts). */
+.fx-text-display {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-display-size);
+  line-height: var(--fixiyi-text-display-line-height);
+  font-weight: var(--fixiyi-text-display-weight);
+  letter-spacing: var(--fixiyi-text-display-tracking);
+}
+
+.fx-text-h1 {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h1-size);
+  line-height: var(--fixiyi-text-h1-line-height);
+  font-weight: var(--fixiyi-text-h1-weight);
+  letter-spacing: var(--fixiyi-text-h1-tracking);
+}
+
+.fx-text-h2 {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h2-size);
+  line-height: var(--fixiyi-text-h2-line-height);
+  font-weight: var(--fixiyi-text-h2-weight);
+  letter-spacing: var(--fixiyi-text-h2-tracking);
+}
+
+.fx-text-h3 {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h3-size);
+  line-height: var(--fixiyi-text-h3-line-height);
+  font-weight: var(--fixiyi-text-h3-weight);
+  letter-spacing: var(--fixiyi-text-h3-tracking);
+}
+
+.fx-text-h4 {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h4-size);
+  line-height: var(--fixiyi-text-h4-line-height);
+  font-weight: var(--fixiyi-text-h4-weight);
+  letter-spacing: var(--fixiyi-text-h4-tracking);
+}
+
+.fx-text-h5 {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h5-size);
+  line-height: var(--fixiyi-text-h5-line-height);
+  font-weight: var(--fixiyi-text-h5-weight);
+  letter-spacing: var(--fixiyi-text-h5-tracking);
+}
+
+.fx-text-body-lg {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-lg-size);
+  line-height: var(--fixiyi-text-body-lg-line-height);
+  font-weight: var(--fixiyi-text-body-lg-weight);
+  letter-spacing: var(--fixiyi-text-body-lg-tracking);
+}
+
+.fx-text-body {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-size);
+  line-height: var(--fixiyi-text-body-line-height);
+  font-weight: var(--fixiyi-text-body-weight);
+  letter-spacing: var(--fixiyi-text-body-tracking);
+}
+
+.fx-text-body-sm {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  font-weight: var(--fixiyi-text-body-sm-weight);
+  letter-spacing: var(--fixiyi-text-body-sm-tracking);
+}
+
+.fx-text-caption {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-caption-size);
+  line-height: var(--fixiyi-text-caption-line-height);
+  font-weight: var(--fixiyi-text-caption-weight);
+  letter-spacing: var(--fixiyi-text-caption-tracking);
+}
+
+.fx-text-overline {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-overline-size);
+  line-height: var(--fixiyi-text-overline-line-height);
+  font-weight: var(--fixiyi-text-overline-weight);
+  letter-spacing: var(--fixiyi-text-overline-tracking);
+  text-transform: uppercase;
+}
+
+/*
+ * Arabic and darija (01_SPEC_PRODUCT.md #5): the subtree switches to the
+ * Arabic-first stack. `font-family` covers text that merely inherits it; the
+ * re-pointed custom property covers components that set their own
+ * `font-family: var(--fixiyi-font-sans)`. Inter has no Arabic glyphs, so
+ * Arabic letters would fall back to Noto Sans Arabic anyway; this makes the
+ * digits and punctuation inside Arabic text match them.
+ */
+:lang(ar),
+:lang(ary) {
+  --fixiyi-font-sans: var(--fixiyi-font-arabic);
+  font-family: var(--fixiyi-font-arabic);
+}
+
+/* --------------------------------------------------- reduced motion (2.3.3) */
+
+/**
+ * One blanket rule for every component of the package, present and future:
+ * a new component cannot forget to opt in. Durations collapse to 0.01ms
+ * rather than `none`, so a `both`-filled animation still lands on its final
+ * frame (a fade-in ends visible) and transitionend listeners still fire.
+ * `!important` because it must beat each component's own declaration.
+ * The `.fx-animate-*` utilities are neutralised in ./animations.css.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [class^="fx-"],
+  [class*=" fx-"],
+  [class^="fx-"]::before,
+  [class*=" fx-"]::before,
+  [class^="fx-"]::after,
+  [class*=" fx-"]::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* The dots still say "typing" when still: the text label carries the meaning. */
+  .fx-typing__dots > span {
+    animation: none !important;
+  }
+}

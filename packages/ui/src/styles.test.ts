@@ -1,22 +1,24 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
-import { elevation, radiusRoles, textStyles } from "@fixiyi/design-tokens";
+import { controlHeight, elevation, radiusRoles, textStyles, touchTarget } from "@fixiyi/design-tokens";
 import { describe, expect, it } from "vitest";
+
+import { readStylesheet } from "./css-source.js";
 
 /**
  * jsdom does not compute CSS, so asserting "it looks right" in a component
  * test would be theatre. These assert the real, checkable invariants of the
- * stylesheet instead — the ones that silently rot first.
+ * stylesheet instead — the ones that silently rot first. `css` is the whole
+ * package stylesheet: styles.css with its imports inlined.
  */
-const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "styles.css"), "utf8");
+const css = readStylesheet();
 const declarations = css.replace(/\/\*[\s\S]*?\*\//g, "");
 
-/** Body of the rule whose selector is exactly `selector` ("" when absent). */
+/** Body of the first rule whose selector list contains exactly `selector` ("" when absent). */
 function blockOf(selector: string): string {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(String.raw`(?:^|\})\s*${escaped}\s*\{([^}]*)\}`).exec(declarations)?.[1] ?? "";
+  for (const rule of declarations.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selectors = (rule[1] ?? "").split(",").map((part) => part.trim());
+    if (selectors.includes(selector)) return rule[2] ?? "";
+  }
+  return "";
 }
 
 describe("styles.css — RTL safety", () => {
@@ -52,11 +54,17 @@ describe("styles.css — WCAG 2.2 AA", () => {
     expect(declarations).toMatch(/outline\s*:\s*2px solid/);
   });
 
-  it("gives interactive targets at least the 24px minimum (2.5.8)", () => {
-    const minSizes = [...declarations.matchAll(/min-(?:block|inline)-size\s*:\s*(\d+)px/g)].map((match) => Number(match[1]));
-    expect(minSizes.length).toBeGreaterThan(0);
-    for (const size of minSizes) {
-      expect(size).toBeGreaterThanOrEqual(24);
+  it("gives interactive targets at least the 24px minimum (2.5.8), via the size tokens", () => {
+    const tokenPixels: Record<string, number> = {
+      "--fixiyi-size-touch-target": Number.parseInt(touchTarget, 10),
+      ...Object.fromEntries(Object.entries(controlHeight).map(([name, value]) => [`--fixiyi-size-control-${name}`, Number.parseInt(value, 10)])),
+    };
+    const minSizes = [...declarations.matchAll(/min-(?:block|inline)-size\s*:\s*([^;]+);/g)].map((match) => (match[1] ?? "").trim()).filter((value) => value !== "0");
+    expect(minSizes.length).toBeGreaterThan(5);
+    for (const value of minSizes) {
+      const token = /^var\((--fixiyi-size-[a-z0-9-]+)\)$/.exec(value)?.[1];
+      const pixels = token === undefined ? Number.parseInt(value, 10) : tokenPixels[token];
+      expect(pixels, value).toBeGreaterThanOrEqual(24);
     }
   });
 

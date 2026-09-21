@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { importedSheets } from "./css-source.js";
+
 /**
  * jsdom does not run CSS animations, so asserting "it animates nicely" in a
  * component test would be theatre (same reasoning as styles.test.ts). These
@@ -100,13 +102,21 @@ describe("animations.css — RTL", () => {
 });
 
 describe("styles.css — single entry point", () => {
-  it("imports the motion layer so consumers only ever import @fixiyi/ui/css", () => {
-    const styles = readFileSync(join(here, "styles.css"), "utf8");
-    expect(styles).toMatch(/@import\s+"\.\/styles\/animations\.css"/);
+  it("imports the motion layer first, then one sheet per component family", () => {
+    const sheets = importedSheets();
+    expect(sheets[0]).toBe("styles/animations.css");
+    expect(sheets.length).toBeGreaterThan(5);
+  });
+
+  it("holds nothing but imports, so every rule lives in a component sheet", () => {
+    const entry = readFileSync(join(here, "styles.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(entry.replace(/@import\s+"[^"]+";/g, "").trim()).toBe("");
   });
 
   it("does not redefine a keyframe that the motion layer already owns", () => {
-    const styles = readFileSync(join(here, "styles.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-    expect(styles.match(/@keyframes/g)).toBeNull();
+    for (const sheet of importedSheets().filter((path) => path !== "styles/animations.css")) {
+      const source = readFileSync(join(here, sheet), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+      expect(source.match(/@keyframes/g), sheet).toBeNull();
+    }
   });
 });

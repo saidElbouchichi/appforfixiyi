@@ -74,6 +74,62 @@
   }
 }
 
+/* --------------------------------------------- component keyframes (phase 4) */
+
+/* Pulse CTA and urgent badge: a ring that grows and fades. Iteration-capped where used. */
+@keyframes fx-pulse-ring {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+/* Skeleton: a diagonal sheen crossing the placeholder (part 2B). */
+@keyframes fx-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* Menus, tooltips, command palette: grow from their anchor. */
+@keyframes fx-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Bottom sheet: rises from the bottom edge. */
+@keyframes fx-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Indeterminate progress bar: a segment travelling along the inline axis. */
+@keyframes fx-indeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
 /* ------------------------------------------------------------- utilities */
 
 .fx-animate-fade-in {

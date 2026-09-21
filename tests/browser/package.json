@@ -9,6 +9,10 @@
     "test:e2e:headed": "playwright test --headed"
   },
   "devDependencies": {
-    "@playwright/test": "^1.63.0"
+    "@fixiyi/design-tokens": "workspace:*",
+    "@fixiyi/ui": "workspace:*",
+    "@playwright/test": "^1.63.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   }
 }

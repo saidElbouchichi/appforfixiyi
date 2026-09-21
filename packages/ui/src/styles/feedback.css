@@ -1,0 +1,98 @@
+/* @fixiyi/ui — Loading (spinner, skeleton), empty and error states. */
+
+/* --------------------------------------------------------------- loading */
+
+.fx-spinner {
+  display: inline-block;
+  inline-size: 20px;
+  block-size: 20px;
+  border: 2px solid var(--fixiyi-color-neutral-300);
+  border-block-start-color: var(--fixiyi-color-icon-accent);
+  border-radius: var(--fixiyi-radius-pill);
+  animation: fx-spin var(--fixiyi-motion-slow) linear infinite;
+}
+
+.fx-spinner--lg {
+  inline-size: 32px;
+  block-size: 32px;
+  border-width: 3px;
+}
+
+.fx-skeleton {
+  display: block;
+  background-color: var(--fixiyi-color-surface-sunken);
+  /* Part 2B: a diagonal sheen instead of v1's blink. The sheen band is the
+     page background, so it reads on white cards and on the page alike. */
+  background-image: linear-gradient(
+    100deg,
+    var(--fixiyi-color-surface-sunken) 40%,
+    var(--fixiyi-color-surface-muted) 50%,
+    var(--fixiyi-color-surface-sunken) 60%
+  );
+  background-size: 250% 100%;
+  border-radius: var(--fixiyi-radius-inset);
+  animation: fx-shimmer calc(var(--fixiyi-motion-slower) * 3) linear infinite;
+}
+
+/* The sheen follows the reading direction. */
+[dir="rtl"] .fx-skeleton {
+  animation-direction: reverse;
+}
+
+/* A skeleton line stands in for a line of body-sm text, so it takes its size. */
+.fx-skeleton--line {
+  block-size: var(--fixiyi-text-body-sm-size);
+  margin-block-end: var(--fixiyi-space-2);
+}
+
+.fx-skeleton--last {
+  inline-size: 60%;
+}
+
+.fx-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-3);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-font-size-sm);
+  color: var(--fixiyi-color-text-muted);
+}
+
+/* ----------------------------------------------------- empty/error state */
+
+.fx-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fixiyi-space-3);
+  padding-block: var(--fixiyi-space-10);
+  padding-inline: var(--fixiyi-space-5);
+  text-align: center;
+  font-family: var(--fixiyi-font-sans);
+}
+
+.fx-state__icon {
+  font-size: var(--fixiyi-font-size-3xl);
+  line-height: 1;
+  color: var(--fixiyi-color-neutral-400);
+}
+
+.fx-state--error .fx-state__icon {
+  color: var(--fixiyi-color-error-text);
+}
+
+.fx-state__title {
+  font-size: var(--fixiyi-text-h5-size);
+  line-height: var(--fixiyi-text-h5-line-height);
+  font-weight: var(--fixiyi-text-h5-weight);
+  letter-spacing: var(--fixiyi-text-h5-tracking);
+  color: var(--fixiyi-color-text);
+  margin-block: 0;
+}
+
+.fx-state__message {
+  font-size: var(--fixiyi-font-size-sm);
+  color: var(--fixiyi-color-text-muted);
+  margin-block: 0;
+  max-inline-size: 46ch;
+}
