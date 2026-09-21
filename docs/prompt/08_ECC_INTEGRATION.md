@@ -14,13 +14,24 @@ Minimal. Il est utilisé UNIQUEMENT dans Fixiyi.
 
 En cas de conflit, Fixiyi gagne toujours.
 
+## Lecture obligatoire avant chaque phase
+
+AVANT CHAQUE PHASE, lire dans l'ordre :
+1. docs/prompt/06_SCOPE.md
+2. docs/prompt/03_AGENT_PROTOCOL.md
+3. docs/prompt/05_DECISION_POLICY.md
+4. docs/PROGRESS.md
+5. docs/DECISIONS.md
+6. docs/phases/PHASE_{N-1}_REPORT.md
+7. docs/phases/PHASE_N_PLAN.md (si existe)
+
 ## Cycle par phase (avec ECC)
 
-LIRE PROGRESS.md → LIRE DECISIONS.md → IDENTIFIER phase →
-PLANIFIER → [ECC: /ecc:plan] → IMPLÉMENTER → TESTER →
-[ECC: /ecc:review] → [ECC: /ecc:security] → CORRIGER →
-DOCUMENTER → COMMIT → METTRE À JOUR PROGRESS.md → STOP →
-attendre GO PHASE X+1
+LIRE PROGRESS.md → LIRE DECISIONS.md → LIRE PHASE_{N-1} →
+IDENTIFIER phase → PLANIFIER → [ECC: /ecc:plan] →
+IMPLÉMENTER → TESTER → [ECC: /ecc:review] →
+[ECC: /ecc:security] → CORRIGER → DOCUMENTER → COMMIT →
+METTRE À JOUR PROGRESS.md → STOP → attendre GO PHASE X+1
 
 ## Commandes ECC disponibles
 
@@ -61,5 +72,6 @@ En cas de problème : git reset --hard d84703e
 - Version ECC : v2.2.2
 - Hooks : Minimal
 - Mémoire : Fixiyi uniquement
+- Lecture obligatoire avant chaque phase
 
 En cas de conflit, Fixiyi gagne toujours.
