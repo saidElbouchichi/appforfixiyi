@@ -6,7 +6,9 @@
   display: inline-block;
   flex: none;
   vertical-align: middle;
-  color: currentcolor;
+  /* No colour here: the stroke is currentColor, so an icon inherits its
+     parent's colour, and a component class on the icon can recolour it
+     without fighting this rule's cascade position. */
 }
 
 /* Une fleche « suivant » pointe dans l'autre sens en arabe — voir

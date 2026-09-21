@@ -1,0 +1,165 @@
+/* @fixiyi/ui — Chip, SearchBar, FilterBar. */
+
+/* ------------------------------------------------------------------ chip */
+
+.fx-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--fixiyi-space-1);
+  min-block-size: var(--fixiyi-size-control-sm);
+  padding-inline: var(--fixiyi-space-3);
+  border: 1px solid var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface);
+  color: var(--fixiyi-color-text);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  font-weight: var(--fixiyi-font-weight-medium);
+  white-space: nowrap;
+}
+
+.fx-chip--toggle {
+  cursor: pointer;
+  transition:
+    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-out),
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-out);
+}
+
+.fx-chip--toggle:hover:not(:disabled) {
+  background-color: var(--fixiyi-color-surface-sunken);
+}
+
+.fx-chip--selected,
+.fx-chip--selected:hover:not(:disabled) {
+  border-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-action);
+}
+
+.fx-chip--toggle:focus-visible,
+.fx-chip__remove:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+.fx-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.fx-chip__remove {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--fixiyi-space-6);
+  min-block-size: var(--fixiyi-space-6);
+  padding: 0;
+  border: none;
+  border-radius: var(--fixiyi-radius-pill);
+  background: transparent;
+  color: var(--fixiyi-color-text-muted);
+  cursor: pointer;
+}
+
+.fx-chip__remove:hover {
+  background-color: var(--fixiyi-color-surface-sunken);
+}
+
+/* After the base rules, which it must override on a touch screen. */
+@media (pointer: coarse) {
+  .fx-chip--toggle {
+    min-block-size: var(--fixiyi-size-touch-target);
+  }
+
+  .fx-chip__remove {
+    min-inline-size: var(--fixiyi-size-touch-target);
+    min-block-size: var(--fixiyi-size-touch-target);
+  }
+}
+
+/* ---------------------------------------------------------------- search */
+
+.fx-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-family: var(--fixiyi-font-sans);
+}
+
+.fx-search__icon {
+  position: absolute;
+  inset-inline-start: var(--fixiyi-space-4);
+  color: var(--fixiyi-color-text-muted);
+  pointer-events: none;
+}
+
+.fx-search__input {
+  inline-size: 100%;
+  min-block-size: var(--fixiyi-size-control-lg);
+  padding-inline: var(--fixiyi-space-12);
+  border: 1px solid var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface);
+  color: var(--fixiyi-color-text);
+  font-family: inherit;
+  font-size: var(--fixiyi-text-body-size);
+  line-height: var(--fixiyi-text-body-line-height);
+  box-shadow: var(--fixiyi-elevation-raised);
+}
+
+.fx-search__input::placeholder {
+  color: var(--fixiyi-color-text-subtle);
+}
+
+.fx-search__input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.fx-search__input:focus {
+  border-color: var(--fixiyi-color-focus);
+}
+
+.fx-search__input:focus-visible,
+.fx-search__clear:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+.fx-search__clear {
+  position: absolute;
+  inset-inline-end: var(--fixiyi-space-1);
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--fixiyi-size-control-md);
+  min-block-size: var(--fixiyi-size-control-md);
+  border: none;
+  border-radius: var(--fixiyi-radius-pill);
+  background: transparent;
+  color: var(--fixiyi-color-text-muted);
+  cursor: pointer;
+}
+
+.fx-search__clear:hover {
+  background-color: var(--fixiyi-color-surface-sunken);
+}
+
+/* ------------------------------------------------------------ filter bar */
+
+.fx-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  min-inline-size: 0;
+}
+
+/* Scrolls sideways instead of wrapping; the focus ring keeps room to show. */
+.fx-filter-bar__scroller {
+  display: flex;
+  flex: 1;
+  gap: var(--fixiyi-space-2);
+  min-inline-size: 0;
+  padding: var(--fixiyi-space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}

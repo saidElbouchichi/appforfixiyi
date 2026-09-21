@@ -1,6 +1,8 @@
 export { Badge, type BadgeProps, type BadgeVariant } from "./components/Badge.js";
-export { Button, type ButtonProps, type ButtonVariant } from "./components/Button.js";
-export { Card, type CardProps } from "./components/Card.js";
+export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from "./components/Button.js";
+export { Card, type CardHighlight, type CardProps } from "./components/Card.js";
+export { Checkbox, type CheckboxProps } from "./components/Checkbox.js";
+export { Chip, type ChipProps } from "./components/Chip.js";
 export {
   DeliveryStatus,
   MessageBubble,
@@ -15,6 +17,7 @@ export {
 } from "./components/Chat.js";
 export { EmptyState, type EmptyStateProps } from "./components/EmptyState.js";
 export { ErrorState, type ErrorStateProps } from "./components/ErrorState.js";
+export { FilterBar, type FilterBarProps, type FilterOption } from "./components/FilterBar.js";
 export {
   Icon,
   ICON_ALIASES,
@@ -31,5 +34,8 @@ export { Input, Textarea, type InputProps, type InputType, type TextareaProps } 
 export { Loading, Skeleton, Spinner, type LoadingProps, type SkeletonProps, type SpinnerProps } from "./components/Loading.js";
 export { Modal, type ModalProps } from "./components/Modal.js";
 export { RadioGroup, type RadioGroupProps, type RadioOption } from "./components/RadioGroup.js";
+export { SearchBar, type SearchBarProps } from "./components/SearchBar.js";
 export { Select, type SelectOption, type SelectProps } from "./components/Select.js";
+export { Slider, type SliderProps } from "./components/Slider.js";
+export { Switch, type SwitchProps } from "./components/Switch.js";
 export { cx } from "./cx.js";

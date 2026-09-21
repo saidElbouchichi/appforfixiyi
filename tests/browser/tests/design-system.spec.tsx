@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import { expect, test, type Page } from "@playwright/test";
-import { Badge, Button, Card, Icon, ICON_NAMES, Input, Select, Skeleton, Textarea } from "@fixiyi/ui";
+import { Badge, Button, Card, Checkbox, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
 
 import { contrastRatio, renderUi } from "../support/ui-harness";
 
@@ -185,5 +185,68 @@ test.describe("badges, cards, fields", () => {
     await page.keyboard.press("Tab");
     await expect(page.getByRole("link", { name: "Voir la demande" })).toBeFocused();
     expect(await page.getByTestId("card").evaluate((element) => getComputedStyle(element).outlineStyle)).toBe("solid");
+  });
+});
+
+const controlsGallery = (
+  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <SearchBar label="Rechercher un service" value="plombier" onChange={noop} placeholder="Que recherchez-vous ?" />
+    <FilterBar
+      label="Filtrer par metier"
+      options={[
+        { value: "electricity", label: "Electricite", icon: "bolt" },
+        { value: "plumbing", label: "Plomberie", icon: "droplet" },
+        { value: "hvac", label: "Climatisation", icon: "snowflake" },
+        { value: "locksmith", label: "Serrurerie", icon: "key" },
+      ]}
+      selected={["plumbing"]}
+      onChange={noop}
+    />
+    <div style={{ display: "flex", gap: 8 }}>
+      <Chip label="Casablanca" onRemove={noop} testId="chip-removable" />
+      <Chip label="Selectionne" onToggle={noop} selected testId="chip-selected" />
+    </div>
+    <Checkbox label="J'accepte les conditions" checked onChange={noop} description="Obligatoire pour envoyer la demande" />
+    <Checkbox label="Tous les metiers" checked={false} indeterminate onChange={noop} />
+    <Checkbox label="Non coche" checked={false} onChange={noop} />
+    <Switch label="Notifications par SMS" checked onChange={noop} testId="switch-on" />
+    <Switch label="Disponible le week-end" checked={false} onChange={noop} testId="switch-off" />
+    <Slider label="Rayon de recherche" value={15} min={1} max={50} onChange={noop} formatValue={(km) => `${km.toString()} km`} testId="slider" />
+  </div>
+);
+
+test.describe("form controls", () => {
+  test("render the batch C gallery, readable", async ({ page }) => {
+    await renderUi(page, controlsGallery);
+    expect(await textContrast(page, "chip-selected")).toBeGreaterThanOrEqual(4.5);
+    expect((await page.getByTestId("slider").boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    // Icons take the colour their component gives them (white check on the orange box, muted search glyph).
+    const markColor = await page.locator(".fx-checkbox__mark").first().evaluate((mark) => getComputedStyle(mark).color);
+    expect(markColor).toBe("rgb(255, 255, 255)");
+    expect(await page.locator(".fx-search__icon").evaluate((icon) => getComputedStyle(icon).color)).toBe("rgb(87, 83, 78)");
+    await page.screenshot({ path: "screenshots/ds-04-controls.png", fullPage: true, animations: "disabled" });
+  });
+
+  test("slides the switch thumb to the inline end, in LTR and in RTL", async ({ page }) => {
+    for (const dir of ["ltr", "rtl"] as const) {
+      await renderUi(page, controlsGallery, { dir });
+      const track = await page.getByTestId("switch-on").boundingBox();
+      const thumb = await page.getByTestId("switch-on").locator(".fx-switch__thumb").boundingBox();
+      const thumbCentre = (thumb?.x ?? 0) + (thumb?.width ?? 0) / 2;
+      const trackCentre = (track?.x ?? 0) + (track?.width ?? 0) / 2;
+      if (dir === "ltr") expect(thumbCentre, dir).toBeGreaterThan(trackCentre);
+      else expect(thumbCentre, dir).toBeLessThan(trackCentre);
+    }
+    await page.screenshot({ path: "screenshots/ds-05-controls-rtl.png", fullPage: true, animations: "disabled" });
+  });
+});
+
+test.describe("form controls on a touch screen", () => {
+  test.use({ hasTouch: true, isMobile: true });
+
+  test("give filter chips and chip remove buttons the 44px touch target", async ({ page }) => {
+    await renderUi(page, controlsGallery);
+    expect((await page.getByRole("button", { name: "Plomberie" }).boundingBox())?.height).toBeCloseTo(44, 0);
+    expect((await page.getByRole("button", { name: "Retirer Casablanca" }).boundingBox())?.height).toBeCloseTo(44, 0);
   });
 });

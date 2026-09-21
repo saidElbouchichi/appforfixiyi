@@ -149,6 +149,7 @@
   --fixiyi-radius-bubble-tail: var(--fixiyi-radius-sm);
   --fixiyi-radius-inset: var(--fixiyi-radius-md);
   --fixiyi-radius-overlay: var(--fixiyi-radius-2xl);
+  --fixiyi-radius-mark: var(--fixiyi-radius-sm);
   --fixiyi-radius-pill: var(--fixiyi-radius-full);
 
   /* --------------------------------------------------------- typography */

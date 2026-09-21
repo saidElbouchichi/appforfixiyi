@@ -1,0 +1,264 @@
+/* @fixiyi/ui — Checkbox, Switch, Slider. */
+
+/* -------------------------------------------------------------- checkbox */
+
+.fx-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+  font-family: var(--fixiyi-font-sans);
+  text-align: start;
+}
+
+/* The whole row is the target (WCAG 2.5.8), not the 20px box. */
+.fx-checkbox__row {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--fixiyi-space-3);
+  min-block-size: var(--fixiyi-size-touch-target);
+  padding-block: var(--fixiyi-space-3);
+  cursor: pointer;
+}
+
+.fx-checkbox__box {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--fixiyi-space-5);
+  block-size: var(--fixiyi-space-5);
+  margin-block-start: var(--fixiyi-space-1);
+}
+
+.fx-checkbox__input {
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  border: 2px solid var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-mark);
+  background-color: var(--fixiyi-color-surface);
+  cursor: pointer;
+  transition:
+    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-out),
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-out);
+}
+
+.fx-checkbox__input:checked,
+.fx-checkbox__input:indeterminate {
+  border-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action);
+}
+
+.fx-checkbox__input:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+.fx-checkbox__input[aria-invalid="true"] {
+  border-color: var(--fixiyi-color-error-text);
+}
+
+.fx-checkbox__input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* The mark is drawn only once checked; it scales in (part 2B "checkbox check"). */
+.fx-checkbox__mark {
+  position: relative;
+  color: var(--fixiyi-color-on-action);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--fixiyi-motion-fast) var(--fixiyi-ease-out),
+    transform var(--fixiyi-motion-fast) var(--fixiyi-ease-out);
+}
+
+.fx-checkbox__input:checked + .fx-checkbox__mark,
+.fx-checkbox__input:indeterminate + .fx-checkbox__mark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.fx-checkbox__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+}
+
+.fx-checkbox__label,
+.fx-switch__label {
+  font-size: var(--fixiyi-text-body-size);
+  line-height: var(--fixiyi-text-body-line-height);
+  color: var(--fixiyi-color-text);
+}
+
+.fx-checkbox__description,
+.fx-switch__description {
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  color: var(--fixiyi-color-text-muted);
+}
+
+/* ---------------------------------------------------------------- switch */
+
+.fx-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fixiyi-space-4);
+  min-block-size: var(--fixiyi-size-touch-target);
+  font-family: var(--fixiyi-font-sans);
+  text-align: start;
+}
+
+.fx-switch__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+}
+
+.fx-switch__label {
+  cursor: pointer;
+}
+
+.fx-switch__track {
+  position: relative;
+  flex: none;
+  inline-size: var(--fixiyi-size-touch-target);
+  block-size: var(--fixiyi-space-6);
+  padding: 0;
+  border: 2px solid var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface-sunken);
+  cursor: pointer;
+  transition:
+    background-color var(--fixiyi-motion-normal) var(--fixiyi-ease-out),
+    border-color var(--fixiyi-motion-normal) var(--fixiyi-ease-out);
+}
+
+/* Taller hit area than the drawn track (WCAG 2.5.8), centred on it. */
+.fx-switch__track::before {
+  content: "";
+  position: absolute;
+  inset: -10px -2px;
+}
+
+.fx-switch__track--on {
+  border-color: var(--fixiyi-color-action);
+  background-color: var(--fixiyi-color-action);
+}
+
+.fx-switch__track:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+.fx-switch__track:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Slides along the inline axis: inset-inline-start follows dir="rtl". */
+.fx-switch__thumb {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-start: 2px;
+  inline-size: var(--fixiyi-space-4);
+  block-size: var(--fixiyi-space-4);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface);
+  box-shadow: var(--fixiyi-elevation-raised);
+  transition: inset-inline-start var(--fixiyi-motion-normal) var(--fixiyi-ease-spring);
+}
+
+.fx-switch__track--on .fx-switch__thumb {
+  inset-inline-start: calc(100% - var(--fixiyi-space-4) - 2px);
+}
+
+/* ---------------------------------------------------------------- slider */
+
+.fx-slider__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--fixiyi-space-3);
+}
+
+.fx-slider__value {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+  font-weight: var(--fixiyi-font-weight-semibold);
+  color: var(--fixiyi-color-action);
+}
+
+/* The input is the full 44px touch target; the track is drawn inside it. */
+.fx-slider {
+  --fx-slider-track: linear-gradient(
+    to right,
+    var(--fixiyi-color-action) var(--fx-slider-fill, 0%),
+    var(--fixiyi-color-surface-sunken) var(--fx-slider-fill, 0%)
+  );
+
+  appearance: none;
+  inline-size: 100%;
+  block-size: var(--fixiyi-size-touch-target);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* A native range fills from the right in RTL: the gradient follows. */
+[dir="rtl"] .fx-slider {
+  --fx-slider-track: linear-gradient(
+    to left,
+    var(--fixiyi-color-action) var(--fx-slider-fill, 0%),
+    var(--fixiyi-color-surface-sunken) var(--fx-slider-fill, 0%)
+  );
+}
+
+.fx-slider::-webkit-slider-runnable-track {
+  block-size: var(--fixiyi-space-2);
+  border-radius: var(--fixiyi-radius-pill);
+  background: var(--fx-slider-track);
+}
+
+.fx-slider::-moz-range-track {
+  block-size: var(--fixiyi-space-2);
+  border-radius: var(--fixiyi-radius-pill);
+  background: var(--fx-slider-track);
+}
+
+.fx-slider::-webkit-slider-thumb {
+  appearance: none;
+  inline-size: var(--fixiyi-space-6);
+  block-size: var(--fixiyi-space-6);
+  margin-block-start: calc((var(--fixiyi-space-2) - var(--fixiyi-space-6)) / 2);
+  border: 2px solid var(--fixiyi-color-action);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface);
+  box-shadow: var(--fixiyi-elevation-raised);
+}
+
+.fx-slider::-moz-range-thumb {
+  inline-size: var(--fixiyi-space-6);
+  block-size: var(--fixiyi-space-6);
+  border: 2px solid var(--fixiyi-color-action);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-surface);
+  box-shadow: var(--fixiyi-elevation-raised);
+}
+
+.fx-slider:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+  border-radius: var(--fixiyi-radius-control);
+}
+
+.fx-slider:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

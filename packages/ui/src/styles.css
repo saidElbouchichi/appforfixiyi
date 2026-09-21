@@ -25,6 +25,8 @@
 @import "./styles/base.css";
 @import "./styles/button.css";
 @import "./styles/field.css";
+@import "./styles/controls.css";
+@import "./styles/chip.css";
 @import "./styles/card.css";
 @import "./styles/badge.css";
 @import "./styles/icon.css";

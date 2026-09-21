@@ -1,4 +1,4 @@
-import { controlHeight, elevation, radiusRoles, textStyles, touchTarget } from "@fixiyi/design-tokens";
+import { controlHeight, elevation, radiusRoles, spacing, textStyles, touchTarget } from "@fixiyi/design-tokens";
 import { describe, expect, it } from "vitest";
 
 import { readStylesheet } from "./css-source.js";
@@ -58,11 +58,12 @@ describe("styles.css — WCAG 2.2 AA", () => {
     const tokenPixels: Record<string, number> = {
       "--fixiyi-size-touch-target": Number.parseInt(touchTarget, 10),
       ...Object.fromEntries(Object.entries(controlHeight).map(([name, value]) => [`--fixiyi-size-control-${name}`, Number.parseInt(value, 10)])),
+      ...Object.fromEntries(Object.entries(spacing).map(([step, value]) => [`--fixiyi-space-${step}`, Number.parseInt(value, 10)])),
     };
     const minSizes = [...declarations.matchAll(/min-(?:block|inline)-size\s*:\s*([^;]+);/g)].map((match) => (match[1] ?? "").trim()).filter((value) => value !== "0");
     expect(minSizes.length).toBeGreaterThan(5);
     for (const value of minSizes) {
-      const token = /^var\((--fixiyi-size-[a-z0-9-]+)\)$/.exec(value)?.[1];
+      const token = /^var\((--fixiyi-(?:size|space)-[a-z0-9-]+)\)$/.exec(value)?.[1];
       const pixels = token === undefined ? Number.parseInt(value, 10) : tokenPixels[token];
       expect(pixels, value).toBeGreaterThanOrEqual(24);
     }
@@ -114,10 +115,14 @@ describe("styles.css — spacing, shape and elevation (design phase 3)", () => {
 
   const kebab = (name: string): string => name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
-  it("puts every margin, padding and gap on the 4px grid (--fixiyi-space-*, 0 or auto)", () => {
+  it("puts every margin, padding and gap on the 4px grid (--fixiyi-space-*, a calc of them, 0 or auto)", () => {
     const values = valuesOf(/(?:margin|padding)(?:-[a-z-]+)?|(?:row-|column-)?gap/);
     expect(values.length).toBeGreaterThan(30);
-    const offGrid = values.filter((value) => !value.split(/\s+/).every((part) => /^(?:0|auto|var\(--fixiyi-space-\d+\))$/.test(part)));
+    // A calc() is on the grid when it combines nothing but space tokens and plain numbers.
+    const tokenCalc = /calc\((?:[\s\d.+\-*/()]|var\(--fixiyi-space-\d+\))*\)/g;
+    const offGrid = values.filter(
+      (value) => !value.replace(tokenCalc, "0").split(/\s+/).every((part) => /^(?:0|auto|var\(--fixiyi-space-\d+\))$/.test(part)),
+    );
     expect(offGrid).toEqual([]);
   });
 

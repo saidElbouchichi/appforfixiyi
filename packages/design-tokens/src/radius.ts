@@ -27,6 +27,8 @@ export const radiusRoles = {
   inset: "md",
   /** Modals, and the bottom sheet of phase 4. */
   overlay: "2xl",
+  /** Checkbox boxes and other small marks. */
+  mark: "sm",
   /** Badges, chips, reactions, avatars, dots. */
   pill: "full",
 } as const satisfies Record<string, keyof typeof radius>;

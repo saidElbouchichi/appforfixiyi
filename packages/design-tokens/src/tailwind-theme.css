@@ -28,6 +28,7 @@
   --radius-bubble-tail: var(--fixiyi-radius-bubble-tail);
   --radius-inset: var(--fixiyi-radius-inset);
   --radius-overlay: var(--fixiyi-radius-overlay);
+  --radius-mark: var(--fixiyi-radius-mark);
   --radius-pill: var(--fixiyi-radius-pill);
 
   --shadow-*: initial;
