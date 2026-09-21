@@ -128,6 +128,25 @@ pas) — dont 2 HIGH a planifier avant la production :
 Gates apres refonte : `pnpm lint` 15/15, `pnpm typecheck` 15/15,
 `pnpm test` 13/13 (373 tests), `pnpm build` 10/10 — 0 erreur.
 
+## Correctifs B1 et B2 (2026-09-21)
+
+Les 2 HIGH de l'inspection sont corriges :
+
+- **B1** `13895a3` — `apiFetch` (web et admin) rafraichit une fois sur 401
+  puis rejoue la requete, avec **un seul refresh en vol** (sinon la
+  detection de rejeu du refresh token rotatif revoquerait la session) ;
+  en cas d'echec, session videe et retour a `/login`. Prouve rouge contre
+  l'ancien client, vert contre le nouveau (Decision 51).
+- **B2** `e9cf329` — la taille declaree est signee dans l'URL presignee
+  (MinIO renvoie 403 sur un PUT de taille differente, rien n'est ecrit),
+  et un media rejete voit son objet supprime (Decision 52). La
+  verification de taille declaree demandee existait deja depuis la
+  Phase 4. **Limite** : les uploads de *verification* restent non bornes
+  (leur contrat ne porte pas de taille).
+
+Tests : **375** (api 153 -> 155), Playwright **4/4** (2 nouveaux).
+Gates : lint 15/15, typecheck 15/15, test 13/13, build 10/10.
+
 ## Derniere action effectuee
 
 Gates complets du monorepo (tous verts), verification manuelle par
