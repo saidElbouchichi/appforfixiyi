@@ -8,7 +8,7 @@ Ce sont ces chiffres qui font foi pour la refonte.
 | Le prompt indique | Realite | Source de la verification |
 |---|---|---|
 | 9 composants | **13 fichiers de composants** : Badge, Button, Card, Chat (MessageBubble, DeliveryStatus, ReplyQuote, TypingIndicator), EmptyState, ErrorState, Icon, IconButton, Input, Loading (Loading, Skeleton, Spinner), Modal, RadioGroup, Select | `packages/ui/src/components/*.tsx` |
-| 21 icones | **25** (21 + `send`, `reply`, `attach`, `check-double`, Phase 6) | `Icon.tsx`, `ICON_NAMES` |
+| 21 icones | **26** (22 + `send`, `reply`, `attach`, `check-double`, Phase 6). *Correction du 2026-09-21 : j'avais annonce 25, puis 21 a l'origine ; le decompte de `PATHS` donne 22 icones au Design System v1 et 26 aujourd'hui.* | decompte de `PATHS` dans `Icon.tsx` |
 | 52 tests Design System | **125** | `pnpm --filter @fixiyi/ui test` |
 | 375+ tests | **542** (api 278, ui 125, contracts 90, shared-utils 27, config 11, design-tokens 6, i18n 3, worker 2) | `pnpm test --force` |
 | 52+ decisions | **61** | `docs/DECISIONS.md` |
