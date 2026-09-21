@@ -1,3 +1,4 @@
+import { AppShell, Footer, Header, Logo } from "@fixiyi/ui";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
@@ -14,7 +15,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr" className={fontVariableClasses}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AppShell
+            header={<Header brand={<Logo />} />}
+            footer={
+              <Footer
+                brand={<Logo />}
+                tagline="Plus qu'une application, une solution de confiance."
+                legal={`© ${new Date().getFullYear().toString()} Fixiyi`}
+              />
+            }
+          >
+            {children}
+          </AppShell>
+        </Providers>
       </body>
     </html>
   );

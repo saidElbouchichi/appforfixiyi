@@ -60,7 +60,13 @@ describe("styles.css — WCAG 2.2 AA", () => {
       ...Object.fromEntries(Object.entries(controlHeight).map(([name, value]) => [`--fixiyi-size-control-${name}`, Number.parseInt(value, 10)])),
       ...Object.fromEntries(Object.entries(spacing).map(([step, value]) => [`--fixiyi-space-${step}`, Number.parseInt(value, 10)])),
     };
-    const minSizes = [...declarations.matchAll(/min-(?:block|inline)-size\s*:\s*([^;]+);/g)].map((match) => (match[1] ?? "").trim()).filter((value) => value !== "0");
+    // Decorations nobody taps (a count over a nav icon) may be smaller.
+    const decorations = [".fx-nav-badge"];
+    const interactiveRules = [...declarations.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter((rule) => !decorations.some((selector) => (rule[1] ?? "").includes(selector)));
+    const minSizes = interactiveRules
+      .flatMap((rule) => [...(rule[2] ?? "").matchAll(/min-(?:block|inline)-size\s*:\s*([^;]+);/g)])
+      .map((match) => (match[1] ?? "").trim())
+      .filter((value) => value !== "0");
     expect(minSizes.length).toBeGreaterThan(5);
     for (const value of minSizes) {
       const token = /^var\((--fixiyi-(?:size|space)-[a-z0-9-]+)\)$/.exec(value)?.[1];
@@ -120,7 +126,8 @@ describe("styles.css — spacing, shape and elevation (design phase 3)", () => {
     expect(values.length).toBeGreaterThan(30);
     // A calc() is on the grid when it combines nothing but space tokens and plain numbers.
     // max(space token, env(safe-area-inset-*)): the grid, or more on a notched phone.
-    const safeArea = /max\(var\(--fixiyi-space-\d+\),\s*env\(safe-area-inset-[a-z]+\)\)/g;
+    // The safe-area inset of a notched phone, alone or added to a token: the grid plus the hardware.
+    const safeArea = /(?:max|calc)\(var\(--fixiyi-(?:space|size)-[a-z0-9-]+\)\s*[,+]\s*env\(safe-area-inset-[a-z]+\)\)|env\(safe-area-inset-[a-z]+\)/g;
     const tokenCalc = /calc\((?:[\s\d.+\-*/()]|var\(--fixiyi-space-\d+\))*\)/g;
     const offGrid = values.filter(
       (value) => !value.replace(tokenCalc, "0").replace(safeArea, "0").split(/\s+/).every((part) => /^(?:0|auto|var\(--fixiyi-space-\d+\))$/.test(part)),

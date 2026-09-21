@@ -23,6 +23,7 @@
 
 @import "./styles/animations.css";
 @import "./styles/base.css";
+@import "./styles/layout.css";
 @import "./styles/button.css";
 @import "./styles/field.css";
 @import "./styles/controls.css";

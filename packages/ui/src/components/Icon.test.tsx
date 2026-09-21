@@ -39,12 +39,16 @@ describe("Icon — coverage", () => {
   });
 
   it("never draws two names with the same paths (an alias is declared, not copied)", () => {
-    const drawings = ICON_NAMES.map((name) => {
-      const { container, unmount } = render(<Icon name={name} />);
-      const signature = [...container.querySelectorAll("path")].map((path) => path.getAttribute("d")).join("|");
-      unmount();
-      return signature;
-    });
+    // One render for all glyphs: rendering 63 trees one by one is slow for no gain.
+    const { container } = render(
+      <>
+        {ICON_NAMES.map((name) => (
+          <Icon key={name} name={name} />
+        ))}
+      </>,
+    );
+    const drawings = [...container.querySelectorAll("svg")].map((svg) => [...svg.querySelectorAll("path")].map((path) => path.getAttribute("d")).join("|"));
+    expect(drawings).toHaveLength(ICON_NAMES.length);
     expect(new Set(drawings).size).toBe(drawings.length);
   });
 

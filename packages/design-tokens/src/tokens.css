@@ -243,6 +243,12 @@
   --fixiyi-size-control-lg: 48px;
   --fixiyi-size-control-xl: 56px;
   --fixiyi-size-touch-target: 44px;
+  --fixiyi-size-container-narrow: 672px;
+  --fixiyi-size-container-wide: 896px;
+  --fixiyi-size-container-page: 1200px;
+  --fixiyi-size-header-mobile: 56px;
+  --fixiyi-size-header-desktop: 64px;
+  --fixiyi-size-bottom-nav: 64px;
 
   /* ------------------------------------------------------------ z-index */
   --fixiyi-z-base: 0;

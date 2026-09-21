@@ -69,7 +69,7 @@ function ConversationThread({ conversation, userId }: { conversation: Conversati
   const counterpartName = conversation.counterpart.displayName;
 
   return (
-    <main className="fx-page fx-page--narrow" style={{ blockSize: "100dvh", paddingBlock: 0, gap: 0 }}>
+    <main className="fx-page fx-page--narrow fx-shell__fill" style={{ paddingBlock: 0, gap: 0 }}>
       <header className="fx-page__header" style={{ paddingBlock: "var(--fixiyi-space-3)" }}>
         <div className="fx-row">
           <h1 className="fx-page__title fx-text-h4" data-testid="conversation-title">

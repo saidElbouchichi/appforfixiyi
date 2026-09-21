@@ -60,6 +60,8 @@
 /* ------------------------------------------------------------ typography */
 
 .fx-page {
+  /* Full width up to its max: in a flex column, auto margins alone would shrink it to its content. */
+  inline-size: 100%;
   margin-inline: auto;
   padding: var(--fixiyi-space-6);
   display: flex;
@@ -69,11 +71,15 @@
 }
 
 .fx-page--narrow {
-  max-inline-size: 42rem;
+  max-inline-size: var(--fixiyi-size-container-narrow);
 }
 
 .fx-page--wide {
-  max-inline-size: 56rem;
+  max-inline-size: var(--fixiyi-size-container-wide);
+}
+
+.fx-page--page {
+  max-inline-size: var(--fixiyi-size-container-page);
 }
 
 .fx-page__title {

@@ -23,11 +23,17 @@ export default function LoginPage(): React.JSX.Element {
     setError(null);
     setLoading(true);
     try {
-      const output = OtpRequestOutputSchema.parse(await apiFetch("/api/v1/auth/otp/request", { method: "POST", body: { phone } }));
+      const output = OtpRequestOutputSchema.parse(
+        await apiFetch("/api/v1/auth/otp/request", { method: "POST", body: { phone } }),
+      );
       setDevCode(output.devCode ?? null);
       setStep("code");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible d'envoyer le code — verifiez le numero.");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Impossible d'envoyer le code — verifiez le numero.",
+      );
     } finally {
       setLoading(false);
     }
@@ -37,11 +43,18 @@ export default function LoginPage(): React.JSX.Element {
     setError(null);
     setLoading(true);
     try {
-      const result = await apiFetch<{ accessToken: string; refreshToken: string; user: unknown }>("/api/v1/auth/otp/verify", {
-        method: "POST",
-        body: { phone, code },
+      const result = await apiFetch<{ accessToken: string; refreshToken: string; user: unknown }>(
+        "/api/v1/auth/otp/verify",
+        {
+          method: "POST",
+          body: { phone, code },
+        },
+      );
+      setSession({
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        user: UserSchema.parse(result.user),
       });
-      setSession({ accessToken: result.accessToken, refreshToken: result.refreshToken, user: UserSchema.parse(result.user) });
       router.push("/requests/new");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Code invalide ou expire.");
@@ -51,14 +64,16 @@ export default function LoginPage(): React.JSX.Element {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
+    <main className="flex flex-1 items-center justify-center p-6">
       <div className="w-full max-w-sm">
-        <h1 className="fx-page__title mb-6 flex items-center justify-center gap-2">
-          <Icon name="shield" size="lg" />
-          Fixiyi
-        </h1>
+        {/* The brand is in the app header; the page keeps its h1 for assistive tech. */}
+        <h1 className="fx-visually-hidden">Connexion a Fixiyi</h1>
 
-        <Card className="fx-animate-slide-in-bottom" title={step === "phone" ? "Connexion" : "Verification"} headingLevel={2}>
+        <Card
+          className="fx-animate-slide-in-bottom"
+          title={step === "phone" ? "Connexion" : "Verification"}
+          headingLevel={2}
+        >
           {step === "phone" ? (
             <form
               className="flex flex-col gap-4"
@@ -114,7 +129,11 @@ export default function LoginPage(): React.JSX.Element {
           )}
 
           {error === null ? null : (
-            <p className="fx-field__error fx-animate-fade-in mt-4" role="alert" data-testid="login-error">
+            <p
+              className="fx-field__error fx-animate-fade-in mt-4"
+              role="alert"
+              data-testid="login-error"
+            >
               {error}
             </p>
           )}

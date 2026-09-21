@@ -202,7 +202,11 @@ la refonte.**
   Toast, Tabs, Menu, BottomSheet, CommandPalette), 63 icones, banc d'essai
   navigateur ; 681 tests + 25 Playwright. Icones sociales reportees en phase 5
   (D4 : pas de logos non fournis).
-- Prochaine : Phase 5 (layout : Header, Footer, Navbar, BottomNavigation).
+- **Phase 5 (Layout) TERMINEE** — `docs/design/PHASE_5_REPORT.md` : AppShell,
+  Header, Logo (texte D4), Navbar, BottomNavigation, Footer, Page,
+  LinkProvider (next/link) ; coque appliquee a web et admin ; 692 tests +
+  29 Playwright.
+- Prochaine : Phase 6 (navigation : destinations reelles, par role).
 
 ## Derniere action effectuee
 

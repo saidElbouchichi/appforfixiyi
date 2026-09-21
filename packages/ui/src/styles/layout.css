@@ -1,0 +1,346 @@
+/* @fixiyi/ui — AppShell, Header, Logo, Navbar, BottomNavigation, Footer (design phase 5). */
+
+/* ----------------------------------------------------------------- shell */
+
+.fx-shell {
+  --fx-shell-header-height: var(--fixiyi-size-header-mobile);
+
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh;
+}
+
+@media (min-width: 768px) {
+  .fx-shell {
+    --fx-shell-header-height: var(--fixiyi-size-header-desktop);
+  }
+}
+
+/* A column, so a page can grow to fill the space left (flex: 1). */
+.fx-shell__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* Keeps a screen full-height without the page scrolling (the chat). */
+.fx-shell__fill {
+  block-size: calc(100dvh - var(--fx-shell-header-height));
+}
+
+.fx-shell__content:focus {
+  outline: none;
+}
+
+/* Everything, footer included, must clear the phone's fixed bottom bar. */
+.fx-shell--with-bottom-nav {
+  padding-block-end: calc(var(--fixiyi-size-bottom-nav) + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .fx-shell--with-bottom-nav {
+    padding-block-end: 0;
+  }
+}
+
+/* First tab stop (WCAG 2.4.1): hidden until focused, then pinned on top. */
+.fx-skip-link {
+  position: absolute;
+  inset-block-start: var(--fixiyi-space-2);
+  inset-inline-start: var(--fixiyi-space-2);
+  z-index: var(--fixiyi-z-toast);
+  padding-block: var(--fixiyi-space-2);
+  padding-inline: var(--fixiyi-space-4);
+  border-radius: var(--fixiyi-radius-control);
+  background-color: var(--fixiyi-color-action);
+  color: var(--fixiyi-color-on-action);
+  font-family: var(--fixiyi-font-sans);
+  font-weight: var(--fixiyi-font-weight-semibold);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.fx-skip-link:focus {
+  transform: none;
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.fx-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--fixiyi-z-sticky);
+  border-block-end: 1px solid var(--fixiyi-color-border);
+  background-color: var(--fixiyi-color-surface);
+}
+
+.fx-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-6);
+  block-size: var(--fx-shell-header-height, var(--fixiyi-size-header-mobile));
+  max-inline-size: var(--fixiyi-size-container-page);
+  margin-inline: auto;
+  padding-inline: var(--fixiyi-space-4);
+}
+
+@media (min-width: 768px) {
+  .fx-header__inner {
+    padding-inline: var(--fixiyi-space-6);
+  }
+}
+
+.fx-header__brand {
+  flex: none;
+}
+
+/* Desktop destinations; on a phone the bottom bar carries them. */
+.fx-header__nav {
+  display: none;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+@media (min-width: 768px) {
+  .fx-header__nav {
+    display: block;
+  }
+}
+
+.fx-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-1);
+  margin-inline-start: auto;
+}
+
+/* ------------------------------------------------------------------ logo */
+
+/* D4 placeholder: the name in Inter 800, brand text colour (5.18:1). */
+.fx-logo {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--fixiyi-size-touch-target);
+  border-radius: var(--fixiyi-radius-mark);
+  color: var(--fixiyi-color-action);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-h4-size);
+  line-height: var(--fixiyi-text-h4-line-height);
+  font-weight: var(--fixiyi-font-weight-extrabold);
+  letter-spacing: var(--fixiyi-text-h1-tracking);
+  text-decoration: none;
+}
+
+.fx-logo__suffix {
+  color: var(--fixiyi-color-text-muted);
+  font-weight: var(--fixiyi-font-weight-semibold);
+  letter-spacing: 0;
+}
+
+.fx-logo:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- navbar */
+
+.fx-navbar__list {
+  display: flex;
+  gap: var(--fixiyi-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fx-navbar__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  min-block-size: var(--fixiyi-size-control-md);
+  padding-inline: var(--fixiyi-space-3);
+  border-radius: var(--fixiyi-radius-control);
+  color: var(--fixiyi-color-text-muted);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-size);
+  font-weight: var(--fixiyi-font-weight-medium);
+  text-decoration: none;
+}
+
+.fx-navbar__link:hover {
+  background-color: var(--fixiyi-color-surface-sunken);
+  color: var(--fixiyi-color-text);
+}
+
+/* Current page: tint, bolder text and the underline bar — not colour alone. */
+.fx-navbar__link--active,
+.fx-navbar__link--active:hover {
+  background-color: var(--fixiyi-color-action-subtle);
+  color: var(--fixiyi-color-action);
+  font-weight: var(--fixiyi-font-weight-semibold);
+}
+
+.fx-navbar__link:focus-visible,
+.fx-bottom-nav__link:focus-visible,
+.fx-footer__link:focus-visible {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+/* A count over a destination (unread messages): real data only. */
+.fx-nav-badge {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--fixiyi-space-5);
+  block-size: var(--fixiyi-space-5);
+  padding-inline: var(--fixiyi-space-1);
+  border-radius: var(--fixiyi-radius-pill);
+  background-color: var(--fixiyi-color-danger-action);
+  color: var(--fixiyi-color-on-danger);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-overline-size);
+  line-height: 1;
+  font-weight: var(--fixiyi-font-weight-bold);
+}
+
+/* ------------------------------------------------------- bottom navigation */
+
+.fx-bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: var(--fixiyi-z-sticky);
+  padding-block-end: env(safe-area-inset-bottom);
+  border-block-start: 1px solid var(--fixiyi-color-border);
+  background-color: var(--fixiyi-color-surface);
+}
+
+@media (min-width: 768px) {
+  .fx-bottom-nav {
+    display: none;
+  }
+}
+
+.fx-bottom-nav__list {
+  display: flex;
+  block-size: var(--fixiyi-size-bottom-nav);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fx-bottom-nav__item {
+  display: flex;
+  flex: 1;
+}
+
+.fx-bottom-nav__link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fixiyi-space-1);
+  min-inline-size: var(--fixiyi-size-touch-target);
+  color: var(--fixiyi-color-text-muted);
+  font-family: var(--fixiyi-font-sans);
+  text-decoration: none;
+}
+
+.fx-bottom-nav__icon {
+  position: relative;
+  display: inline-grid;
+}
+
+.fx-bottom-nav__icon .fx-nav-badge {
+  position: absolute;
+  inset-block-start: calc(var(--fixiyi-space-2) * -1);
+  inset-inline-start: 60%;
+}
+
+.fx-bottom-nav__label {
+  font-size: var(--fixiyi-text-caption-size);
+  line-height: var(--fixiyi-text-caption-line-height);
+  font-weight: var(--fixiyi-font-weight-medium);
+}
+
+/* Current destination: brand colour and a bolder label. */
+.fx-bottom-nav__link--active {
+  color: var(--fixiyi-color-action);
+}
+
+.fx-bottom-nav__link--active .fx-bottom-nav__label {
+  font-weight: var(--fixiyi-font-weight-bold);
+}
+
+/* ---------------------------------------------------------------- footer */
+
+.fx-footer {
+  border-block-start: 1px solid var(--fixiyi-color-border);
+  background-color: var(--fixiyi-color-surface);
+  color: var(--fixiyi-color-text-muted);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-text-body-sm-size);
+  line-height: var(--fixiyi-text-body-sm-line-height);
+}
+
+.fx-footer__inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--fixiyi-space-8);
+  max-inline-size: var(--fixiyi-size-container-page);
+  margin-inline: auto;
+  padding-block: var(--fixiyi-space-10);
+  padding-inline: var(--fixiyi-space-4);
+}
+
+@media (min-width: 768px) {
+  .fx-footer__inner {
+    padding-inline: var(--fixiyi-space-6);
+  }
+}
+
+.fx-footer__tagline {
+  margin-block: var(--fixiyi-space-2) 0;
+  max-inline-size: 36ch;
+}
+
+.fx-footer__group-title {
+  margin-block: 0 var(--fixiyi-space-3);
+  color: var(--fixiyi-color-text);
+  font-weight: var(--fixiyi-font-weight-semibold);
+}
+
+.fx-footer__links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fx-footer__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--fixiyi-size-control-sm);
+  color: var(--fixiyi-color-text-muted);
+  text-decoration: none;
+}
+
+.fx-footer__link:hover {
+  color: var(--fixiyi-color-action);
+  text-decoration: underline;
+}
+
+.fx-footer__legal {
+  max-inline-size: var(--fixiyi-size-container-page);
+  margin-inline: auto;
+  padding-block: var(--fixiyi-space-4);
+  padding-inline: var(--fixiyi-space-4);
+  border-block-start: 1px solid var(--fixiyi-color-border);
+  font-size: var(--fixiyi-text-caption-size);
+  line-height: var(--fixiyi-text-caption-line-height);
+}

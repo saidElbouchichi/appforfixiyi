@@ -6,8 +6,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   avatarColors,
+  bottomNavHeight,
   breakpoints,
   colors,
+  containerWidth,
   controlHeight,
   contrastPairs,
   duration,
@@ -17,6 +19,7 @@ import {
   fontSize,
   fontVariables,
   fontWeight,
+  headerHeight,
   radius,
   radiusRoles,
   roles,
@@ -96,6 +99,9 @@ put("--fixiyi-scrim", scrim);
 for (const [name, value] of Object.entries(zIndex)) put(`--fixiyi-z-${name}`, value);
 for (const [name, value] of Object.entries(controlHeight)) put(`--fixiyi-size-control-${name}`, value);
 put("--fixiyi-size-touch-target", touchTarget);
+for (const [name, value] of Object.entries(containerWidth)) put(`--fixiyi-size-container-${name}`, value);
+for (const [name, value] of Object.entries(headerHeight)) put(`--fixiyi-size-header-${name}`, value);
+put("--fixiyi-size-bottom-nav", bottomNavHeight);
 for (const [name, value] of Object.entries(duration)) put(`--fixiyi-motion-${name}`, value);
 for (const [name, value] of Object.entries(easing)) put(`--fixiyi-ease-${name}`, value);
 

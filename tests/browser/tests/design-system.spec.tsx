@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import { expect, test, type Page } from "@playwright/test";
-import { Accordion, Alert, Avatar, BottomSheet, CommandPalette, EmptyState, ErrorState, Menu, Modal, Tabs, Badge, Button, Card, Checkbox, ProgressBar, ProgressCircle, Rating, RatingInput, Stepper, Tooltip, IconButton, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
+import { Accordion, AppShell, BottomNavigation, Footer, Header, Logo, Navbar, Page as UiPage, Alert, Avatar, BottomSheet, CommandPalette, EmptyState, ErrorState, Menu, Modal, Tabs, Badge, Button, Card, Checkbox, ProgressBar, ProgressCircle, Rating, RatingInput, Stepper, Tooltip, IconButton, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
 
 import { contrastRatio, renderUi } from "../support/ui-harness";
 
@@ -373,5 +373,75 @@ test.describe("disclosure and overlays", () => {
       { width: 1024 },
     );
     await page.screenshot({ path: "screenshots/ds-10-command-palette.png", animations: "disabled" });
+  });
+});
+
+const NAV_ITEMS = [
+  { href: "#demander", label: "Demander", icon: "add" as const },
+  { href: "#demandes", label: "Demandes", icon: "calendar" as const },
+  { href: "#messages", label: "Messages", icon: "message" as const, badge: 3 },
+  { href: "#profil", label: "Profil", icon: "profile" as const },
+];
+
+const shell = (
+  <AppShell
+    header={<Header brand={<Logo />} navigation={<Navbar label="Navigation principale" items={NAV_ITEMS} activeHref="#messages" />} testId="header" />}
+    footer={<Footer brand={<Logo />} tagline="Plus qu'une application, une solution de confiance." legal="© 2026 Fixiyi" />}
+    bottomNavigation={<BottomNavigation label="Navigation principale" items={NAV_ITEMS} activeHref="#messages" testId="bottom-nav" />}
+  >
+    <UiPage title="Messages">
+      <p>Contenu de la page.</p>
+    </UiPage>
+  </AppShell>
+);
+
+test.describe("layout", () => {
+  test("on a phone: 56px header, bottom bar with 44px+ targets, no navbar", async ({ page }) => {
+    await renderUi(page, shell);
+    expect((await page.getByTestId("header").boundingBox())?.height).toBe(57); // 56 + 1px border
+    await expect(page.locator(".fx-header__nav")).toBeHidden();
+    const bar = await page.getByTestId("bottom-nav").boundingBox();
+    expect((bar?.y ?? 0) + (bar?.height ?? 0)).toBeCloseTo(844, 0);
+    for (const link of await page.getByTestId("bottom-nav").getByRole("link").all()) {
+      const box = await link.boundingBox();
+      expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+      expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    }
+    await expect(page.getByTestId("bottom-nav").getByRole("link", { name: /Messages.*3 non lus/ })).toHaveAttribute("aria-current", "page");
+    // Scrolled to the end, the footer's last line sits above the fixed bar, not under it.
+    await page.evaluate(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+    const legal = await page.locator(".fx-footer__legal").boundingBox();
+    const barTop = (await page.getByTestId("bottom-nav").boundingBox())?.y ?? 0;
+    expect((legal?.y ?? 0) + (legal?.height ?? 0)).toBeLessThanOrEqual(barTop + 1);
+    // A page spans its column, not just its content.
+    expect((await page.getByRole("main").boundingBox())?.width).toBeGreaterThan(300);
+    await page.screenshot({ path: "screenshots/ds-11-layout-phone.png", fullPage: true, animations: "disabled" });
+  });
+
+  test("on a desktop: 64px header with the navbar, no bottom bar", async ({ page }) => {
+    await renderUi(page, shell, { width: 1024 });
+    expect((await page.getByTestId("header").boundingBox())?.height).toBe(65);
+    await expect(page.locator(".fx-header__nav")).toBeVisible();
+    await expect(page.getByTestId("bottom-nav")).toBeHidden();
+    await page.screenshot({ path: "screenshots/ds-12-layout-desktop.png", fullPage: true, animations: "disabled" });
+  });
+
+  test("the skip link appears on the first Tab and moves focus to the content", async ({ page }) => {
+    await renderUi(page, shell);
+    await page.keyboard.press("Tab");
+    const skip = page.getByRole("link", { name: "Aller au contenu" });
+    await expect(skip).toBeFocused();
+    expect((await skip.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(0);
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#fx-content")).toBeFocused();
+  });
+
+  test("mirrors in RTL: logo at the inline start, on the right", async ({ page }) => {
+    await renderUi(page, shell, { dir: "rtl", width: 1024 });
+    const logo = await page.getByTestId("header").getByRole("link", { name: "Fixiyi" }).boundingBox();
+    expect((logo?.x ?? 0) + (logo?.width ?? 0)).toBeGreaterThan(900);
+    await page.screenshot({ path: "screenshots/ds-13-layout-rtl.png", animations: "disabled" });
   });
 });
