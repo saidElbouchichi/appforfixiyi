@@ -10,7 +10,7 @@ import {
   type RequestUrgency,
   type ServiceRequest,
 } from "@fixiyi/contracts";
-import { Badge, Button, Card, ErrorState, Input, Skeleton } from "@fixiyi/ui";
+import { Badge, Button, Card, ErrorState, Icon, Input, RadioGroup, Select, Skeleton } from "@fixiyi/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -44,6 +44,11 @@ async function fetchTree(): Promise<CatalogTreeNode[]> {
 
 function childrenOf(nodes: CatalogTreeNode[], id: string): CatalogTreeNode[] {
   return nodes.find((node) => node.id === id)?.children ?? [];
+}
+
+/** Catalog nodes -> `Select` options. The `Select` disables itself when this is empty. */
+function toOptions(nodes: CatalogTreeNode[]): { value: string; label: string }[] {
+  return nodes.map((node) => ({ value: node.id, label: node.name }));
 }
 
 /**
@@ -208,10 +213,10 @@ export default function NewRequestPage(): React.JSX.Element | null {
 
   if (submitted) {
     return (
-      <main className="mx-auto max-w-2xl p-6">
-        <h1 className="mb-6 text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Demande envoyee</h1>
-        <Card title="Recapitulatif" headingLevel={2}>
-          <p className="mb-3 text-xs text-[var(--fixiyi-color-neutral-400)]" data-testid="submitted-request-id">
+      <main className="fx-page fx-page--narrow">
+        <h1 className="fx-page__title">Demande envoyee</h1>
+        <Card className="fx-animate-slide-in-bottom" title="Recapitulatif" headingLevel={2}>
+          <p className="fx-text-muted mb-3" data-testid="submitted-request-id">
             {submitted.id}
           </p>
           <p className="mb-3" data-testid="submitted-status">
@@ -230,6 +235,7 @@ export default function NewRequestPage(): React.JSX.Element | null {
               }}
               testId="go-to-match-button"
             >
+              <Icon name="search" size="sm" />
               Suivre la recherche de fournisseurs
             </Button>
           </div>
@@ -245,8 +251,8 @@ export default function NewRequestPage(): React.JSX.Element | null {
   const complexities = childrenOf(interventionTypes, interventionTypeId);
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
-      <h1 className="text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Nouvelle demande</h1>
+    <main className="fx-page fx-page--narrow">
+      <h1 className="fx-page__title">Nouvelle demande</h1>
 
       {initError === null ? null : <ErrorState message={initError} />}
 
@@ -254,12 +260,12 @@ export default function NewRequestPage(): React.JSX.Element | null {
         {treeQuery.isPending ? (
           <Skeleton lines={5} label="Chargement du catalogue…" />
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <LevelSelect
+          <div className="fx-animate-fade-in grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Select
               testId="domain-select"
               label="Domaine"
               value={domainId}
-              options={domains}
+              options={toOptions(domains)}
               onChange={(value) => {
                 setDomainId(value);
                 setCategoryId("");
@@ -268,11 +274,11 @@ export default function NewRequestPage(): React.JSX.Element | null {
                 setComplexityId("");
               }}
             />
-            <LevelSelect
+            <Select
               testId="category-select"
               label="Categorie"
               value={categoryId}
-              options={categories}
+              options={toOptions(categories)}
               onChange={(value) => {
                 setCategoryId(value);
                 setServiceId("");
@@ -280,28 +286,28 @@ export default function NewRequestPage(): React.JSX.Element | null {
                 setComplexityId("");
               }}
             />
-            <LevelSelect
+            <Select
               testId="service-select"
               label="Service"
               value={serviceId}
-              options={services}
+              options={toOptions(services)}
               onChange={(value) => {
                 setServiceId(value);
                 setInterventionTypeId("");
                 setComplexityId("");
               }}
             />
-            <LevelSelect
+            <Select
               testId="intervention-type-select"
               label="Type d'intervention"
               value={interventionTypeId}
-              options={interventionTypes}
+              options={toOptions(interventionTypes)}
               onChange={(value) => {
                 setInterventionTypeId(value);
                 setComplexityId("");
               }}
             />
-            <LevelSelect testId="complexity-select" label="Complexite" value={complexityId} options={complexities} onChange={setComplexityId} />
+            <Select testId="complexity-select" label="Complexite" value={complexityId} options={toOptions(complexities)} onChange={setComplexityId} />
           </div>
         )}
       </Card>
@@ -319,33 +325,17 @@ export default function NewRequestPage(): React.JSX.Element | null {
             testId="description-input"
           />
 
-          <fieldset>
-            <legend className="fx-field__label mb-1">Urgence</legend>
-            <label className="me-4 text-sm">
-              <input
-                type="radio"
-                data-testid="urgency-normal"
-                name="urgency"
-                checked={urgency === "NORMAL"}
-                onChange={() => {
-                  setUrgency("NORMAL");
-                }}
-              />{" "}
-              Normale
-            </label>
-            <label className="text-sm">
-              <input
-                type="radio"
-                data-testid="urgency-urgent"
-                name="urgency"
-                checked={urgency === "URGENT"}
-                onChange={() => {
-                  setUrgency("URGENT");
-                }}
-              />{" "}
-              Urgente
-            </label>
-          </fieldset>
+          <RadioGroup<RequestUrgency>
+            legend="Urgence"
+            name="urgency"
+            value={urgency}
+            onChange={setUrgency}
+            options={[
+              { value: "NORMAL", label: "Normale" },
+              { value: "URGENT", label: "Urgente" },
+            ]}
+            testIdPrefix="urgency"
+          />
         </div>
       </Card>
 
@@ -360,12 +350,13 @@ export default function NewRequestPage(): React.JSX.Element | null {
           />
           <div>
             <Button variant="secondary" onClick={handleUseMyLocation} testId="use-my-location-button">
+              <Icon name="map" size="sm" />
               Utiliser ma position
             </Button>
           </div>
           {coordinates ? (
-            <p className="text-sm text-[var(--fixiyi-color-neutral-600)]" data-testid="coordinates-display">
-              Position : {coordinates.lat.toFixed(5)}, {coordinates.lng.toFixed(5)}
+            <p className="fx-text-muted fx-animate-fade-in" data-testid="coordinates-display">
+              <Icon name="check" size="sm" /> Position : {coordinates.lat.toFixed(5)}, {coordinates.lng.toFixed(5)}
             </p>
           ) : null}
           {locationError === null ? null : <p className="fx-field__error">{locationError}</p>}
@@ -391,14 +382,14 @@ export default function NewRequestPage(): React.JSX.Element | null {
         </div>
 
         {pendingMedia.length > 0 ? (
-          <ul className="mt-3 flex flex-col gap-2 text-sm" data-testid="media-list">
+          <ul className="fx-animate-stagger mt-3 flex flex-col gap-2 text-sm" data-testid="media-list">
             {pendingMedia.map((item) => (
-              <li key={item.file.name} className="flex flex-wrap items-center gap-2">
+              <li key={item.file.name} className="fx-row">
                 <span>{item.file.name}</span>
                 <Badge variant={MEDIA_STATUS_VARIANT[item.status]} testId="media-status">
                   {item.status}
                 </Badge>
-                {item.detail === null ? null : <span className="text-[var(--fixiyi-color-neutral-600)]">{item.detail}</span>}
+                {item.detail === null ? null : <span className="fx-text-muted">{item.detail}</span>}
               </li>
             ))}
           </ul>
@@ -406,7 +397,7 @@ export default function NewRequestPage(): React.JSX.Element | null {
       </Card>
 
       {formError === null ? null : (
-        <p className="fx-field__error" role="alert" data-testid="form-error">
+        <p className="fx-field__error fx-animate-fade-in" role="alert" data-testid="form-error">
           {formError}
         </p>
       )}
@@ -420,48 +411,10 @@ export default function NewRequestPage(): React.JSX.Element | null {
           }}
           testId="submit-request-button"
         >
+          <Icon name="check" size="sm" />
           Envoyer la demande
         </Button>
       </div>
     </main>
-  );
-}
-
-function LevelSelect({
-  testId,
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  testId: string;
-  label: string;
-  value: string;
-  options: CatalogTreeNode[];
-  onChange: (value: string) => void;
-}): React.JSX.Element {
-  return (
-    <div className="fx-field">
-      <label className="fx-field__label" htmlFor={testId}>
-        {label}
-      </label>
-      <select
-        id={testId}
-        data-testid={testId}
-        value={value}
-        disabled={options.length === 0}
-        onChange={(event) => {
-          onChange(event.target.value);
-        }}
-        className="fx-field__control"
-      >
-        <option value="">--</option>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.name}
-          </option>
-        ))}
-      </select>
-    </div>
   );
 }

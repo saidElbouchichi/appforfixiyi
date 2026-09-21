@@ -1,7 +1,7 @@
 "use client";
 
 import { ProviderMatchSchema, type ProviderMatch } from "@fixiyi/contracts";
-import { Badge, Button, Card, EmptyState, ErrorState, Skeleton } from "@fixiyi/ui";
+import { Badge, Button, Card, EmptyState, ErrorState, Icon, Skeleton } from "@fixiyi/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -55,8 +55,8 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
   const isProvider = user.roles.includes("PROVIDER");
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
-      <h1 className="text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Demandes recues</h1>
+    <main className="fx-page fx-page--narrow">
+      <h1 className="fx-page__title">Demandes recues</h1>
 
       {!isProvider ? (
         <ErrorState title="Acces refuse" message="Cet ecran est reserve aux comptes fournisseur." />
@@ -72,14 +72,16 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
           }}
         />
       ) : matchesQuery.data.length > 0 ? (
-        <ul className="flex flex-col gap-4" data-testid="provider-match-list">
+        <ul className="fx-animate-stagger flex flex-col gap-4" data-testid="provider-match-list">
           {matchesQuery.data.map((match) => (
             <li key={match.candidateId} data-testid="provider-match-row">
               <Card>
-                <div className="mb-3 flex flex-wrap items-center gap-2">
+                <div className="fx-row mb-3">
                   <Badge variant={match.urgency === "URGENT" ? "warning" : "info"}>{match.urgency}</Badge>
                   <Badge variant={match.status === "VIEWED" ? "success" : "info"}>{match.status}</Badge>
-                  <span className="text-sm text-[var(--fixiyi-color-neutral-600)]">{match.distanceKm.toFixed(1)} km</span>
+                  <span className="fx-text-muted">
+                    <Icon name="map" size="sm" /> {match.distanceKm.toFixed(1)} km
+                  </span>
                 </div>
 
                 <p className="mb-3">{match.description}</p>
@@ -111,6 +113,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
                   }}
                   testId="decline-button"
                 >
+                  <Icon name="close" size="sm" />
                   Refuser
                 </Button>
               </Card>
@@ -120,6 +123,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
       ) : (
         <Card>
           <EmptyState
+            icon={<Icon name="tools" size="xl" />}
             title="Aucune demande pour le moment"
             message="Les demandes correspondant a vos services, vos competences et votre zone apparaitront ici. Verifiez que votre statut est 'disponible'."
           />

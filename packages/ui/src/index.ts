@@ -3,7 +3,10 @@ export { Button, type ButtonProps, type ButtonVariant } from "./components/Butto
 export { Card, type CardProps } from "./components/Card.js";
 export { EmptyState, type EmptyStateProps } from "./components/EmptyState.js";
 export { ErrorState, type ErrorStateProps } from "./components/ErrorState.js";
+export { Icon, ICON_NAMES, ICON_SIZES, type IconName, type IconProps, type IconSize } from "./components/Icon.js";
 export { Input, type InputProps, type InputType } from "./components/Input.js";
 export { Loading, Skeleton, Spinner, type LoadingProps, type SkeletonProps, type SpinnerProps } from "./components/Loading.js";
 export { Modal, type ModalProps } from "./components/Modal.js";
+export { RadioGroup, type RadioGroupProps, type RadioOption } from "./components/RadioGroup.js";
+export { Select, type SelectOption, type SelectProps } from "./components/Select.js";
 export { cx } from "./cx.js";

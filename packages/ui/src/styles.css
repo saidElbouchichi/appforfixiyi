@@ -5,7 +5,7 @@
  * Contraintes tenues ici, verifiees par `styles.test.ts` :
  * - Tous les tokens viennent de `@fixiyi/design-tokens/css`, qui doit etre
  *   importe AVANT ce fichier par l'application consommatrice. Aucune valeur
- *   de couleur/rayon/police codee en dur.
+ *   de couleur/rayon/police/ombre/taille de texte codee en dur.
  * - RTL : uniquement des proprietes CSS logiques (`padding-inline`,
  *   `margin-inline-start`, `inset-inline-*`, `text-align: start`). Aucune
  *   propriete directionnelle physique (`left`, `padding-right`, ...), donc
@@ -13,7 +13,12 @@
  * - WCAG 2.2 AA : indicateur de focus visible a >= 3:1 (2.4.11/2.4.13),
  *   cibles tactiles >= 24px (2.5.8 — ici 44px), contraste de texte >= 4.5:1,
  *   animations neutralisees sous `prefers-reduced-motion` (2.3.3).
+ *
+ * La couche mouvement vit dans `./styles/animations.css`, importee ici pour
+ * que les applications gardent un point d'entree unique (`@fixiyi/ui/css`).
  */
+
+@import "./styles/animations.css";
 
 /* ---------------------------------------------------------------- shared */
 
@@ -28,12 +33,73 @@
   border-width: 0;
 }
 
+/**
+ * Un seul anneau de focus pour tout le systeme (WCAG 2.2 AA 2.4.7/2.4.11).
+ * Liste explicite plutot que `*:focus-visible` : le selecteur universel
+ * ecraserait aussi le focus natif des elements d'une application hote qui
+ * n'appartiennent pas a ce design system.
+ */
 .fx-button:focus-visible,
 .fx-field__control:focus-visible,
 .fx-modal__close:focus-visible,
-.fx-modal:focus-visible {
+.fx-modal:focus-visible,
+.fx-icon-button:focus-visible {
   outline: 2px solid var(--fixiyi-color-primary-600);
   outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ typography */
+
+.fx-page {
+  margin-inline: auto;
+  padding: var(--fixiyi-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-4);
+  text-align: start;
+}
+
+.fx-page--narrow {
+  max-inline-size: 42rem;
+}
+
+.fx-page--wide {
+  max-inline-size: 56rem;
+}
+
+.fx-page__title {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-font-size-2xl);
+  font-weight: var(--fixiyi-font-weight-semibold);
+  color: var(--fixiyi-color-neutral-900);
+  margin-block: 0;
+}
+
+.fx-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fixiyi-space-3);
+}
+
+.fx-text-muted {
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-font-size-sm);
+  color: var(--fixiyi-color-neutral-600);
+}
+
+.fx-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-4);
+}
+
+.fx-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
 }
 
 /* ---------------------------------------------------------------- button */
@@ -42,19 +108,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--fixiyi-space-2);
   min-block-size: 44px;
-  padding-inline: 16px;
+  padding-inline: var(--fixiyi-space-4);
   padding-block: 10px;
   border: 1px solid transparent;
   border-radius: var(--fixiyi-radius-md);
   font-family: var(--fixiyi-font-sans);
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--fixiyi-font-weight-semibold);
   line-height: 1.2;
   text-align: center;
   cursor: pointer;
-  transition: background-color var(--fixiyi-motion-fast) ease-out;
+  transition:
+    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
+    box-shadow var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
+    transform var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+}
+
+/* Retour tactile : l'enfoncement doit etre percu, pas juste colore. */
+.fx-button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .fx-button:disabled {
@@ -65,10 +140,12 @@
 .fx-button--primary {
   background-color: var(--fixiyi-color-primary-600);
   color: var(--fixiyi-color-neutral-0);
+  box-shadow: var(--fixiyi-shadow-sm);
 }
 
 .fx-button--primary:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--fixiyi-color-primary-600) 85%, black);
+  box-shadow: var(--fixiyi-shadow-md);
 }
 
 .fx-button--secondary {
@@ -79,15 +156,18 @@
 
 .fx-button--secondary:hover:not(:disabled) {
   background-color: var(--fixiyi-color-neutral-100);
+  border-color: var(--fixiyi-color-neutral-400);
 }
 
 .fx-button--danger {
   background-color: var(--fixiyi-color-danger-700);
   color: var(--fixiyi-color-neutral-0);
+  box-shadow: var(--fixiyi-shadow-sm);
 }
 
 .fx-button--danger:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--fixiyi-color-danger-700) 85%, black);
+  box-shadow: var(--fixiyi-shadow-md);
 }
 
 .fx-button--ghost {
@@ -114,8 +194,8 @@
 
 .fx-field__label {
   font-family: var(--fixiyi-font-sans);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--fixiyi-font-size-sm);
+  font-weight: var(--fixiyi-font-weight-medium);
   color: var(--fixiyi-color-neutral-700);
 }
 
@@ -126,7 +206,7 @@
 
 .fx-field__control {
   min-block-size: 44px;
-  padding-inline: 12px;
+  padding-inline: var(--fixiyi-space-3);
   padding-block: 10px;
   border: 1px solid var(--fixiyi-color-neutral-300);
   border-radius: var(--fixiyi-radius-md);
@@ -135,6 +215,13 @@
   font-size: 15px;
   color: var(--fixiyi-color-neutral-900);
   inline-size: 100%;
+  transition:
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
+    box-shadow var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+}
+
+.fx-field__control:hover:not(:disabled) {
+  border-color: var(--fixiyi-color-neutral-400);
 }
 
 .fx-field__control::placeholder {
@@ -167,23 +254,71 @@
   color: var(--fixiyi-color-danger-700);
 }
 
+/* --------------------------------------------------------------- choices */
+
+.fx-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fixiyi-space-2);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.fx-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  min-block-size: 44px;
+  padding-inline: var(--fixiyi-space-3);
+  border: 1px solid var(--fixiyi-color-neutral-300);
+  border-radius: var(--fixiyi-radius-md);
+  background-color: var(--fixiyi-color-neutral-0);
+  font-family: var(--fixiyi-font-sans);
+  font-size: var(--fixiyi-font-size-sm);
+  color: var(--fixiyi-color-neutral-900);
+  cursor: pointer;
+  transition:
+    background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard),
+    border-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+}
+
+.fx-choice:hover {
+  background-color: var(--fixiyi-color-neutral-50);
+  border-color: var(--fixiyi-color-neutral-400);
+}
+
+/* L'etat selectionne n'est jamais porte par la seule couleur : la puce radio
+   native reste visible a cote du libelle (WCAG 2.2 AA 1.4.1). */
+.fx-choice:has(input:checked) {
+  border-color: var(--fixiyi-color-primary-600);
+  background-color: var(--fixiyi-color-primary-50);
+  color: var(--fixiyi-color-primary-800);
+}
+
+.fx-choice:has(input:focus-visible) {
+  outline: 2px solid var(--fixiyi-color-primary-600);
+  outline-offset: 2px;
+}
+
 /* ------------------------------------------------------------------ card */
 
 .fx-card {
   background-color: var(--fixiyi-color-neutral-0);
   border: 1px solid var(--fixiyi-color-neutral-200);
   border-radius: var(--fixiyi-radius-lg);
-  padding: 20px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 6%), 0 4px 12px rgb(0 0 0 / 4%);
+  padding: var(--fixiyi-space-5);
+  box-shadow: var(--fixiyi-shadow-sm);
   text-align: start;
 }
 
 .fx-card__title {
   font-family: var(--fixiyi-font-sans);
   font-size: 17px;
-  font-weight: 600;
+  font-weight: var(--fixiyi-font-weight-semibold);
   color: var(--fixiyi-color-neutral-900);
-  margin-block: 0 12px;
+  margin-block: 0 var(--fixiyi-space-3);
 }
 
 /* ----------------------------------------------------------------- badge */
@@ -193,11 +328,11 @@
   align-items: center;
   gap: 6px;
   padding-inline: 10px;
-  padding-block: 4px;
+  padding-block: var(--fixiyi-space-1);
   border-radius: var(--fixiyi-radius-full);
   font-family: var(--fixiyi-font-sans);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--fixiyi-font-weight-semibold);
   line-height: 1.3;
 }
 
@@ -221,6 +356,41 @@
   color: var(--fixiyi-color-danger-700);
 }
 
+/* ------------------------------------------------------------------ icon */
+
+.fx-icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+  color: currentcolor;
+}
+
+/* Une fleche « suivant » pointe dans l'autre sens en arabe — voir
+   DIRECTIONAL_ICONS dans Icon.tsx. */
+[dir="rtl"] .fx-icon--directional {
+  transform: scaleX(-1);
+}
+
+/* Bouton reduit a une seule icone : la cible tactile reste a 44px (2.5.8)
+   meme si le glyphe fait 20px. */
+.fx-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  border: none;
+  border-radius: var(--fixiyi-radius-md);
+  background-color: transparent;
+  color: var(--fixiyi-color-neutral-600);
+  cursor: pointer;
+  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
+}
+
+.fx-icon-button:hover:not(:disabled) {
+  background-color: var(--fixiyi-color-neutral-100);
+}
+
 /* --------------------------------------------------------------- loading */
 
 .fx-spinner {
@@ -239,23 +409,11 @@
   border-width: 3px;
 }
 
-@keyframes fx-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .fx-skeleton {
   display: block;
   background-color: var(--fixiyi-color-neutral-100);
   border-radius: var(--fixiyi-radius-sm);
-  animation: fx-pulse 1.4s ease-in-out infinite;
-}
-
-@keyframes fx-pulse {
-  50% {
-    opacity: 0.55;
-  }
+  animation: fx-pulse 1.4s var(--fixiyi-ease-standard) infinite;
 }
 
 .fx-loading {
@@ -263,7 +421,7 @@
   align-items: center;
   gap: 10px;
   font-family: var(--fixiyi-font-sans);
-  font-size: 14px;
+  font-size: var(--fixiyi-font-size-sm);
   color: var(--fixiyi-color-neutral-600);
 }
 
@@ -274,14 +432,14 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding-block: 40px;
-  padding-inline: 20px;
+  padding-block: var(--fixiyi-space-10);
+  padding-inline: var(--fixiyi-space-5);
   text-align: center;
   font-family: var(--fixiyi-font-sans);
 }
 
 .fx-state__icon {
-  font-size: 32px;
+  font-size: var(--fixiyi-font-size-3xl);
   line-height: 1;
   color: var(--fixiyi-color-neutral-400);
 }
@@ -292,13 +450,13 @@
 
 .fx-state__title {
   font-size: 17px;
-  font-weight: 600;
+  font-weight: var(--fixiyi-font-weight-semibold);
   color: var(--fixiyi-color-neutral-900);
   margin-block: 0;
 }
 
 .fx-state__message {
-  font-size: 14px;
+  font-size: var(--fixiyi-font-size-sm);
   color: var(--fixiyi-color-neutral-600);
   margin-block: 0;
   max-inline-size: 46ch;
@@ -312,34 +470,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: var(--fixiyi-space-4);
   background-color: rgb(0 0 0 / 45%);
-  z-index: 50;
+  z-index: var(--fixiyi-z-modal);
 }
 
 .fx-modal {
   background-color: var(--fixiyi-color-neutral-0);
   border-radius: var(--fixiyi-radius-lg);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 22%);
+  box-shadow: var(--fixiyi-shadow-lg);
   inline-size: 100%;
   max-inline-size: 520px;
   max-block-size: 85vh;
   overflow-y: auto;
-  padding: 20px;
+  padding: var(--fixiyi-space-5);
   text-align: start;
 }
 
 .fx-modal__header {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  margin-block-end: 12px;
+  gap: var(--fixiyi-space-3);
+  margin-block-end: var(--fixiyi-space-3);
 }
 
 .fx-modal__title {
   font-family: var(--fixiyi-font-sans);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--fixiyi-font-size-lg);
+  font-weight: var(--fixiyi-font-weight-semibold);
   color: var(--fixiyi-color-neutral-900);
   margin-block: 0;
 }
@@ -355,9 +513,8 @@
   border-radius: var(--fixiyi-radius-md);
   background-color: transparent;
   color: var(--fixiyi-color-neutral-600);
-  font-size: 20px;
-  line-height: 1;
   cursor: pointer;
+  transition: background-color var(--fixiyi-motion-fast) var(--fixiyi-ease-standard);
 }
 
 .fx-modal__close:hover {
@@ -367,13 +524,18 @@
 .fx-modal__footer {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--fixiyi-space-2);
   justify-content: flex-end;
-  margin-block-start: 20px;
+  margin-block-start: var(--fixiyi-space-5);
 }
 
 /* --------------------------------------------------- reduced motion (2.3.3) */
 
+/**
+ * Les utilitaires `.fx-animate-*` sont neutralises dans
+ * `./styles/animations.css`. Ici : les animations et transitions portees
+ * directement par les composants.
+ */
 @media (prefers-reduced-motion: reduce) {
   .fx-spinner,
   .fx-skeleton {
@@ -381,7 +543,14 @@
     animation-iteration-count: 1;
   }
 
-  .fx-button {
+  .fx-button,
+  .fx-field__control,
+  .fx-choice,
+  .fx-modal__close {
     transition: none;
+  }
+
+  .fx-button:active:not(:disabled) {
+    transform: none;
   }
 }

@@ -1,10 +1,10 @@
 "use client";
 
 import { CatalogTreeNodeSchema, type CatalogLevel, type CatalogTreeNode } from "@fixiyi/contracts";
-import { Badge, Button, Card, EmptyState, ErrorState, Skeleton } from "@fixiyi/ui";
+import { Badge, Button, Card, EmptyState, ErrorState, Icon, Input, Modal, Skeleton } from "@fixiyi/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { ApiError, apiFetch } from "../../lib/api-client";
@@ -27,20 +27,33 @@ async function fetchTree(): Promise<CatalogTreeNode[]> {
   return TreeListSchema.parse(await apiFetch("/api/v1/catalog/tree?includeInactive=true"));
 }
 
+/** What the creation dialog is currently collecting a name for. */
+interface PendingNode {
+  level: CatalogLevel;
+  parentId: string | null;
+}
+
 /**
  * Minimal back-office catalog screen (docs/phases/PHASE_3_PLAN.md exit
  * criterion) — not the full admin dashboard (that's Phase 12,
- * 06_SCOPE.md). Node creation uses a plain `window.prompt()` for the name
- * rather than a polished modal (Decision 34): genuinely calls the real API
- * with real validation, just unpolished UX. Editing description/order and
- * managing `requiredSkillIds` isn't exposed here yet (documented
- * limitation).
+ * 06_SCOPE.md). Editing description/order and managing `requiredSkillIds`
+ * isn't exposed here yet (documented limitation).
+ *
+ * Node creation used to call `window.prompt()` (Decision 34); it now uses
+ * the design system's `Modal` + `Input` (Decision 47) — a native prompt is
+ * unstyleable, untranslatable, blocks the event loop, is silently
+ * suppressed by some browsers, and is unreachable for a screen-reader user
+ * who never hears it announced.
  */
 export default function CatalogPage(): React.JSX.Element | null {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthHydrated();
   const queryClient = useQueryClient();
+
+  const [pendingNode, setPendingNode] = useState<PendingNode | null>(null);
+  const [nodeName, setNodeName] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
     if (hydrated && !user) {
@@ -53,7 +66,10 @@ export default function CatalogPage(): React.JSX.Element | null {
   const createMutation = useMutation({
     mutationFn: (input: { level: CatalogLevel; parentId: string | null; name: string }) =>
       apiFetch("/api/v1/catalog/nodes", { method: "POST", auth: true, body: input }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CATALOG_TREE_QUERY_KEY }),
+    onSuccess: async () => {
+      closeDialog();
+      await queryClient.invalidateQueries({ queryKey: CATALOG_TREE_QUERY_KEY });
+    },
   });
 
   const toggleMutation = useMutation({
@@ -64,12 +80,28 @@ export default function CatalogPage(): React.JSX.Element | null {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CATALOG_TREE_QUERY_KEY }),
   });
 
-  function createNode(level: CatalogLevel, parentId: string | null): void {
-    const name = window.prompt(`Nom du nouveau noeud (${level})`);
-    if (!name) {
+  function openDialog(level: CatalogLevel, parentId: string | null): void {
+    setPendingNode({ level, parentId });
+    setNodeName("");
+    setNameError(null);
+  }
+
+  function closeDialog(): void {
+    setPendingNode(null);
+    setNodeName("");
+    setNameError(null);
+  }
+
+  function submitDialog(): void {
+    if (!pendingNode) {
       return;
     }
-    createMutation.mutate({ level, parentId, name });
+    const name = nodeName.trim();
+    if (!name) {
+      setNameError("Donnez un nom au noeud.");
+      return;
+    }
+    createMutation.mutate({ level: pendingNode.level, parentId: pendingNode.parentId, name });
   }
 
   if (!hydrated || !user) {
@@ -77,7 +109,7 @@ export default function CatalogPage(): React.JSX.Element | null {
   }
   if (!isAdminOrManager(user)) {
     return (
-      <main className="mx-auto max-w-3xl p-8">
+      <main className="fx-page fx-page--wide">
         <ErrorState title="Acces refuse" message="Cet ecran est reserve aux roles ADMIN et MANAGER." />
       </main>
     );
@@ -87,34 +119,36 @@ export default function CatalogPage(): React.JSX.Element | null {
   const busy = createMutation.isPending || toggleMutation.isPending;
 
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Catalogue de services</h1>
-        <div className="flex gap-2">
+    <main className="fx-page fx-page--wide">
+      <div className="fx-page__header">
+        <h1 className="fx-page__title">Catalogue de services</h1>
+        <div className="fx-row">
           <Button
             onClick={() => {
-              createNode("DOMAIN", null);
+              openDialog("DOMAIN", null);
             }}
             disabled={busy}
             testId="add-domain-button"
           >
-            + Domaine
+            <Icon name="add" size="sm" />
+            Domaine
           </Button>
           <Button
             variant="secondary"
             onClick={() => {
-              createNode("SKILL", null);
+              openDialog("SKILL", null);
             }}
             disabled={busy}
             testId="add-skill-button"
           >
-            + Competence
+            <Icon name="add" size="sm" />
+            Competence
           </Button>
         </div>
       </div>
 
       {error ? (
-        <div className="mb-4">
+        <div className="fx-animate-fade-in">
           <ErrorState
             message={error instanceof ApiError ? error.message : "Impossible de charger le catalogue."}
             onRetry={() => {
@@ -128,12 +162,12 @@ export default function CatalogPage(): React.JSX.Element | null {
         {treeQuery.isPending ? (
           <Skeleton lines={6} label="Chargement du catalogue…" />
         ) : treeQuery.data && treeQuery.data.length > 0 ? (
-          <ul className="flex flex-col gap-1">
+          <ul className="fx-animate-fade-in flex flex-col gap-1">
             {treeQuery.data.map((node) => (
               <TreeNodeRow
                 key={node.id}
                 node={node}
-                onAddChild={createNode}
+                onAddChild={openDialog}
                 onToggleActive={(target) => {
                   toggleMutation.mutate(target);
                 }}
@@ -143,20 +177,59 @@ export default function CatalogPage(): React.JSX.Element | null {
           </ul>
         ) : (
           <EmptyState
+            icon={<Icon name="tools" size="xl" />}
             title="Catalogue vide"
             message="Commencez par creer un domaine de services."
             action={
               <Button
                 onClick={() => {
-                  createNode("DOMAIN", null);
+                  openDialog("DOMAIN", null);
                 }}
               >
+                <Icon name="add" size="sm" />
                 Creer un domaine
               </Button>
             }
           />
         )}
       </Card>
+
+      <Modal
+        open={pendingNode !== null}
+        title={pendingNode === null ? "" : `Nouveau noeud (${pendingNode.level})`}
+        onClose={closeDialog}
+        testId="create-node-modal"
+        footer={
+          <>
+            <Button variant="secondary" onClick={closeDialog}>
+              Annuler
+            </Button>
+            <Button loading={createMutation.isPending} onClick={submitDialog} testId="create-node-submit">
+              Creer
+            </Button>
+          </>
+        }
+      >
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitDialog();
+          }}
+        >
+          <Input
+            label="Nom"
+            value={nodeName}
+            onChange={(value) => {
+              setNodeName(value);
+              setNameError(null);
+            }}
+            error={nameError}
+            placeholder="Electricite"
+            required
+            testId="create-node-name"
+          />
+        </form>
+      </Modal>
     </main>
   );
 }
@@ -177,7 +250,7 @@ function TreeNodeRow({
   const childLevel = CHILD_LEVEL[node.level];
   return (
     <li style={{ marginInlineStart: depth * 16 }}>
-      <div className="flex flex-wrap items-center gap-2 py-1">
+      <div className="fx-row py-1">
         <Badge variant={node.active ? "info" : "warning"}>{node.level}</Badge>
         <span className={node.active ? "" : "text-[var(--fixiyi-color-neutral-400)] line-through"}>{node.name}</span>
         <Button
@@ -187,6 +260,7 @@ function TreeNodeRow({
             onToggleActive(node);
           }}
         >
+          <Icon name={node.active ? "close" : "check"} size="sm" />
           {node.active ? "Desactiver" : "Reactiver"}
         </Button>
         {childLevel ? (
@@ -197,7 +271,8 @@ function TreeNodeRow({
               onAddChild(childLevel, node.id);
             }}
           >
-            + {childLevel}
+            <Icon name="add" size="sm" />
+            {childLevel}
           </Button>
         ) : null}
       </div>

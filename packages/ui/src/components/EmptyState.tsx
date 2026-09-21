@@ -1,7 +1,9 @@
 import type { JSX, ReactNode } from "react";
 
+import { Icon } from "./Icon.js";
+
 export interface EmptyStateProps {
-  /** Text glyph by default — no icon library is a dependency of this package. */
+  /** Defaults to the design system's own inline SVG — no icon library is a dependency of this package. */
   icon?: ReactNode;
   title: string;
   message?: string;
@@ -11,7 +13,14 @@ export interface EmptyStateProps {
   testId?: string;
 }
 
-export function EmptyState({ icon = "∅", title, message, action, headingLevel = 3, testId }: EmptyStateProps): JSX.Element {
+export function EmptyState({
+  icon = <Icon name="info" size="xl" />,
+  title,
+  message,
+  action,
+  headingLevel = 3,
+  testId,
+}: EmptyStateProps): JSX.Element {
   const Heading = `h${headingLevel.toString()}` as "h2" | "h3" | "h4";
 
   return (

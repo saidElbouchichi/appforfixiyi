@@ -1,9 +1,17 @@
 /**
  * CSS custom properties mirroring tokens.ts, for Tailwind v4 `@theme inline`
- * consumption in apps/web and apps/admin. Kept in sync by hand for now
- * (Phase 1); revisit with a generator if drift becomes a real problem.
+ * consumption in apps/web and apps/admin.
+ *
+ * Kept in sync with tokens.ts by `tokens.test.ts`, which parses BOTH files
+ * and fails if a token exists on one side and not the other. The Phase 1
+ * note here used to say "kept in sync by hand ... revisit with a generator
+ * if drift becomes a real problem" — the drift was real (spacing, shadows,
+ * typography, z-index and easing existed in tokens.ts and were missing
+ * here, which is why styles.css hard-coded shadows and font sizes). A test
+ * is cheaper than a generator and catches the same class of bug.
  */
 :root {
+  /* ------------------------------------------------------------- colours */
   --fixiyi-color-primary-50: #eef7f7;
   --fixiyi-color-primary-100: #d3ebea;
   --fixiyi-color-primary-200: #a7d7d5;
@@ -37,16 +45,65 @@
   --fixiyi-color-info-500: #2f7cc9;
   --fixiyi-color-info-700: #1f588f;
 
+  /* ------------------------------------------------------------- spacing */
+  --fixiyi-space-0: 0px;
+  --fixiyi-space-1: 4px;
+  --fixiyi-space-2: 8px;
+  --fixiyi-space-3: 12px;
+  --fixiyi-space-4: 16px;
+  --fixiyi-space-5: 20px;
+  --fixiyi-space-6: 24px;
+  --fixiyi-space-8: 32px;
+  --fixiyi-space-10: 40px;
+  --fixiyi-space-12: 48px;
+  --fixiyi-space-16: 64px;
+  --fixiyi-space-20: 80px;
+  --fixiyi-space-24: 96px;
+
+  /* -------------------------------------------------------------- radius */
+  --fixiyi-radius-none: 0px;
   --fixiyi-radius-sm: 4px;
   --fixiyi-radius-md: 8px;
   --fixiyi-radius-lg: 12px;
   --fixiyi-radius-xl: 16px;
   --fixiyi-radius-full: 9999px;
 
+  /* ---------------------------------------------------------- typography */
   --fixiyi-font-sans:
     Inter, "Noto Sans Arabic", -apple-system, "Segoe UI", system-ui, sans-serif;
 
+  --fixiyi-font-size-xs: 12px;
+  --fixiyi-font-size-sm: 14px;
+  --fixiyi-font-size-md: 16px;
+  --fixiyi-font-size-lg: 18px;
+  --fixiyi-font-size-xl: 20px;
+  --fixiyi-font-size-2xl: 24px;
+  --fixiyi-font-size-3xl: 30px;
+
+  --fixiyi-font-weight-regular: 400;
+  --fixiyi-font-weight-medium: 500;
+  --fixiyi-font-weight-semibold: 600;
+  --fixiyi-font-weight-bold: 700;
+
+  /* ------------------------------------------------------------- shadows */
+  --fixiyi-shadow-sm: 0 1px 2px rgba(20, 23, 23, 0.06);
+  --fixiyi-shadow-md: 0 4px 8px rgba(20, 23, 23, 0.08);
+  --fixiyi-shadow-lg: 0 12px 24px rgba(20, 23, 23, 0.12);
+
+  /* ------------------------------------------------------------- z-index */
+  --fixiyi-z-base: 0;
+  --fixiyi-z-dropdown: 1000;
+  --fixiyi-z-sticky: 1100;
+  --fixiyi-z-overlay: 1200;
+  --fixiyi-z-modal: 1300;
+  --fixiyi-z-toast: 1400;
+
+  /* -------------------------------------------------------------- motion */
   --fixiyi-motion-fast: 120ms;
   --fixiyi-motion-normal: 200ms;
   --fixiyi-motion-slow: 320ms;
+
+  --fixiyi-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --fixiyi-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --fixiyi-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
 }

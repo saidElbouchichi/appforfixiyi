@@ -1,7 +1,7 @@
 "use client";
 
 import { MatchCandidateSchema, MatchSchema, type Match, type MatchCandidate } from "@fixiyi/contracts";
-import { Badge, Button, Card, EmptyState, ErrorState, Input, Skeleton } from "@fixiyi/ui";
+import { Badge, Button, Card, EmptyState, ErrorState, Icon, Input, Skeleton } from "@fixiyi/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -103,8 +103,8 @@ export default function MatchPage(): React.JSX.Element | null {
   const match = matchQuery.data ?? null;
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
-      <h1 className="text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Recherche de fournisseurs</h1>
+    <main className="fx-page fx-page--narrow">
+      <h1 className="fx-page__title">Recherche de fournisseurs</h1>
 
       {matchQuery.isPending ? (
         <Card>
@@ -120,6 +120,7 @@ export default function MatchPage(): React.JSX.Element | null {
       ) : match === null ? (
         <Card>
           <EmptyState
+            icon={<Icon name="search" size="xl" />}
             title="Recherche non demarree"
             message="Lancez la recherche pour que Fixiyi contacte progressivement les fournisseurs pertinents."
             action={
@@ -131,6 +132,7 @@ export default function MatchPage(): React.JSX.Element | null {
                 }}
                 testId="start-match-button"
               >
+                <Icon name="search" size="sm" />
                 Lancer la recherche
               </Button>
             }
@@ -175,6 +177,7 @@ export default function MatchPage(): React.JSX.Element | null {
                     }}
                     testId="expand-radius-button"
                   >
+                    <Icon name="map" size="sm" />
                     Chercher plus loin
                   </Button>
                 </div>
@@ -186,12 +189,12 @@ export default function MatchPage(): React.JSX.Element | null {
             {candidatesQuery.isPending ? (
               <Skeleton lines={3} label="Chargement des fournisseurs…" />
             ) : candidatesQuery.data && candidatesQuery.data.length > 0 ? (
-              <ul className="flex flex-col gap-3" data-testid="candidate-list">
+              <ul className="fx-animate-stagger flex flex-col gap-3" data-testid="candidate-list">
                 {candidatesQuery.data.map((candidate) => (
-                  <li key={candidate.id} className="flex flex-wrap items-center gap-2" data-testid="candidate-row">
+                  <li key={candidate.id} className="fx-row" data-testid="candidate-row">
                     <strong>{candidate.providerDisplayName}</strong>
                     <Badge variant={CANDIDATE_VARIANT[candidate.status]}>{candidate.status}</Badge>
-                    <span className="text-sm text-[var(--fixiyi-color-neutral-600)]">
+                    <span className="fx-text-muted">
                       vague {(candidate.batchIndex + 1).toString()} · {candidate.distanceKm.toFixed(1)} km · score{" "}
                       {candidate.score.toFixed(2)}
                     </span>
@@ -200,6 +203,7 @@ export default function MatchPage(): React.JSX.Element | null {
               </ul>
             ) : (
               <EmptyState
+                icon={<Icon name="profile" size="xl" />}
                 title="Aucun fournisseur contacte"
                 message="Aucun fournisseur disponible ne correspond encore. Essayez d'elargir le rayon."
               />

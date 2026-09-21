@@ -1337,3 +1337,135 @@ Journal des decisions techniques et produit.
   sont des corrections de securite/experience qui depassent le perimetre
   de la Phase 5 mais touchaient du code existant.
 - Date : 2026-09-20
+
+---
+
+## Decision 47 - Back-office : la creation de noeud passe de `window.prompt()`
+  a un `Modal` + `Input` du design system
+
+- Contexte : La Decision 34 acceptait `window.prompt()` pour nommer un
+  noeud du catalogue - "genuinement l'appel a la vraie API avec la vraie
+  validation, juste une UX non polie". C'etait un compromis raisonnable
+  quand `packages/ui` n'existait pas encore. Il existe depuis la Phase 5,
+  et le prompt natif n'est pas seulement "non poli" : il est
+  intraduisible (donc incompatible avec fr/en/ar/ary,
+  01_SPEC_PRODUCT.md #5), instylable, il bloque la boucle d'evenements,
+  plusieurs navigateurs le suppriment silencieusement dans certains
+  contextes, et il n'expose aucun libelle exploitable par un lecteur
+  d'ecran.
+- Options : (a) garder `window.prompt()` jusqu'a la Phase 12 (Admin) ;
+  (b) le remplacer maintenant par le `Modal` + `Input` deja livres et
+  deja testes.
+- Choix : (b).
+- Raison : Le composant existe, il est teste (piege de focus, `Escape`,
+  `aria-labelledby`, retour du focus au declencheur), et le remplacement
+  ne coute que quelques lignes d'etat local. Laisser un `window.prompt()`
+  dans un produit qui se declare accessible WCAG 2.2 AA et multilingue,
+  alors que le remplacant est deja dans le depot, aurait ete une dette
+  gratuite.
+- Trade-offs : Un peu d'etat local en plus dans la page catalogue
+  (`pendingNode`, `nodeName`, `nameError`) la ou le prompt etait
+  synchrone. En echange : validation de nom vide affichee dans le champ
+  plutot que silencieuse, et annulation explicite.
+- Date : 2026-09-21
+
+---
+
+## Decision 48 - `tokens.css` et `tokens.ts` : la synchronisation devient un
+  test, pas une intention
+
+- Contexte : La Phase 1 notait dans `tokens.css` "Kept in sync by hand
+  for now ; revisit with a generator if drift becomes a real problem".
+  La derive a eu lieu : `spacing`, `shadows`, `typography`, `zIndex` et
+  `motion.easing` existaient dans `tokens.ts` et etaient **absents** de
+  `tokens.css`. Consequence concrete : `packages/ui/src/styles.css`
+  codait en dur ses ombres (`0 1px 2px rgb(0 0 0 / 6%)`), ses tailles de
+  texte (`font-size: 14px`) et son `z-index: 50`, tout en pretendant ne
+  consommer que des tokens - et le test d'invariant existant ne l'a pas
+  vu parce qu'il ne cherchait que des couleurs hexadecimales.
+- Options : (a) generer `tokens.css` depuis `tokens.ts` au build ;
+  (b) garder deux fichiers ecrits a la main et faire echouer le build
+  quand ils divergent.
+- Choix : (b).
+- Raison : Priorite 1 de 05_DECISION_POLICY.md, la simplicite. Un
+  generateur ajoute une etape de build, un artefact genere a committer ou
+  a ignorer, et une source de verite invisible dans le diff. Le test
+  parse reellement `tokens.css` et verifie les deux sens (tout token TS a
+  sa variable CSS avec la meme valeur ; toute variable CSS a son token
+  TS), ce qui attrape exactement la meme classe de bug pour une fraction
+  du cout. `breakpoints` est exclu explicitement : une custom property
+  CSS ne peut pas servir dans une `@media`, l'exposer serait mensonger.
+- Trade-offs : Deux fichiers restent a editer pour ajouter un token. Le
+  test le rappelle immediatement au lieu de laisser la derive s'installer
+  six mois.
+- Date : 2026-09-21
+
+---
+
+## Decision 49 - Le mouvement est une couche a part, neutralisee en bloc sous
+  `prefers-reduced-motion`
+
+- Contexte : Les animations de la Phase 5 vivaient dans `styles.css`
+  melangees aux composants (`fx-spin`, `fx-pulse`), et l'exemption
+  `prefers-reduced-motion` listait nommement les deux classes
+  concernees. Toute animation ajoutee plus tard aurait du penser a
+  s'ajouter a cette liste - c'est-a-dire qu'elle aurait ete oubliee.
+- Options : (a) continuer a enumerer les exemptions au cas par cas ;
+  (b) isoler le mouvement dans `src/styles/animations.css` avec une regle
+  d'exemption unique couvrant tous les utilitaires `.fx-animate-*`, et un
+  test qui echoue si un utilitaire n'y figure pas.
+- Choix : (b).
+- Raison : WCAG 2.2 AA 2.3.3 n'est pas tenu par une bonne intention mais
+  par une regle qu'on ne peut pas oublier d'appliquer. Le test
+  `animations.test.ts` extrait la liste reelle des classes
+  `.fx-animate-*` du fichier et verifie que **chacune** apparait dans le
+  bloc `prefers-reduced-motion` ; ajouter une animation sans son
+  exemption casse le build.
+- Detail non evident : l'exemption pose `animation: none` et **pas**
+  `animation-duration: 0.01ms`. Les utilitaires sont remplis en `both` ;
+  une duree quasi nulle laisserait un `fade-in` fige sur son etat `from`,
+  donc `opacity: 0` - l'element resterait invisible pour l'utilisateur
+  qui a justement demande moins de mouvement.
+- RTL : le glissement directionnel est exprime sur l'axe inline
+  (`--fx-slide-offset`, negatif sous `[dir="rtl"]`) et non en
+  `translateX` fixe ; les icones dont le sens depend de la direction de
+  lecture (la fleche) portent `fx-icon--directional` et sont mirrorees
+  sous `[dir="rtl"]`. Une fleche "suivant" non retournee pointe vers
+  l'etape precedente en arabe.
+- Trade-offs : Un fichier CSS de plus, importe par `styles.css` pour que
+  les applications gardent un point d'entree unique (`@fixiyi/ui/css`).
+  Verifie sur le vrai build Next.js : les 6 `@keyframes`, les 7
+  utilitaires, les 2 blocs `prefers-reduced-motion` et les 2 regles
+  `[dir="rtl"]` sont bien presents dans le CSS compile.
+- Date : 2026-09-21
+
+---
+
+## Decision 50 - `Select` et `RadioGroup` ajoutes au design system plutot que
+  reecrits dans chaque ecran
+
+- Contexte : `apps/web` reimplementait un `<select>` habille en
+  `fx-field__control` avec son `<label htmlFor>` ecrit a la main
+  (composant local `LevelSelect`, utilise 5 fois dans le seul formulaire
+  de demande), et une paire de `<input type="radio">` nus dans un
+  `<fieldset>` pour l'urgence - cibles de 16px, etat selectionne porte
+  par la seule puce native, focus invisible.
+- Options : (a) laisser ces controles dans les pages ; (b) les remonter
+  dans `@fixiyi/ui`.
+- Choix : (b), avec 17 tests dedies.
+- Raison : C'est exactement le motif qui a coute deux corrections
+  identiques en Phase 4 (Decision 39, bug `Content-Type` corrige
+  separement dans `apps/web` et `apps/admin`). Un controle de formulaire
+  duplique est un cablage d'accessibilite duplique, donc une occasion
+  dupliquee de l'oublier.
+- Details tenus par les composants plutot que par l'appelant : `Select`
+  se desactive tout seul quand sa liste d'options est vide (un niveau de
+  cascade sans enfant n'est pas un jugement que l'appelant doit penser a
+  passer) ; `RadioGroup` est generique sur son type de valeur, donc
+  `onChange` rend `"NORMAL" | "URGENT"` et non `string`, et chaque option
+  est un libelle cliquable de 44px (WCAG 2.2 AA 2.5.8) dont l'anneau de
+  focus est pilote par `:has(input:focus-visible)`.
+- Trade-offs : Aucun sur le comportement observable - les `data-testid`
+  des 5 selects et du formulaire sont inchanges, les deux scenarios
+  Playwright passent sans modification.
+- Date : 2026-09-21

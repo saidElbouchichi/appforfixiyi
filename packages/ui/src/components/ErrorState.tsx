@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from "react";
 
 import { Button } from "./Button.js";
+import { Icon } from "./Icon.js";
 
 export interface ErrorStateProps {
   icon?: ReactNode;
@@ -15,7 +16,7 @@ export interface ErrorStateProps {
 
 /** `role="alert"` so the failure is announced as soon as it replaces the content (WCAG 2.2 AA 4.1.3). */
 export function ErrorState({
-  icon = "⚠",
+  icon = <Icon name="warning" size="xl" />,
   title = "Une erreur est survenue",
   message,
   onRetry,

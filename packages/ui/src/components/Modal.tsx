@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, type JSX, type ReactNode } from "react";
 
+import { Icon } from "./Icon.js";
+
 const FOCUSABLE_SELECTOR = [
   "a[href]",
   "button:not([disabled])",
@@ -95,7 +97,7 @@ export function Modal({ open, title, onClose, children, footer, closeLabel = "Fe
             {title}
           </h2>
           <button type="button" className="fx-modal__close" onClick={onClose} aria-label={closeLabel}>
-            <span aria-hidden="true">×</span>
+            <Icon name="close" />
           </button>
         </div>
 

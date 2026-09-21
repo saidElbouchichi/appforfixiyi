@@ -1,0 +1,154 @@
+/**
+ * @fixiyi/ui motion layer — imported by ../styles.css, so consumers keep a
+ * single entry point (`@fixiyi/ui/css`).
+ *
+ * Rules this file holds itself to, enforced by `../animations.test.ts`:
+ * - Durations and easings come from `@fixiyi/design-tokens` variables only.
+ *   No ad-hoc `240ms`, no ad-hoc `cubic-bezier(...)` — motion that drifts
+ *   per-component is exactly what makes an interface feel unbuilt.
+ * - Every animation is neutralised under `prefers-reduced-motion: reduce`
+ *   (WCAG 2.2 AA 2.3.3). Not slowed down — neutralised, in one blanket rule
+ *   so a new keyframe added later cannot forget to opt in.
+ * - Directional motion is expressed on the INLINE axis and flips under
+ *   `dir="rtl"`. A drawer that slides in from the right in Arabic is
+ *   sliding in from the wrong edge; `translateX` is not RTL-safe by itself,
+ *   so the offset is a custom property that RTL negates.
+ */
+
+/* --------------------------------------------------------------- keyframes */
+
+@keyframes fx-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fx-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fx-slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Inline-axis slide. `--fx-slide-offset` is positive (from the inline end)
+ * in LTR and negated in RTL by the rule below, so one keyframe serves both
+ * directions.
+ */
+@keyframes fx-slide-in-inline {
+  from {
+    opacity: 0;
+    transform: translateX(var(--fx-slide-offset, 12px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fx-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes fx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------- utilities */
+
+.fx-animate-fade-in {
+  animation: fx-fade-in var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+}
+
+.fx-animate-fade-out {
+  animation: fx-fade-out var(--fixiyi-motion-fast) var(--fixiyi-ease-accelerate) both;
+}
+
+.fx-animate-slide-in-bottom {
+  animation: fx-slide-in-from-bottom var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+}
+
+.fx-animate-slide-in-inline {
+  --fx-slide-offset: 12px;
+  animation: fx-slide-in-inline var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+}
+
+[dir="rtl"] .fx-animate-slide-in-inline {
+  --fx-slide-offset: -12px;
+}
+
+.fx-animate-pulse {
+  animation: fx-pulse var(--fixiyi-motion-slow) var(--fixiyi-ease-standard) infinite;
+}
+
+.fx-animate-spin {
+  animation: fx-spin var(--fixiyi-motion-slow) linear infinite;
+}
+
+/**
+ * Staggers a list so rows arrive in sequence instead of all at once. Capped
+ * at 6 steps: past roughly 120 ms of accumulated delay the last row reads as
+ * lag rather than as polish, so later children simply share the last delay.
+ */
+.fx-animate-stagger > * {
+  animation: fx-slide-in-from-bottom var(--fixiyi-motion-normal) var(--fixiyi-ease-decelerate) both;
+}
+
+.fx-animate-stagger > :nth-child(1) {
+  animation-delay: 0ms;
+}
+.fx-animate-stagger > :nth-child(2) {
+  animation-delay: 20ms;
+}
+.fx-animate-stagger > :nth-child(3) {
+  animation-delay: 40ms;
+}
+.fx-animate-stagger > :nth-child(4) {
+  animation-delay: 60ms;
+}
+.fx-animate-stagger > :nth-child(5) {
+  animation-delay: 80ms;
+}
+.fx-animate-stagger > :nth-child(n + 6) {
+  animation-delay: 100ms;
+}
+
+/* ---------------------------------------------- reduced motion (2.3.3) */
+
+/**
+ * One blanket rule rather than per-class opt-outs: anything animated by this
+ * package, now or later, is covered. `animation: none` rather than a 0.01ms
+ * duration so `both`-filled keyframes do not leave an element stuck at its
+ * `from` state (a fade-in would otherwise stay at `opacity: 0` — invisible).
+ */
+@media (prefers-reduced-motion: reduce) {
+  .fx-animate-fade-in,
+  .fx-animate-fade-out,
+  .fx-animate-slide-in-bottom,
+  .fx-animate-slide-in-inline,
+  .fx-animate-pulse,
+  .fx-animate-spin,
+  .fx-animate-stagger > * {
+    animation: none;
+  }
+}

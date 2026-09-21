@@ -1,7 +1,7 @@
 "use client";
 
 import { OtpRequestOutputSchema, UserSchema } from "@fixiyi/contracts";
-import { Badge, Button, Card, Input } from "@fixiyi/ui";
+import { Badge, Button, Card, Icon, Input } from "@fixiyi/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -53,9 +53,12 @@ export default function LoginPage(): React.JSX.Element {
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-center text-2xl font-semibold text-[var(--fixiyi-color-neutral-900)]">Fixiyi Admin</h1>
+        <h1 className="fx-page__title mb-6 flex items-center justify-center gap-2">
+          <Icon name="shield" size="lg" />
+          Fixiyi Admin
+        </h1>
 
-        <Card title={step === "phone" ? "Connexion" : "Verification"} headingLevel={2}>
+        <Card className="fx-animate-slide-in-bottom" title={step === "phone" ? "Connexion" : "Verification"} headingLevel={2}>
           {step === "phone" ? (
             <form
               className="flex flex-col gap-4"
@@ -76,6 +79,7 @@ export default function LoginPage(): React.JSX.Element {
                 testId="phone-input"
               />
               <Button type="submit" block loading={loading} testId="request-otp-button">
+                <Icon name="message" size="sm" />
                 Recevoir un code
               </Button>
             </form>
@@ -103,13 +107,14 @@ export default function LoginPage(): React.JSX.Element {
                 testId="otp-input"
               />
               <Button type="submit" block loading={loading} testId="verify-otp-button">
+                <Icon name="check" size="sm" />
                 Se connecter
               </Button>
             </form>
           )}
 
           {error === null ? null : (
-            <p className="fx-field__error mt-4" role="alert" data-testid="login-error">
+            <p className="fx-field__error fx-animate-fade-in mt-4" role="alert" data-testid="login-error">
               {error}
             </p>
           )}
