@@ -4,6 +4,7 @@ import "./setup-env.js";
 import { loadEnv } from "@fixiyi/config";
 import {
   CreateUploadSessionOutputSchema,
+  MEDIA_MAX_SIZE_BYTES,
   MediaSchema,
   ProblemDetailsSchema,
   ServiceRequestSchema,
@@ -17,12 +18,16 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AppModule } from "../src/app.module.js";
 import { ProblemDetailsFilter } from "../src/common/filters/problem-details.filter.js";
 import { RedisService } from "../src/infrastructure/redis/redis.service.js";
+import { StorageService } from "../src/infrastructure/storage/storage.service.js";
 
 import { login } from "./otp-test-helper.js";
 import { clearRateLimitState } from "./rate-limit-test-helper.js";
 
 /** A well-known, genuinely valid 1x1 transparent PNG — small enough to embed, real enough for `image-size` to report width=1/height=1. */
 const VALID_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAAAAAAABoTPPAAAAABJRU5ErkJggg==";
+
+/** Declared as a JPEG, is not one — used to exercise the magic-byte rejection path. */
+const NOT_A_JPEG = Buffer.from("this is plainly not a jpeg");
 
 /**
  * Real integration test against MongoDB/Redis/MinIO Docker (04_ENVIRONMENT.md).
@@ -33,6 +38,7 @@ describe("Requests (e2e)", () => {
   let app: NestFastifyApplication;
   let server: Parameters<typeof request>[0];
   let redis: RedisService;
+  let storage: StorageService;
   let catalogChain: { serviceId: string; interventionTypeId: string; complexityId: string };
   let otherServiceId: string;
 
@@ -52,6 +58,7 @@ describe("Requests (e2e)", () => {
     await app.getHttpAdapter().getInstance().ready();
     server = app.getHttpAdapter().getInstance().server;
     redis = app.get(RedisService);
+    storage = app.get(StorageService);
     await clearRateLimitState(redis);
 
     const tree = await request(server).get("/api/v1/catalog/tree");
@@ -192,14 +199,14 @@ describe("Requests (e2e)", () => {
     const session = await request(server)
       .post(`/api/v1/requests/${requestId}/media`)
       .set(...bearer(token))
-      .send({ fileName: "fake.jpg", contentType: "image/jpeg", sizeBytes: 20 });
+      .send({ fileName: "fake.jpg", contentType: "image/jpeg", sizeBytes: NOT_A_JPEG.byteLength });
     expect(session.status).toBe(201);
     const upload = CreateUploadSessionOutputSchema.parse(session.body);
 
     const putResponse = await fetch(upload.uploadUrl, {
       method: "PUT",
       headers: { "Content-Type": "image/jpeg" },
-      body: Buffer.from("this is plainly not a jpeg"),
+      body: NOT_A_JPEG,
     });
     expect(putResponse.status).toBe(200);
 
@@ -214,6 +221,63 @@ describe("Requests (e2e)", () => {
     const withMedia = await request(server).get(`/api/v1/requests/${requestId}`).set(...bearer(token));
     // Rejected media never counts as "attached" — only READY media does.
     expect(ServiceRequestSchema.parse(withMedia.body).mediaIds).toEqual([]);
+
+    // The bytes are already in the bucket by the time a scan can fail. Marking
+    // the document REJECTED without removing them left every rejected upload
+    // occupying storage permanently, referenced by nothing.
+    expect(await storage.objectExists(upload.objectKey)).toBe(false);
+  });
+
+  it("refuses at storage an upload larger than the size it declared", async () => {
+    const { token, requestId } = await createDraft();
+
+    const declaredBytes = 45;
+    const session = await request(server)
+      .post(`/api/v1/requests/${requestId}/media`)
+      .set(...bearer(token))
+      .send({ fileName: "small.png", contentType: "image/png", sizeBytes: declaredBytes });
+    expect(session.status).toBe(201);
+    const upload = CreateUploadSessionOutputSchema.parse(session.body);
+
+    // Declare 45 bytes, then PUT more. Before the size was signed into the
+    // presigned URL this succeeded: the oversize was only noticed at finalize,
+    // by which point the bytes were already stored — and nothing ever deleted
+    // them, so one account could fill the bucket at will.
+    //
+    // MinIO answers 403 SignatureDoesNotMatch, because content-length is part
+    // of the signature. The overshoot is deliberately small: with a
+    // megabyte-sized body the server refuses the connection before the client
+    // has finished writing it, and undici stalls instead of surfacing the
+    // response. That is a client-side artefact of a rejected upload, not a
+    // weaker assertion — the rejection is the same one either way.
+    const putResponse = await fetch(upload.uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "image/png" },
+      body: Buffer.alloc(declaredBytes + 155, 1),
+    });
+    expect(putResponse.status).toBe(403);
+
+    // Storage refused it, so nothing landed at all.
+    expect(await storage.objectExists(upload.objectKey)).toBe(false);
+
+    // And the media stays un-finalisable, because there is no object to scan.
+    const finalized = await request(server)
+      .post(`/api/v1/requests/${requestId}/media/${upload.mediaId}/finalize`)
+      .set(...bearer(token));
+    expect(finalized.status).toBe(400);
+    expect(ProblemDetailsSchema.parse(finalized.body).code).toBe("MEDIA_NOT_UPLOADED");
+  });
+
+  it("refuses an upload session that declares a size over the limit for its kind", async () => {
+    const { token, requestId } = await createDraft();
+
+    const tooBig = await request(server)
+      .post(`/api/v1/requests/${requestId}/media`)
+      .set(...bearer(token))
+      .send({ fileName: "huge.png", contentType: "image/png", sizeBytes: MEDIA_MAX_SIZE_BYTES.IMAGE + 1 });
+
+    expect(tooBig.status).toBe(400);
+    expect(ProblemDetailsSchema.parse(tooBig.body).code).toBe("MEDIA_SIZE_LIMIT_EXCEEDED");
   });
 
   it("cancels a DRAFT request, and refuses to cancel it twice", async () => {

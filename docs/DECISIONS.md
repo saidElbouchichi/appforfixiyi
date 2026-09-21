@@ -1469,3 +1469,127 @@ Journal des decisions techniques et produit.
   des 5 selects et du formulaire sont inchanges, les deux scenarios
   Playwright passent sans modification.
 - Date : 2026-09-21
+
+---
+
+## Decision 51 - Rafraichissement du token cote client : une seule requete en
+  vol, partagee par tous les appels qui prennent un 401
+
+> Numerotation : la mission demandait « Decision 47 ou 48 » pour ce point et
+> « Decision 49 » pour l'upload. Les numeros 47 a 50 etaient deja pris par la
+> refonte du design system du tour precedent. Ce sont donc 51 et 52.
+
+- Contexte : Bug B1 de `docs/INSPECTION_ECC_PHASE_0_5.md`. `apps/web` et
+  `apps/admin` persistaient un `refreshToken` dans `localStorage` et ne
+  l'utilisaient **jamais** : aucun appel a `POST /api/v1/auth/refresh`
+  n'existait cote client, alors que l'endpoint existait cote API, complet
+  et rate-limite (60/h). Passe `JWT_ACCESS_TTL` (15 min), chaque appel
+  authentifie prenait un 401 `"Invalid or expired access token"`, et rien
+  ne recuperait : la session morte restait en `localStorage`
+  indefiniment, sans meme un retour vers `/login`.
+- Options : (a) rejouer la requete apres un refresh, appel par appel ;
+  (b) rejouer apres un refresh, mais avec **une seule requete de refresh
+  en vol** partagee par tous les appelants simultanes ; (c) rafraichir
+  preventivement sur un minuteur base sur `expiresIn`.
+- Choix : (b).
+- Raison : (a) est activement dangereux ici, et c'est le point non
+  evident de cette correction. Le refresh token **tourne** a chaque
+  usage, et `SessionService` traite la re-presentation d'un token deja
+  tourne comme un rejeu : il revoque **toute la session**
+  (`REUSE_DETECTED`). Or `/requests/new` declenche plusieurs appels
+  authentifies au montage ; avec (a), N appels expirant ensemble
+  lanceraient N refresh paralleles, dont N-1 presenteraient un token
+  deja consomme — la « correction » deconnecterait l'utilisateur plus
+  surement que le bug. Tous les appelants attendent donc la meme promesse
+  (`refreshInFlight`) et rejouent avec le token que ce refresh unique a
+  produit. (c) ajoute un minuteur a maintenir et ne couvre pas le cas
+  d'une machine qui sort de veille avec un token deja expire.
+- Details : `POST /auth/refresh` ne renvoie que des tokens
+  (`AuthTokensSchema`), pas l'utilisateur ; le store recoit donc un
+  nouvel `setTokens` qui preserve le `user` deja connu, au lieu de
+  detourner `setSession`. En cas d'echec du refresh, on appelle
+  simplement `clearSession()` : toutes les pages authentifiees
+  redirigent deja vers `/login` quand `user` devient nul, donc aucune
+  navigation `window.location` n'est necessaire — et aucune ne serait
+  sure cote SSR depuis ce module.
+- Dette assumee : le correctif est ecrit **deux fois**,
+  `apps/web/src/lib/api-client.ts` et `apps/admin/src/lib/api-client.ts`,
+  conformement a la demande explicite de l'utilisateur. L'extraction dans
+  un package partage reste recommandee : ces deux fichiers sont
+  identiques a deux commentaires pres, et la Decision 39 a deja fait
+  payer cette duplication une fois (bug `Content-Type` corrige
+  separement dans les deux apps).
+- Tests : `tests/browser/tests/session-refresh.spec.ts`, 2 scenarios
+  reels contre la stack Docker. Le premier verifie qu'un token expire est
+  rattrape de facon transparente (**exactement un** appel a
+  `/auth/refresh`, l'ecran se remplit, le token stocke a bien tourne) ;
+  le second qu'une session dont le refresh token est mort aussi est
+  purgee et renvoyee vers `/login` au lieu de laisser l'utilisateur
+  bloque.
+- Trade-offs : Un 401 legitime sur une route authentifiee coute
+  desormais un aller-retour de refresh avant de remonter. Acceptable :
+  c'est le cas rare, et l'alternative etait de casser toute session de
+  plus de 15 minutes.
+- Date : 2026-09-21
+
+---
+
+## Decision 52 - La taille declaree d'un media est signee dans l'URL
+  presignee, et un media rejete voit son objet supprime
+
+- Contexte : Bug B2 de `docs/INSPECTION_ECC_PHASE_0_5.md`. Precision
+  utile, parce que la mission decrivait le probleme autrement :
+  `MediaService.createUploadSession` **verifiait deja**
+  `declaredSizeBytes <= MEDIA_MAX_SIZE_BYTES[kind]` et renvoyait
+  `MEDIA_SIZE_LIMIT_EXCEEDED` — depuis la Phase 4. Le trou reel etait
+  ailleurs : cette verification portait sur une **declaration**, et
+  l'URL presignee emise ensuite n'imposait aucune taille. Un client
+  pouvait declarer 1 Ko, passer le controle, puis PUT plusieurs Go
+  directement sur MinIO. L'exces n'etait constate qu'au `finalize`,
+  c'est-a-dire **apres** que les octets soient stockes — et comme aucun
+  `DeleteObjectCommand` n'existait dans tout le depot, l'objet rejete
+  restait dans le bucket pour toujours, reference par rien.
+- Options : (a) garder la verification declarative et ajouter un
+  nettoyage differe (balayage periodique des objets orphelins) ;
+  (b) signer `ContentLength` dans l'URL presignee pour que le stockage
+  lui-meme refuse un PUT de taille differente, et supprimer l'objet au
+  moment du rejet.
+- Choix : (b).
+- Raison : (a) laisse la fenetre grande ouverte entre le PUT et le
+  balayage — c'est exactement le scenario de saturation. (b) deplace
+  l'application de la regle du code applicatif vers le stockage : S3/MinIO
+  incluent `content-length` dans la signature, donc un PUT qui annonce
+  une autre taille est refuse **avant** que les octets ne soient acceptes.
+  Verifie reellement : MinIO repond `403 SignatureDoesNotMatch`, et
+  `objectExists` confirme que rien n'a ete ecrit.
+- Limite assumee et documentee : signer `ContentLength` impose une taille
+  **exacte**, pas un plafond. `MediaService` connait la taille
+  (`sizeBytes` fait partie de `CreateUploadSessionInput`), donc il en
+  beneficie. `VerificationService` ne la connait pas — son
+  `RequestDocumentUploadInput` ne porte pas de taille — donc ses uploads
+  restent non bornes. Le parametre est optionnel et le commentaire de
+  `createPresignedUploadUrl` dit explicitement pourquoi. Plafonner sans
+  taille exacte demande une POST policy (`content-length-range`), ce qui
+  transforme l'upload d'un PUT en formulaire multipart : c'est un lot de
+  travail separe, deliberement **pas** glisse en douce dans cette
+  correction. Remonte comme reste-a-faire dans
+  `docs/PRE_PHASE_6_REPORT.md`.
+- Suppression au rejet : `reject()` efface l'objet en plus de marquer le
+  document `REJECTED`. La suppression est **best-effort** — un incident
+  de stockage ne doit pas transformer un rejet propre en 500 — donc elle
+  est journalisee et avalee, et le document garde son statut `REJECTED`
+  dans tous les cas, ce qui est ce que le client voit.
+- Effet de bord revelateur : un test existant declarait `sizeBytes: 20`
+  tout en envoyant 26 octets. Personne ne s'en souciait tant que la
+  taille declaree n'engageait rien ; elle engage desormais, donc le test
+  a du dire la verite. C'est exactement la classe de mensonge silencieux
+  que la correction supprime.
+- Tests : `apps/api/test/request.e2e.test.ts` passe de 7 a 9 tests — un
+  PUT plus gros que la taille declaree est refuse par le stockage (403,
+  aucun objet ecrit, `finalize` renvoie ensuite `MEDIA_NOT_UPLOADED`), et
+  l'objet d'un media rejete pour signature invalide n'existe plus apres
+  le rejet. L'overshoot du test est volontairement petit : avec un corps
+  d'un megaoctet, le serveur refuse la connexion avant que le client ait
+  fini d'ecrire et `undici` se bloque au lieu de remonter la reponse —
+  artefact client d'un upload refuse, pas une assertion plus faible.
+- Date : 2026-09-21

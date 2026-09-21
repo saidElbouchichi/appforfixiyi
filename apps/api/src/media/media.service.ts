@@ -7,7 +7,7 @@ import {
   type MediaTargetType,
 } from "@fixiyi/contracts";
 import { generateId } from "@fixiyi/shared-utils";
-import { ForbiddenException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, HttpStatus, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import type { Model } from "mongoose";
 
@@ -32,6 +32,8 @@ const IMAGE_METADATA_PREFIX_BYTES = 256 * 1024;
  */
 @Injectable()
 export class MediaService {
+  private readonly logger = new Logger(MediaService.name);
+
   constructor(
     @InjectModel(MediaEntity.name) private readonly model: Model<MediaEntity>,
     private readonly storage: StorageService,
@@ -70,7 +72,9 @@ export class MediaService {
       declaredSizeBytes: input.sizeBytes,
     });
 
-    const presigned = await this.storage.createPresignedUploadUrl(objectKey, input.contentType);
+    // The declared size is signed into the URL, so it now bounds the actual
+    // PUT instead of being a claim only re-checked after the bytes landed.
+    const presigned = await this.storage.createPresignedUploadUrl(objectKey, input.contentType, input.sizeBytes);
     return { mediaId, uploadUrl: presigned.url, objectKey, expiresInSeconds: presigned.expiresInSeconds };
   }
 
@@ -132,10 +136,25 @@ export class MediaService {
     return docs.map(toMedia);
   }
 
+  /**
+   * Marks the media rejected AND removes the stored object: the bytes are
+   * already in the bucket by the time a scan can fail, and nothing else would
+   * ever reference or clean them. Deletion is best-effort — a storage hiccup
+   * must not turn a rejection into a 500, so it is logged and swallowed. The
+   * document keeps its `REJECTED` status either way, which is what the client
+   * is shown.
+   */
   private async reject(doc: MediaDocument, reason: string): Promise<MediaDocument> {
     doc.status = "REJECTED";
     doc.rejectionReason = reason;
     await doc.save();
+
+    try {
+      await this.storage.deleteObject(doc.objectKey);
+    } catch (error) {
+      this.logger.warn(`Rejected media ${doc._id} left its object behind (${doc.objectKey}): ${String(error)}`);
+    }
+
     return doc;
   }
 

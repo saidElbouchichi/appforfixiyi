@@ -1,4 +1,11 @@
-import { CreateBucketCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  CreateBucketCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "@fixiyi/config";
 import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
@@ -54,10 +61,46 @@ export class StorageService implements OnModuleInit {
     }
   }
 
-  async createPresignedUploadUrl(objectKey: string, contentType: string): Promise<PresignedUpload> {
-    const command = new PutObjectCommand({ Bucket: this.bucket, Key: objectKey, ContentType: contentType });
-    const url = await getSignedUrl(this.publicClient, command, { expiresIn: PRESIGNED_UPLOAD_TTL_SECONDS });
+  /**
+   * When `contentLength` is given it is **signed into the URL**, so S3/MinIO
+   * reject a PUT whose `Content-Length` differs from the signed value. Without
+   * it the declared size was only ever a claim, re-checked at finalize — after
+   * the bytes had already landed. A client could declare 1 KB and PUT
+   * gigabytes; the media was marked REJECTED but the object stayed.
+   *
+   * Signing binds an EXACT size, not a ceiling, so it is only usable where the
+   * caller knows the size up front. `MediaService` does (`sizeBytes` is part of
+   * `CreateUploadSessionInput`). `VerificationService` does not — its
+   * `RequestDocumentUploadInput` carries no size — so its uploads stay
+   * unbounded until that contract gains one. Capping without an exact size
+   * needs a POST policy (`content-length-range`), which changes the upload from
+   * a PUT to a multipart form: a separate piece of work, deliberately not
+   * smuggled in here. See docs/PRE_PHASE_6_REPORT.md.
+   */
+  async createPresignedUploadUrl(objectKey: string, contentType: string, contentLength?: number): Promise<PresignedUpload> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: objectKey,
+      ContentType: contentType,
+      ...(contentLength === undefined ? {} : { ContentLength: contentLength }),
+    });
+    const url = await getSignedUrl(this.publicClient, command, {
+      expiresIn: PRESIGNED_UPLOAD_TTL_SECONDS,
+      // Keep content-length in the signature rather than letting the presigner
+      // hoist it into the query string, where it would bind nothing.
+      unhoistableHeaders: new Set(["content-length"]),
+    });
     return { url, expiresInSeconds: PRESIGNED_UPLOAD_TTL_SECONDS };
+  }
+
+  /**
+   * Removes an object from the bucket. Used when a media is rejected: the
+   * bytes are already stored by then, and leaving them there meant every
+   * rejected upload occupied the bucket permanently with nothing referencing
+   * it.
+   */
+  async deleteObject(objectKey: string): Promise<void> {
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: objectKey }));
   }
 
   /** Real existence check against the object store — never trust the client's word that an upload happened. */
