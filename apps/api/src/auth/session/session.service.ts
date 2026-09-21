@@ -62,8 +62,36 @@ export class SessionService {
     return { deviceId: deviceDoc._id };
   }
 
-  /** Validates `presentedTokenVersion` against the stored one and, on success, bumps it (rotation). */
+  /**
+   * Validates `presentedTokenVersion` against the stored one and, on success,
+   * bumps it (rotation). The check and the bump are ONE conditional update:
+   * of several concurrent refreshes presenting the same token, exactly one
+   * matches `tokenVersion` and wins; the others see the new version and are
+   * treated as reuse (audit 2026-09-21 — a read-modify-write let all of them
+   * succeed, each with a valid token pair).
+   */
   async rotate(sessionId: string, presentedTokenVersion: number, context: RequestContext): Promise<RotateResult> {
+    const now = new Date();
+    const rotated = await this.sessionModel.findOneAndUpdate(
+      { _id: sessionId, status: "ACTIVE", tokenVersion: presentedTokenVersion, expiresAt: { $gt: now } },
+      {
+        $inc: { tokenVersion: 1 },
+        $set: {
+          lastUsedAt: now,
+          ...(context.ip === null ? {} : { ip: context.ip }),
+          ...(context.userAgent === null ? {} : { userAgent: context.userAgent }),
+        },
+      },
+      { new: true },
+    );
+    if (rotated) {
+      return { status: "success", session: rotated };
+    }
+    return this.explainFailedRotation(sessionId, now);
+  }
+
+  /** Why the conditional rotation matched nothing; a version mismatch means the token leaked. */
+  private async explainFailedRotation(sessionId: string, now: Date): Promise<RotateResult> {
     const session = await this.sessionModel.findById(sessionId);
     if (!session) {
       return { status: "not_found" };
@@ -71,25 +99,16 @@ export class SessionService {
     if (session.status === "REVOKED") {
       return { status: "revoked" };
     }
-    if (session.expiresAt.getTime() <= Date.now()) {
+    if (session.expiresAt.getTime() <= now.getTime()) {
       return { status: "expired" };
     }
-    if (session.tokenVersion !== presentedTokenVersion) {
-      // A refresh token whose `rtv` no longer matches was already rotated away —
-      // presenting it again means it leaked. Revoke on sight (01_SPEC_PRODUCT.md #70).
-      session.status = "REVOKED";
-      session.revokedAt = new Date();
-      session.revokedReason = "REUSE_DETECTED";
-      await session.save();
-      return { status: "reuse_detected" };
-    }
-
-    session.tokenVersion += 1;
-    session.lastUsedAt = new Date();
-    session.ip = context.ip ?? session.ip;
-    session.userAgent = context.userAgent ?? session.userAgent;
-    await session.save();
-    return { status: "success", session };
+    // A refresh token whose `rtv` no longer matches was already rotated away —
+    // presenting it again means it leaked. Revoke on sight (01_SPEC_PRODUCT.md #70).
+    await this.sessionModel.updateOne(
+      { _id: sessionId, status: "ACTIVE" },
+      { $set: { status: "REVOKED", revokedAt: now, revokedReason: "REUSE_DETECTED" } },
+    );
+    return { status: "reuse_detected" };
   }
 
   async findActiveById(sessionId: string): Promise<UserSessionDocument | null> {

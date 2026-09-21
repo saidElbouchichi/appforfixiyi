@@ -86,6 +86,18 @@ describe("ProblemDetailsFilter", () => {
     expect(sentBody(send).traceId).toBe("given-trace-id");
   });
 
+  it("replaces an x-trace-id that could forge log lines or flood them (audit 2026-09-21)", () => {
+    for (const hostile of ["abc\n[fake] admin logged in", "x".repeat(200), "id with spaces"]) {
+      const filter = new ProblemDetailsFilter();
+      const { host, send } = createHost({ "x-trace-id": hostile });
+
+      filter.catch(new BadRequestException("bad"), host);
+
+      expect(sentBody(send).traceId).not.toBe(hostile);
+      expect(sentBody(send).traceId).toMatch(/^[\w-]{1,64}$/);
+    }
+  });
+
   it("generates a traceId when none is provided", () => {
     const filter = new ProblemDetailsFilter();
     const { host, send } = createHost();

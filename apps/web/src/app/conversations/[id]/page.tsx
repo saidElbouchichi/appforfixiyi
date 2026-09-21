@@ -4,7 +4,7 @@ import type { Conversation, Message } from "@fixiyi/contracts";
 import { Badge, Button, EmptyState, ErrorState, Icon, IconButton, Input, Skeleton, TypingIndicator } from "@fixiyi/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { ApiError } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
@@ -66,6 +66,7 @@ function ConversationThread({ conversation, userId }: { conversation: Conversati
   const thread = useChatThread(conversation, userId);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [searching, setSearching] = useState(false);
+  const searchPanelId = useId();
   const counterpartName = conversation.counterpart.displayName;
 
   return (
@@ -83,12 +84,12 @@ function ConversationThread({ conversation, userId }: { conversation: Conversati
           <span className="fx-text-muted" data-testid="connection-status" aria-live="polite">
             {thread.connected ? "En ligne" : "Reconnexion…"}
           </span>
-          <IconButton label="Rechercher dans la conversation" icon="search" expanded={searching} onClick={() => { setSearching((open) => !open); }} />
+          <IconButton label="Rechercher dans la conversation" icon="search" expanded={searching} controls={searching ? searchPanelId : undefined} onClick={() => { setSearching((open) => !open); }} />
         </div>
       </header>
 
       <ContactBanner policy={conversation.contactPolicy} phone={conversation.counterpart.phone} />
-      {searching ? <SearchPanel conversationId={conversation.id} /> : null}
+      {searching ? <SearchPanel id={searchPanelId} conversationId={conversation.id} /> : null}
 
       <ol className="fx-chat-log" role="log" aria-live="polite" aria-label={`Conversation avec ${counterpartName}`} data-testid="chat-log" style={{ listStyle: "none", margin: 0 }}>
         {thread.hasOlder ? (
@@ -159,7 +160,7 @@ function ContactBanner({ policy, phone }: { policy: "PROTECTED" | "UNLOCKED"; ph
   );
 }
 
-function SearchPanel({ conversationId }: { conversationId: string }): React.JSX.Element {
+function SearchPanel({ id, conversationId }: { id: string; conversationId: string }): React.JSX.Element {
   const [query, setQuery] = useState("");
   const trimmed = query.trim();
   const results = useQuery({
@@ -169,7 +170,7 @@ function SearchPanel({ conversationId }: { conversationId: string }): React.JSX.
   });
 
   return (
-    <section aria-label="Recherche" className="fx-stack" style={{ paddingBlock: "var(--fixiyi-space-2)" }}>
+    <section id={id} aria-label="Recherche" className="fx-stack" style={{ paddingBlock: "var(--fixiyi-space-2)" }}>
       <Input label="Rechercher" type="search" value={query} onChange={setQuery} placeholder="chauffe-eau, devis…" testId="search-input" />
       {trimmed.length >= 2 && results.data ? (
         <ul className="fx-stack" style={{ listStyle: "none", margin: 0, padding: 0, gap: "var(--fixiyi-space-1)" }} data-testid="search-results">

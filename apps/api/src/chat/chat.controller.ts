@@ -21,7 +21,18 @@ import {
   type SendMessageInput,
   type SetReactionInput,
 } from "@fixiyi/contracts";
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import type { AuthenticatedUser } from "../auth/auth-request.types.js";
@@ -43,10 +54,39 @@ import { MessageService, type ConversationUploadSession } from "./message.servic
  */
 const MINUTE = 60;
 const SEND_LIMIT = { scope: "chat-send", limit: 30, windowSeconds: MINUTE, key: "user" } as const;
-const CHANGE_LIMIT = { scope: "chat-change", limit: 60, windowSeconds: MINUTE, key: "user" } as const;
+const CHANGE_LIMIT = {
+  scope: "chat-change",
+  limit: 60,
+  windowSeconds: MINUTE,
+  key: "user",
+} as const;
 const OPEN_LIMIT = { scope: "chat-open", limit: 20, windowSeconds: MINUTE, key: "user" } as const;
-const SEARCH_LIMIT = { scope: "chat-search", limit: 30, windowSeconds: MINUTE, key: "user" } as const;
-const UPLOAD_LIMIT = { scope: "chat-upload", limit: 20, windowSeconds: MINUTE, key: "user" } as const;
+const SEARCH_LIMIT = {
+  scope: "chat-search",
+  limit: 30,
+  windowSeconds: MINUTE,
+  key: "user",
+} as const;
+const UPLOAD_LIMIT = {
+  scope: "chat-upload",
+  limit: 20,
+  windowSeconds: MINUTE,
+  key: "user",
+} as const;
+/** Finalize reads the object back from storage to check its signature: the costliest write. */
+const FINALIZE_LIMIT = {
+  scope: "chat-finalize",
+  limit: 20,
+  windowSeconds: MINUTE,
+  key: "user",
+} as const;
+/** Receipts fire per incoming message (debounced client-side): generous, but bounded. */
+const RECEIPT_LIMIT = {
+  scope: "chat-receipt",
+  limit: 120,
+  windowSeconds: MINUTE,
+  key: "user",
+} as const;
 
 /**
  * Every write the chat accepts lives here, on HTTP — same guards, same Zod
@@ -132,7 +172,11 @@ export class ChatController {
   @Delete(":id/messages/:messageId")
   @UseGuards(CsrfGuard, RateLimitGuard)
   @RateLimit(CHANGE_LIMIT)
-  remove(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string, @Param("messageId") messageId: string): Promise<Message> {
+  remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Param("messageId") messageId: string,
+  ): Promise<Message> {
     return this.messages.remove(id, messageId, user.id);
   }
 
@@ -151,12 +195,17 @@ export class ChatController {
   @Delete(":id/messages/:messageId/reaction")
   @UseGuards(CsrfGuard, RateLimitGuard)
   @RateLimit(CHANGE_LIMIT)
-  unreact(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string, @Param("messageId") messageId: string): Promise<Message> {
+  unreact(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Param("messageId") messageId: string,
+  ): Promise<Message> {
     return this.messages.setReaction(id, messageId, user.id, null);
   }
 
   @Post(":id/receipts/delivered")
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(RECEIPT_LIMIT)
   delivered(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
@@ -166,7 +215,8 @@ export class ChatController {
   }
 
   @Post(":id/receipts/read")
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(RECEIPT_LIMIT)
   read(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
@@ -181,14 +231,20 @@ export class ChatController {
   createAttachment(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(CreateTargetMediaUploadSessionInputSchema)) body: CreateTargetMediaUploadSessionInput,
+    @Body(new ZodValidationPipe(CreateTargetMediaUploadSessionInputSchema))
+    body: CreateTargetMediaUploadSessionInput,
   ): Promise<ConversationUploadSession> {
     return this.messages.createAttachmentUploadSession(id, user.id, body);
   }
 
   @Post(":id/attachments/:mediaId/finalize")
-  @UseGuards(CsrfGuard)
-  finalizeAttachment(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string, @Param("mediaId") mediaId: string): Promise<Media> {
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(FINALIZE_LIMIT)
+  finalizeAttachment(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Param("mediaId") mediaId: string,
+  ): Promise<Media> {
     return this.messages.finalizeAttachment(id, user.id, mediaId);
   }
 }

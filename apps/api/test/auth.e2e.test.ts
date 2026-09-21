@@ -196,6 +196,17 @@ describe("Auth (e2e)", () => {
       expect(second.status).toBe(201);
     });
 
+    it("lets only ONE of several concurrent refreshes with the same token succeed", async () => {
+      // Audit finding (2026-09-21): rotation was read-modify-write, so parallel
+      // refreshes could each read version N and each receive a valid N+1 pair.
+      const { refreshToken } = await login(uniquePhone());
+
+      const responses = await Promise.all(Array.from({ length: 8 }, () => request(server).post("/api/v1/auth/refresh").send({ refreshToken })));
+      const statuses = responses.map((response) => response.status);
+      expect(statuses.filter((status) => status === 201)).toHaveLength(1);
+      expect(statuses.filter((status) => status !== 201).every((status) => status === 401)).toBe(true);
+    });
+
     it("detects reuse of a stale refresh token and revokes the whole session", async () => {
       const { refreshToken, accessToken } = await login(uniquePhone());
 

@@ -1,4 +1,5 @@
 import type { Env } from "@fixiyi/config";
+import { sign } from "jsonwebtoken";
 import { describe, expect, it } from "vitest";
 
 import { TokenService } from "./token.service.js";
@@ -49,6 +50,12 @@ describe("TokenService", () => {
     const remaining = service.remainingSeconds(token);
     expect(remaining).toBeGreaterThan(3595);
     expect(remaining).toBeLessThanOrEqual(3600);
+  });
+
+  it("accepts only the algorithm it signs with (HS256), even with the right secret (audit 2026-09-21)", () => {
+    const service = new TokenService(createEnv());
+    const other = sign({ sub: "user-1", sid: "session-1", roles: ["ADMIN"] }, "access-secret-long-enough", { algorithm: "HS512" });
+    expect(() => service.verifyAccessToken(other)).toThrow();
   });
 
   it("rejects an expired token", () => {

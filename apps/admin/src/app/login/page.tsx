@@ -1,6 +1,6 @@
 "use client";
 
-import { OtpRequestOutputSchema, UserSchema } from "@fixiyi/contracts";
+import { AuthSessionResultSchema, OtpRequestOutputSchema } from "@fixiyi/contracts";
 import { Badge, Button, Card, Icon, Input } from "@fixiyi/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -43,17 +43,17 @@ export default function LoginPage(): React.JSX.Element {
     setError(null);
     setLoading(true);
     try {
-      const result = await apiFetch<{ accessToken: string; refreshToken: string; user: unknown }>(
-        "/api/v1/auth/otp/verify",
-        {
+      // The whole session is checked against the contract, tokens included (audit 2026-09-21).
+      const result = AuthSessionResultSchema.parse(
+        await apiFetch("/api/v1/auth/otp/verify", {
           method: "POST",
           body: { phone, code },
-        },
+        }),
       );
       setSession({
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
-        user: UserSchema.parse(result.user),
+        user: result.user,
       });
       router.push("/catalog");
     } catch (err) {

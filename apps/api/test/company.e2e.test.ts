@@ -95,6 +95,21 @@ describe("Companies (e2e)", () => {
     expect(CompanySchema.parse(response.body).name).toBe("Public Read Co");
   });
 
+  it("shows the member roster only to an active member of the company", async () => {
+    // Audit finding (2026-09-21): any logged-in user could list any company's
+    // members, invited ones included — the company profile is public, its roster is not.
+    const owner = await loginAsUser();
+    const outsider = await loginAsUser();
+    const company = await createCompany(owner.accessToken, "Private Roster Co");
+
+    const denied = await request(server).get(`/api/v1/companies/${company.id}/members`).set(...bearer(outsider.accessToken));
+    expect(denied.status).toBe(403);
+    ProblemDetailsSchema.parse(denied.body);
+
+    const allowed = await request(server).get(`/api/v1/companies/${company.id}/members`).set(...bearer(owner.accessToken));
+    expect(allowed.status).toBe(200);
+  });
+
   it("rejects an invite from a non-owner", async () => {
     const owner = await loginAsUser();
     const company = await createCompany(owner.accessToken, "NoAuth Co");

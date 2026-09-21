@@ -30,7 +30,12 @@ export type VerificationDocumentType = z.infer<typeof VerificationDocumentTypeSc
 export const VerificationDocumentStatusSchema = z.enum(["PENDING_UPLOAD", "UPLOADED"]);
 export type VerificationDocumentStatus = z.infer<typeof VerificationDocumentStatusSchema>;
 
-export const VerificationDecisionOutcomeSchema = z.enum(["APPROVED", "REJECTED", "CORRECTION_REQUESTED", "SUSPENDED"]);
+export const VerificationDecisionOutcomeSchema = z.enum([
+  "APPROVED",
+  "REJECTED",
+  "CORRECTION_REQUESTED",
+  "SUSPENDED",
+]);
 export type VerificationDecisionOutcome = z.infer<typeof VerificationDecisionOutcomeSchema>;
 
 export const VerificationCaseSchema = z.object({
@@ -70,10 +75,22 @@ export const VerificationDecisionSchema = z.object({
 });
 export type VerificationDecision = z.infer<typeof VerificationDecisionSchema>;
 
+/** An identity document is a scan or a photo — nothing else is accepted (audit 2026-09-21, inspection B2). */
+export const VERIFICATION_DOCUMENT_CONTENT_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+
+/** Real ceiling, signed into the presigned URL: storage refuses any other size. */
+export const VERIFICATION_DOCUMENT_MAX_SIZE_BYTES = 10 * 1024 * 1024;
+
 export const RequestDocumentUploadInputSchema = z.object({
   type: VerificationDocumentTypeSchema,
   fileName: z.string().min(1).max(255),
-  contentType: z.string().min(1),
+  contentType: z.enum(VERIFICATION_DOCUMENT_CONTENT_TYPES),
+  sizeBytes: z.number().int().positive().max(VERIFICATION_DOCUMENT_MAX_SIZE_BYTES),
 });
 export type RequestDocumentUploadInput = z.infer<typeof RequestDocumentUploadInputSchema>;
 

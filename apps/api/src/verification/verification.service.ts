@@ -75,7 +75,9 @@ export class VerificationService {
     const objectKey = `verification/${kase._id}/${documentId}-${sanitizeFileName(input.fileName)}`;
     await this.documentModel.create({ _id: documentId, caseId: kase._id, type: input.type, status: "PENDING_UPLOAD", objectKey });
 
-    const presigned = await this.storage.createPresignedUploadUrl(objectKey, input.contentType);
+    // The declared size is signed into the URL (as for request media, Decision 52):
+    // storage refuses a body of any other length.
+    const presigned = await this.storage.createPresignedUploadUrl(objectKey, input.contentType, input.sizeBytes);
     return { documentId, uploadUrl: presigned.url, objectKey, expiresInSeconds: presigned.expiresInSeconds };
   }
 

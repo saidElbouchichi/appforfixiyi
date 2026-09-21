@@ -13,9 +13,18 @@ import type { AuthenticatedUser } from "../auth/auth-request.types.js";
 import { CsrfGuard } from "../auth/csrf/csrf.guard.js";
 import { AuthGuard } from "../auth/guards/auth.guard.js";
 import { CurrentUser } from "../auth/guards/current-user.decorator.js";
+import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
+import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { CompanyService } from "./company.service.js";
+
+const COMPANY_WRITE_LIMIT = {
+  scope: "company-write",
+  limit: 20,
+  windowSeconds: 60,
+  key: "user",
+} as const;
 
 @ApiTags("companies")
 @Controller("companies")
@@ -29,7 +38,8 @@ export class CompanyController {
   }
 
   @Post()
-  @UseGuards(AuthGuard, CsrfGuard)
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(COMPANY_WRITE_LIMIT)
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body(new ZodValidationPipe(CreateCompanyInputSchema)) body: CreateCompanyInput,
@@ -44,12 +54,16 @@ export class CompanyController {
 
   @Get(":id/members")
   @UseGuards(AuthGuard)
-  listMembers(@Param("id") id: string): Promise<CompanyMember[]> {
-    return this.companies.listMembers(id);
+  listMembers(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+  ): Promise<CompanyMember[]> {
+    return this.companies.listMembers(id, user.id);
   }
 
   @Post(":id/members")
-  @UseGuards(AuthGuard, CsrfGuard)
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(COMPANY_WRITE_LIMIT)
   invite(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
@@ -59,13 +73,18 @@ export class CompanyController {
   }
 
   @Post(":id/members/me/accept")
-  @UseGuards(AuthGuard, CsrfGuard)
-  acceptInvite(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string): Promise<CompanyMember> {
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(COMPANY_WRITE_LIMIT)
+  acceptInvite(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+  ): Promise<CompanyMember> {
     return this.companies.acceptInvite(id, user.id);
   }
 
   @Delete(":id/members/:memberId")
-  @UseGuards(AuthGuard, CsrfGuard)
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(COMPANY_WRITE_LIMIT)
   async removeMember(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,

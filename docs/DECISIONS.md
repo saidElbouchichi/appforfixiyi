@@ -1861,3 +1861,73 @@ Tous trouves par l'execution, pas par relecture :
   proche).
 - Detail : `docs/design/DECISIONS.md`, D3.
 - Date : 2026-09-21
+
+---
+
+## Decision 63 - Rate limit par utilisateur sur TOUTES les routes d'ecriture
+
+- Contexte : audit du 2026-09-21. La Decision 60 n'avait equipe que le
+  chat ; 30 routes d'ecriture sur 46 n'avaient aucun quota (demandes et
+  uploads, dispatch du matching, verification, entreprises, profil,
+  catalogue, configuration, compte, accuses et finalisation du chat).
+  C'etait la partie « rate limit » du finding B2 de l'inspection, jamais
+  corrigee hors chat.
+- Choix : un quota `key: "user"` par usage et par controleur (par minute :
+  ecriture de demande 30, upload 20, dispatch 10, candidature 60,
+  verification 20, entreprise 20, profil 30, catalogue admin 60,
+  configuration 20, compte 20, accuses du chat 120, finalisation 20). Les
+  trois routes non authentifiees (OTP, refresh) restent par IP ; `email`
+  (authentifiee) passe de l'IP a l'utilisateur (B4).
+- Garde-fou : `apps/api/src/common/rate-limit-coverage.test.ts` lit les
+  metadonnees de tous les controleurs et echoue si une route d'ecriture
+  n'a pas de quota, ou pas la bonne cle.
+- Date : 2026-09-21
+
+---
+
+## Decision 64 - Secrets de signature controles au demarrage en production
+
+- Contexte : audit du 2026-09-21. `JWT_SECRET`, `JWT_REFRESH_SECRET` et
+  `OTP_SECRET` n'etaient controles que sur 16 caracteres ; la valeur
+  publique de `.env.example` (42 caracteres) passait. Un deploiement qui
+  l'oublie permet de forger un jeton pour n'importe quel utilisateur ou
+  role.
+- Choix : en `NODE_ENV=production` seulement, refus des valeurs d'exemple
+  (`CHANGE_ME`, `not_for_production`), 32 caracteres minimum, et les trois
+  secrets distincts. Le developpement reste permissif : le fichier
+  d'exemple demarre toujours une pile locale.
+- Date : 2026-09-21
+
+---
+
+## Decision 65 - Ecran de depart selon le role
+
+- Contexte : audit du 2026-09-21. Apres connexion et sur `/`, tout
+  utilisateur arrivait sur le formulaire client : la boite fournisseur
+  (`/provider/requests`) n'etait joignable qu'en tapant son URL (route
+  orpheline, 03_AGENT_PROTOCOL §2).
+- Choix : `startRouteFor(user)` (`apps/web/src/lib/start-route.ts`) : un
+  fournisseur commence sur sa boite, les autres sur la creation de
+  demande ; utilise par l'accueil et la connexion.
+- Limite : un fournisseur qui veut aussi commander n'a pas encore de lien
+  vers le formulaire. La navigation par role (en-tete, barre basse) est la
+  phase 6 de la refonte.
+- Date : 2026-09-21
+
+---
+
+## Decision 66 - Jetons de `apps/web` dans `localStorage` : decision ouverte
+
+- Contexte : audit du 2026-09-21 (ecc:react-reviewer). La Decision 33
+  accepte des jetons persistes dans `localStorage` pour l'admin interne ;
+  la Decision 38 a repris le meme schema pour l'application publique sans
+  reexaminer ce compromis. Une faille XSS future permettrait de voler
+  une session (refresh de 30 jours).
+- Options : (a) garder, avec une politique CSP stricte ; (b) refresh en
+  cookie httpOnly (API et web sur le meme site, CORS avec `credentials`) ;
+  (c) jetons en memoire seulement (reconnexion a chaque rechargement).
+- Statut : **changement d'architecture d'authentification, soumis a
+  validation humaine** (05_DECISION_POLICY.md). Rien n'est change ; le
+  commentaire du code, qui parlait a tort de stockage en memoire, est
+  corrige.
+- Date : 2026-09-21

@@ -59,7 +59,15 @@ export class CompanyService {
     return companies.map(toCompany);
   }
 
-  async listMembers(companyId: string): Promise<CompanyMember[]> {
+  /**
+   * The profile is public (`getById`); the roster is not — user ids, roles and
+   * pending invites are for the company's own active members only.
+   */
+  async listMembers(companyId: string, actorUserId: string): Promise<CompanyMember[]> {
+    const membership = await this.memberModel.exists({ companyId, userId: actorUserId, status: "ACTIVE" });
+    if (!membership) {
+      throw new ForbiddenException("Only an active member of this company can see its members.");
+    }
     const members = await this.memberModel.find({ companyId });
     return members.map(toCompanyMember);
   }

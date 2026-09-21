@@ -11,7 +11,14 @@ const booleanFlag = (defaultValue: "true" | "false") =>
     .default(defaultValue)
     .transform((value) => value === "true");
 
-export const EnvSchema = z.object({
+const SIGNING_SECRETS = ["JWT_SECRET", "JWT_REFRESH_SECRET", "OTP_SECRET"] as const;
+
+/** Markers of the public example values shipped in `.env.example` / `.env.test.example`. */
+const PUBLIC_SECRET_MARKERS = ["CHANGE_ME", "not_for_production"];
+
+const PRODUCTION_SECRET_MIN_LENGTH = 32;
+
+const BaseEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_NAME: z.string().min(1).default("Fixiyi"),
   APP_URL: z.url(),
@@ -63,6 +70,41 @@ export const EnvSchema = z.object({
 
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("debug"),
   OTEL_ENABLED: booleanFlag("false"),
+});
+
+/**
+ * In production, a signing secret must be private and strong: anyone who
+ * knows the value committed in `.env.example` could forge access tokens for
+ * any user or role (audit 2026-09-21). Development stays permissive, so the
+ * example file still boots a local stack.
+ */
+export const EnvSchema = BaseEnvSchema.superRefine((env, context) => {
+  if (env.NODE_ENV !== "production") {
+    return;
+  }
+  for (const name of SIGNING_SECRETS) {
+    const value = env[name];
+    if (PUBLIC_SECRET_MARKERS.some((marker) => value.includes(marker))) {
+      context.addIssue({
+        code: "custom",
+        path: [name],
+        message: `${name} is a public example value; generate one with \`openssl rand -hex 32\``,
+      });
+    } else if (value.length < PRODUCTION_SECRET_MIN_LENGTH) {
+      context.addIssue({
+        code: "custom",
+        path: [name],
+        message: `${name} must be at least ${PRODUCTION_SECRET_MIN_LENGTH.toString()} characters in production`,
+      });
+    }
+  }
+  if (new Set(SIGNING_SECRETS.map((name) => env[name])).size !== SIGNING_SECRETS.length) {
+    context.addIssue({
+      code: "custom",
+      path: ["JWT_REFRESH_SECRET"],
+      message: "JWT_SECRET, JWT_REFRESH_SECRET and OTP_SECRET must be distinct in production",
+    });
+  }
 });
 
 export type Env = z.infer<typeof EnvSchema>;

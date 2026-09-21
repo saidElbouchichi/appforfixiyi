@@ -1,4 +1,8 @@
-import { UpdateSystemConfigurationInputSchema, type SystemConfiguration, type UpdateSystemConfigurationInput } from "@fixiyi/contracts";
+import {
+  UpdateSystemConfigurationInputSchema,
+  type SystemConfiguration,
+  type UpdateSystemConfigurationInput,
+} from "@fixiyi/contracts";
 import { Body, Controller, Get, Patch, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
@@ -8,9 +12,18 @@ import { AuthGuard } from "../auth/guards/auth.guard.js";
 import { CurrentUser } from "../auth/guards/current-user.decorator.js";
 import { Roles } from "../auth/guards/roles.decorator.js";
 import { RolesGuard } from "../auth/guards/roles.guard.js";
+import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
+import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { ConfigurationService } from "./configuration.service.js";
+
+const CONFIGURATION_WRITE_LIMIT = {
+  scope: "configuration-write",
+  limit: 20,
+  windowSeconds: 60,
+  key: "user",
+} as const;
 
 /**
  * Administrable, not public: these weights and thresholds describe how the
@@ -32,10 +45,12 @@ export class ConfigurationController {
   }
 
   @Patch()
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(CONFIGURATION_WRITE_LIMIT)
   update(
     @CurrentUser() user: AuthenticatedUser,
-    @Body(new ZodValidationPipe(UpdateSystemConfigurationInputSchema)) body: UpdateSystemConfigurationInput,
+    @Body(new ZodValidationPipe(UpdateSystemConfigurationInputSchema))
+    body: UpdateSystemConfigurationInput,
   ): Promise<SystemConfiguration> {
     return this.configuration.update(body, user.id);
   }

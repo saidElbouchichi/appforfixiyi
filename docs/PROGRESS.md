@@ -2,11 +2,14 @@
 
 ## Derniere mise a jour
 
-2026-09-21 - Phase 6 (Chat) TERMINEE.
+2026-09-21 - Audit complet des phases livrees TERMINE (produit 0-6,
+refonte design 1-5) : `docs/AUDIT_PHASES_0_5.md`.
 
 ## Phase actuelle
 
-Phase 6 - Chat - **TERMINEE**. STOP, en attente de "GO PHASE 7".
+Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
+refonte design). Refonte Design System V2 : phases 1 a 5 **TERMINEES**, audit
+fait ; STOP, en attente de "GO PHASE 6" (phase 6 de la refonte : navigation).
 
 ## Phases terminees
 
@@ -208,25 +211,52 @@ la refonte.**
   29 Playwright.
 - Prochaine : Phase 6 (navigation : destinations reelles, par role).
 
+## Audit complet des phases livrees (2026-09-21)
+
+Journal detaille : `docs/AUDIT_PHASES_0_5.md`. Agents ECC utilises :
+`ecc:code-reviewer`, `ecc:security-reviewer`, `ecc:react-reviewer` ; chaque
+constat reverifie dans le code, chaque correction prouvee par un test ecrit
+d'abord ou une mutation.
+
+- **12 corrections**, dont 4 HIGH : liste des membres d'une entreprise
+  ouverte a tous ; rotation du refresh non atomique (7 refresh concurrents
+  sur 8 reussissaient) ; **30 routes d'ecriture sur 46 sans rate limit**
+  (Decision 63, garde-fou par test de couverture) ; upload de piece
+  d'identite sans limite de taille ni de type (taille signee dans l'URL).
+- 3 MEDIUM : secrets d'exemple acceptes en production (Decision 64) ;
+  **route orpheline** — la boite fournisseur n'etait accessible qu'en
+  tapant l'URL (Decision 65) ; `aria-controls` manquant sur les boutons qui
+  ouvrent une zone.
+- 5 LOW : validation complete de la session a la connexion, `x-trace-id`
+  assaini, JWT epingle en HS256, commentaire faux sur le stockage des
+  jetons, README et PROGRESS obsoletes.
+- Gates : **avant** 15/15, 15/15, 13/13 (692 tests), 10/10 — **apres**
+  15/15, 15/15, 13/13 (**709 tests**), 10/10, 0 erreur, 0 avertissement.
+- Playwright : **avant 29/29, apres 33/33** (nouveau
+  `navigation.spec.ts` : parcours par l'interface, liens internes suivis).
+- 7 services Docker reconstruits, sains ; `/health` et `/api/docs` : 200.
+- Decision ouverte : jetons de `apps/web` dans `localStorage` (Decision 66).
+
 ## Derniere action effectuee
 
-Phase 6 complete : plan, contrats, detecteur, module chat, temps reel,
-primitives de design system, ecran de chat, 3 suites e2e API + 1 scenario
-Playwright, gates sans cache, verification en base, Decisions 53 a 61,
-`docs/phases/PHASE_6_REPORT.md`, mise a jour de ce fichier, de
-`CURRENT_STATE.md` et de `IMPLEMENTATION_PLAN.md`.
+Audit complet des phases livrees : 12 corrections, Decisions 63 a 66,
+`docs/AUDIT_PHASES_0_5.md`, README et ce fichier mis a jour, gates et
+Playwright 100 % verts.
 
 ## Prochaine action exacte
 
-**Aucune** — la Phase 6 est terminee. STOP, attendre `GO PHASE 7` de
-l'utilisateur (Phase 7 = Offers : offres, contre-offres, negociation,
-acceptation, price lock). La Phase 7 devra appeler
+**Aucune** — STOP, attendre `GO PHASE 6` (phase 6 de la refonte design :
+navigation par role, destinations reelles uniquement). Apres la refonte
+seulement, `GO PHASE 7` (Offers), qui devra appeler
 `ConversationService.unlockContact` a l'acceptation d'une offre.
 
 ## Blocages
 
-Aucun blocage technique. Une decision attend l'utilisateur (Decision 59),
-sans bloquer la Phase 7.
+Aucun blocage technique. Decisions attendues de l'utilisateur, sans
+bloquer la phase 6 de la refonte : stockage des jetons de `apps/web`
+(Decision 66), conservation des messages supprimes (Decision 59), couleur
+de Domotique, URL des comptes sociaux, vue publique de `GET /providers/:id`,
+logo.
 
 ## Validation humaine requise
 
@@ -240,6 +270,8 @@ sans bloquer la Phase 7.
 - [ ] pour demarrer Phase 7 (en attente — Phase 6 terminee, "GO PHASE 7"
   pas encore recu)
 - [ ] conservation des messages supprimes (Decision 59 — choix juridique)
+- [ ] stockage des jetons de `apps/web` (Decision 66 — architecture d'auth)
+- [ ] phase 6 de la refonte design ("GO PHASE 6" pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
 

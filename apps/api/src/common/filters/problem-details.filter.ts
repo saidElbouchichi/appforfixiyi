@@ -23,12 +23,16 @@ export class ProblemDetailsFilter implements ExceptionFilter {
     const reply = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest<FastifyRequest>();
 
-    const status: number = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status: number =
+      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const { title, code } = describe(exception);
     const traceId = extractTraceId(request);
 
     if (status >= SERVER_ERROR_THRESHOLD) {
-      this.logger.error(`[${traceId}] ${title}`, exception instanceof Error ? exception.stack : undefined);
+      this.logger.error(
+        `[${traceId}] ${title}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
     }
 
     const problem: ProblemDetails = {
@@ -48,7 +52,8 @@ function describe(exception: unknown): { title: string; code: string } {
   }
   if (exception instanceof HttpException) {
     const response = exception.getResponse();
-    const title = typeof response === "string" ? response : (extractMessage(response) ?? exception.message);
+    const title =
+      typeof response === "string" ? response : (extractMessage(response) ?? exception.message);
     return { title, code: HttpStatus[exception.getStatus()] ?? "HTTP_ERROR" };
   }
   // Never surface the raw internal error message to the client.
@@ -64,8 +69,15 @@ function extractMessage(response: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * An incoming trace id is reused only if it looks like one: it is written to
+ * the logs, and a client-chosen value with a line break or 10 kB of text
+ * could forge or flood log lines (audit 2026-09-21).
+ */
+const SAFE_TRACE_ID = /^[\w-]{1,64}$/;
+
 function extractTraceId(request: FastifyRequest): string {
   const header = request.headers[TRACE_ID_HEADER];
   const value = Array.isArray(header) ? header[0] : header;
-  return value && value.length > 0 ? value : generateId();
+  return value !== undefined && SAFE_TRACE_ID.test(value) ? value : generateId();
 }

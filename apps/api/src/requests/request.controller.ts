@@ -14,9 +14,25 @@ import type { AuthenticatedUser } from "../auth/auth-request.types.js";
 import { CsrfGuard } from "../auth/csrf/csrf.guard.js";
 import { AuthGuard } from "../auth/guards/auth.guard.js";
 import { CurrentUser } from "../auth/guards/current-user.decorator.js";
+import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
+import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { RequestService } from "./request.service.js";
+
+/** Inspection finding B2 (2026-09-21), fixed in the audit: request routes had no rate limit. */
+const REQUEST_WRITE_LIMIT = {
+  scope: "request-write",
+  limit: 30,
+  windowSeconds: 60,
+  key: "user",
+} as const;
+const REQUEST_UPLOAD_LIMIT = {
+  scope: "request-upload",
+  limit: 20,
+  windowSeconds: 60,
+  key: "user",
+} as const;
 
 /**
  * Media upload/finalize routes live here (not on a standalone media
@@ -32,7 +48,8 @@ export class RequestController {
   constructor(private readonly requests: RequestService) {}
 
   @Post()
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(REQUEST_WRITE_LIMIT)
   create(@CurrentUser() user: AuthenticatedUser): Promise<ServiceRequest> {
     return this.requests.create(user.id);
   }
@@ -43,12 +60,16 @@ export class RequestController {
   }
 
   @Get(":id")
-  getById(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string): Promise<ServiceRequest> {
+  getById(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+  ): Promise<ServiceRequest> {
     return this.requests.getById(id, user.id);
   }
 
   @Patch(":id")
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(REQUEST_WRITE_LIMIT)
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
@@ -58,11 +79,13 @@ export class RequestController {
   }
 
   @Post(":id/media")
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(REQUEST_UPLOAD_LIMIT)
   createMediaUploadSession(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(CreateTargetMediaUploadSessionInputSchema)) body: CreateTargetMediaUploadSessionInput,
+    @Body(new ZodValidationPipe(CreateTargetMediaUploadSessionInputSchema))
+    body: CreateTargetMediaUploadSessionInput,
   ): Promise<CreateUploadSessionOutput> {
     return this.requests.createMediaUploadSession(id, user.id, body);
   }
@@ -73,19 +96,26 @@ export class RequestController {
   }
 
   @Post(":id/media/:mediaId/finalize")
-  @UseGuards(CsrfGuard)
-  finalizeMedia(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string, @Param("mediaId") mediaId: string): Promise<Media> {
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(REQUEST_UPLOAD_LIMIT)
+  finalizeMedia(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Param("mediaId") mediaId: string,
+  ): Promise<Media> {
     return this.requests.finalizeMedia(id, user.id, mediaId);
   }
 
   @Post(":id/submit")
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(REQUEST_WRITE_LIMIT)
   submit(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string): Promise<ServiceRequest> {
     return this.requests.submit(id, user.id);
   }
 
   @Post(":id/cancel")
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, RateLimitGuard)
+  @RateLimit(REQUEST_WRITE_LIMIT)
   cancel(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string): Promise<ServiceRequest> {
     return this.requests.cancel(id, user.id);
   }

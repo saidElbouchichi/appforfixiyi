@@ -7,18 +7,46 @@ import {
   type CreateCatalogNodeInput,
   type UpdateCatalogNodeInput,
 } from "@fixiyi/contracts";
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import { CsrfGuard } from "../auth/csrf/csrf.guard.js";
 import { AuthGuard } from "../auth/guards/auth.guard.js";
 import { Roles } from "../auth/guards/roles.decorator.js";
 import { RolesGuard } from "../auth/guards/roles.guard.js";
+import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
+import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { CatalogService } from "./catalog.service.js";
 
-const CATALOG_LEVELS = ["DOMAIN", "CATEGORY", "SERVICE", "INTERVENTION_TYPE", "COMPLEXITY", "SKILL"];
+const CATALOG_LEVELS = [
+  "DOMAIN",
+  "CATEGORY",
+  "SERVICE",
+  "INTERVENTION_TYPE",
+  "COMPLEXITY",
+  "SKILL",
+];
+
+/** Back-office catalogue edits: generous for an operator, bounded for a stolen token. */
+const CATALOG_WRITE_LIMIT = {
+  scope: "catalog-write",
+  limit: 60,
+  windowSeconds: 60,
+  key: "user",
+} as const;
 
 @ApiTags("catalog")
 @Controller("catalog")
@@ -48,14 +76,18 @@ export class CatalogController {
   }
 
   @Post("nodes")
-  @UseGuards(AuthGuard, RolesGuard, CsrfGuard)
+  @UseGuards(AuthGuard, RolesGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(CATALOG_WRITE_LIMIT)
   @Roles("ADMIN", "MANAGER")
-  create(@Body(new ZodValidationPipe(CreateCatalogNodeInputSchema)) body: CreateCatalogNodeInput): Promise<CatalogNode> {
+  create(
+    @Body(new ZodValidationPipe(CreateCatalogNodeInputSchema)) body: CreateCatalogNodeInput,
+  ): Promise<CatalogNode> {
     return this.catalog.create(body);
   }
 
   @Patch("nodes/:id")
-  @UseGuards(AuthGuard, RolesGuard, CsrfGuard)
+  @UseGuards(AuthGuard, RolesGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(CATALOG_WRITE_LIMIT)
   @Roles("ADMIN", "MANAGER")
   update(
     @Param("id") id: string,
@@ -65,7 +97,8 @@ export class CatalogController {
   }
 
   @Delete("nodes/:id")
-  @UseGuards(AuthGuard, RolesGuard, CsrfGuard)
+  @UseGuards(AuthGuard, RolesGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(CATALOG_WRITE_LIMIT)
   @Roles("ADMIN", "MANAGER")
   async deactivate(@Param("id") id: string): Promise<{ success: true }> {
     await this.catalog.deactivate(id);

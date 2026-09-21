@@ -20,6 +20,11 @@ export interface IconButtonProps {
   pressed?: boolean;
   /** For a button that opens something (a menu, a picker). */
   expanded?: boolean;
+  /**
+   * Id of the region it shows or hides (WAI-ARIA disclosure). Pass it only
+   * while that region is rendered: a reference to a missing id is invalid.
+   */
+  controls?: string | undefined;
   /** Id of an element that describes the button further (a Tooltip). */
   describedBy?: string | undefined;
   className?: string;
@@ -27,7 +32,19 @@ export interface IconButtonProps {
 }
 
 /** 44px target whatever the glyph size (WCAG 2.2 AA 2.5.8), always `type="button"`. */
-export function IconButton({ label, icon, children, onClick, disabled = false, pressed, expanded, describedBy, className, testId }: IconButtonProps): JSX.Element {
+export function IconButton({
+  label,
+  icon,
+  children,
+  onClick,
+  disabled = false,
+  pressed,
+  expanded,
+  controls,
+  describedBy,
+  className,
+  testId,
+}: IconButtonProps): JSX.Element {
   return (
     <button
       type="button"
@@ -36,6 +53,7 @@ export function IconButton({ label, icon, children, onClick, disabled = false, p
       title={label}
       aria-pressed={pressed}
       aria-expanded={expanded}
+      aria-controls={controls}
       aria-describedby={describedBy}
       disabled={disabled}
       onClick={onClick}

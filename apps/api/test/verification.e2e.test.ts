@@ -133,10 +133,24 @@ describe("Verification (e2e)", () => {
     expect(tooEarly.status).toBe(400);
     expect(ProblemDetailsSchema.parse(tooEarly.body).code).toBe("VERIFICATION_NO_DOCUMENTS");
 
+    const pdfBytes = Buffer.from("%PDF-1.4 fake-but-real-bytes");
+
+    // Audit 2026-09-21 (inspection B2): an identity document is bounded in size and type.
+    const oversized = await request(server)
+      .post(`/api/v1/verification/cases/${kase.id}/documents`)
+      .set(...bearer(provider.token))
+      .send({ type: "IDENTITY", fileName: "cin.pdf", contentType: "application/pdf", sizeBytes: 50 * 1024 * 1024 });
+    expect(oversized.status).toBe(400);
+    const wrongType = await request(server)
+      .post(`/api/v1/verification/cases/${kase.id}/documents`)
+      .set(...bearer(provider.token))
+      .send({ type: "IDENTITY", fileName: "cin.exe", contentType: "application/x-msdownload", sizeBytes: pdfBytes.length });
+    expect(wrongType.status).toBe(400);
+
     const uploadRequest = await request(server)
       .post(`/api/v1/verification/cases/${kase.id}/documents`)
       .set(...bearer(provider.token))
-      .send({ type: "IDENTITY", fileName: "cin.pdf", contentType: "application/pdf" });
+      .send({ type: "IDENTITY", fileName: "cin.pdf", contentType: "application/pdf", sizeBytes: pdfBytes.length });
     expect(uploadRequest.status).toBe(201);
     const upload = RequestDocumentUploadOutputSchema.parse(uploadRequest.body);
 
@@ -147,11 +161,19 @@ describe("Verification (e2e)", () => {
     expect(tooSoon.status).toBe(400);
     expect(ProblemDetailsSchema.parse(tooSoon.body).code).toBe("VERIFICATION_DOCUMENT_NOT_UPLOADED");
 
+    // The declared size is signed into the URL: storage refuses a bigger body.
+    const tooBig = await fetch(upload.uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/pdf" },
+      body: Buffer.concat([pdfBytes, Buffer.alloc(1024)]),
+    });
+    expect(tooBig.ok).toBe(false);
+
     // Real HTTP PUT to the presigned URL MinIO issued — genuine upload, not mocked.
     const putResponse = await fetch(upload.uploadUrl, {
       method: "PUT",
       headers: { "Content-Type": "application/pdf" },
-      body: Buffer.from("%PDF-1.4 fake-but-real-bytes"),
+      body: pdfBytes,
     });
     expect(putResponse.status).toBe(200);
 

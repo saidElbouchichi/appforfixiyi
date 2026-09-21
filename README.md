@@ -4,7 +4,10 @@ Marketplace de services et interventions a domicile.
 
 ## Statut
 
-En construction - Phase 2 (Auth) terminee
+En construction - phases produit 0 a 6 livrees (fondation, auth, marketplace,
+demandes, matching, chat) ; refonte Design System V2 en cours (phases 1 a 5
+sur 14 livrees). Audit complet du 2026-09-21 : `docs/AUDIT_PHASES_0_5.md`.
+Detail : `docs/PROGRESS.md`.
 
 ## Stack
 
@@ -16,7 +19,7 @@ En construction - Phase 2 (Auth) terminee
   Tailwind CSS v4 (config CSS-first, `@theme`) + TanStack Query + Zustand
   + React Hook Form
 - Mobile : Expo + React Native (prevu Phase 13, pas encore scaffolde)
-- Realtime : Socket.IO (prevu, pas encore implemente)
+- Realtime : Socket.IO (chat : HTTP ecrit, la socket notifie ; adaptateur Redis)
 - Storage : S3-compatible (MinIO en dev)
 - Validation : Zod
 - API Docs : OpenAPI (Swagger UI sur `apps/api`)
@@ -88,6 +91,24 @@ completent l'infrastructure existante (`docker-compose.yml`) via
     docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
     curl http://localhost:4000/health
 
+## Tests navigateur (Playwright)
+
+Contre la pile Docker demarree (voir plus haut) :
+
+    cd tests/browser
+    npx playwright test
+
+Parcours reels (connexion OTP, demande avec upload, matching, chat,
+rafraichissement de session, navigation) et banc d'essai des composants de
+`@fixiyi/ui` rendus avec les vraies feuilles de style.
+
+## Production
+
+En `NODE_ENV=production`, l'API refuse de demarrer si `JWT_SECRET`,
+`JWT_REFRESH_SECRET` ou `OTP_SECRET` reprend une valeur d'exemple, fait
+moins de 32 caracteres, ou si deux d'entre eux sont egaux (Decision 64).
+Generer chacun avec `openssl rand -hex 32`.
+
 ## Auth (Phase 2)
 
 `apps/api` expose desormais un module `auth` complet sous `/api/v1/auth` :
@@ -110,11 +131,13 @@ envoye par un vrai SMS.
     |   |-- web/            Next.js (site public)
     |   `-- admin/          Next.js (back-office)
     |-- packages/           Packages partages (tsconfig, eslint-config,
-    |                       shared-utils, contracts, config, design-tokens, i18n)
+    |                       shared-utils, contracts, config, design-tokens,
+    |                       ui = design system @fixiyi/ui, i18n)
     |-- infrastructure/     IaC, monitoring (prevu, pas encore implemente)
     |-- docs/               Documentation (PROGRESS, DECISIONS, phases)
     |-- scripts/            Scripts utilitaires
-    `-- tests/              Tests E2E globaux (prevu, pas encore implemente)
+    `-- tests/browser/      Tests navigateur Playwright (parcours reels contre la
+                            pile Docker + banc d'essai du design system)
 
 ## Services de developpement
 

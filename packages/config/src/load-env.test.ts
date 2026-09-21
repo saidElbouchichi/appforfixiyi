@@ -45,6 +45,40 @@ describe("loadEnv", () => {
     expect(() => loadEnv({ ...validEnv, OTP_SECRET: "short" })).toThrow(InvalidEnvironmentError);
   });
 
+  describe("production secrets (audit 2026-09-21)", () => {
+    const strong = {
+      JWT_SECRET: "9f3c1a7e5b2d8f4a6c0e1b3d5f7a9c2e4b6d8f0a1c3e5b7d9f2a4c6e8b0d2f4a",
+      JWT_REFRESH_SECRET: "1b3d5f7a9c2e4b6d8f0a1c3e5b7d9f2a4c6e8b0d2f4a9f3c1a7e5b2d8f4a6c0e",
+      OTP_SECRET: "a6c0e1b3d5f7a9c2e4b6d8f0a1c3e5b7d9f2a4c6e8b0d2f4a9f3c1a7e5b2d8f4",
+    };
+    const production = { ...validEnv, ...strong, NODE_ENV: "production" };
+
+    it("accepts strong, distinct secrets", () => {
+      expect(loadEnv(production).NODE_ENV).toBe("production");
+    });
+
+    it("refuses the public placeholder of .env.example in production", () => {
+      expect(() => loadEnv({ ...production, JWT_SECRET: "CHANGE_ME_GENERATE_WITH_openssl_rand_hex_32" })).toThrow(/JWT_SECRET/);
+    });
+
+    it("refuses the test secrets of .env.test.example in production", () => {
+      expect(() => loadEnv({ ...production, OTP_SECRET: "test_otp_secret_not_for_production_do_not_use" })).toThrow(/OTP_SECRET/);
+    });
+
+    it("refuses a secret shorter than 32 characters in production", () => {
+      expect(() => loadEnv({ ...production, JWT_REFRESH_SECRET: "sixteen-chars-ok-in-dev" })).toThrow(/JWT_REFRESH_SECRET/);
+    });
+
+    it("refuses the same value for two secrets in production", () => {
+      expect(() => loadEnv({ ...production, JWT_REFRESH_SECRET: strong.JWT_SECRET })).toThrow(/distinct/);
+    });
+
+    it("keeps development permissive: placeholders still boot locally", () => {
+      const placeholder = "CHANGE_ME_GENERATE_WITH_openssl_rand_hex_32";
+      expect(loadEnv({ ...validEnv, JWT_SECRET: placeholder, JWT_REFRESH_SECRET: placeholder, OTP_SECRET: placeholder }).NODE_ENV).toBe("development");
+    });
+  });
+
   it("coerces MIN_PROVIDER_AGE to a number", () => {
     const env = loadEnv({ ...validEnv, MIN_PROVIDER_AGE: "21" });
     expect(env.MIN_PROVIDER_AGE).toBe(21);

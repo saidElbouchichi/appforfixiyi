@@ -5,6 +5,9 @@ import { decode, sign, verify, type SignOptions } from "jsonwebtoken";
 
 import { ENV } from "../../infrastructure/env.token.js";
 
+/** HMAC with the env secrets; pinned on verify too (audit 2026-09-21, defence in depth). */
+const JWT_ALGORITHM = "HS256" as const;
+
 export interface AccessTokenClaims {
   sub: string;
   sid: string;
@@ -52,20 +55,30 @@ export class TokenService {
 
   /** Seconds remaining until `token` expires — used to size a cookie's `Max-Age` to match the token exactly. */
   remainingSeconds(token: string): number {
-    const expiresAtSeconds = this.decodeExpiry(token, "Cannot determine the expiry of a malformed token");
+    const expiresAtSeconds = this.decodeExpiry(
+      token,
+      "Cannot determine the expiry of a malformed token",
+    );
     return expiresAtSeconds - Math.floor(Date.now() / 1000);
   }
 
   private sign(claims: object, secret: string, ttl: string): SignedToken {
     // `ttl` is a validated-at-boot config string (e.g. "15m"), not the narrow
     // template-literal type `jsonwebtoken` infers for literals — safe to widen here.
-    const token = sign(claims, secret, { expiresIn: ttl as NonNullable<SignOptions["expiresIn"]> });
-    const expiresAtSeconds = this.decodeExpiry(token, "Failed to decode the expiry of a token that was just signed");
+    const token = sign(claims, secret, {
+      algorithm: JWT_ALGORITHM,
+      expiresIn: ttl as NonNullable<SignOptions["expiresIn"]>,
+    });
+    const expiresAtSeconds = this.decodeExpiry(
+      token,
+      "Failed to decode the expiry of a token that was just signed",
+    );
     return { token, expiresAtSeconds };
   }
 
+  /** Pinned to the signing algorithm: a token claiming any other one is refused, whatever its secret. */
   private verify(token: string, secret: string): unknown {
-    return verify(token, secret);
+    return verify(token, secret, { algorithms: [JWT_ALGORITHM] });
   }
 
   private decodeExpiry(token: string, errorMessage: string): number {

@@ -2,7 +2,7 @@
 
 import { ALLOWED_REACTIONS, type Message, type ReactionEmoji } from "@fixiyi/contracts";
 import { Button, IconButton, Input, MessageBubble, Modal, ReplyQuote, type ReactionSummary } from "@fixiyi/ui";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { ApiError } from "../../../lib/api-client";
 
@@ -44,6 +44,7 @@ export function MessageItem({ message, myUserId, counterpartName, canAct, onRepl
   const [editing, setEditing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [picking, setPicking] = useState(false);
+  const pickerId = useId();
   const [draft, setDraft] = useState(message.body ?? "");
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -62,7 +63,7 @@ export function MessageItem({ message, myUserId, counterpartName, canAct, onRepl
     deleted || !canAct ? null : (
       <>
         <IconButton label="Repondre" icon="reply" onClick={() => { onReply(message); }} testId="reply-button" />
-        <IconButton label="Reagir" expanded={picking} onClick={() => { setPicking((open) => !open); }} testId="react-button">
+        <IconButton label="Reagir" expanded={picking} controls={picking ? pickerId : undefined} onClick={() => { setPicking((open) => !open); }} testId="react-button">
           {myReaction ?? "🙂"}
         </IconButton>
         {own && stillBefore(message.editableUntil) ? (
@@ -108,7 +109,7 @@ export function MessageItem({ message, myUserId, counterpartName, canAct, onRepl
       />
 
       {picking ? (
-        <div className="fx-row" role="group" aria-label="Choisir une reaction">
+        <div id={pickerId} className="fx-row" role="group" aria-label="Choisir une reaction">
           {ALLOWED_REACTIONS.map((emoji) => (
             <IconButton
               key={emoji}

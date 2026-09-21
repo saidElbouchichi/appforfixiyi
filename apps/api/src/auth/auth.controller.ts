@@ -16,7 +16,20 @@ import {
   type UpdateMeInput,
   type User as UserDto,
 } from "@fixiyi/contracts";
-import { Body, Controller, Delete, Get, HttpStatus, Inject, Param, Patch, Post, Req, Res, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
@@ -24,7 +37,12 @@ import { DomainHttpException } from "../common/exceptions/domain-http.exception.
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 import { ENV } from "../infrastructure/env.token.js";
 
-import { clearAuthCookies, extractRequestContext, readRefreshTokenCookie, setAuthCookies } from "./auth-cookies.util.js";
+import {
+  clearAuthCookies,
+  extractRequestContext,
+  readRefreshTokenCookie,
+  setAuthCookies,
+} from "./auth-cookies.util.js";
 import type { AuthenticatedUser } from "./auth-request.types.js";
 import { OTP_MAX_REQUESTS_PER_IP_PER_HOUR } from "./auth.constants.js";
 import { AuthService, type AuthSessionResult, type AuthTokensResult } from "./auth.service.js";
@@ -35,6 +53,14 @@ import { CurrentUser } from "./guards/current-user.decorator.js";
 import { RateLimit } from "./rate-limit/rate-limit.decorator.js";
 import { RateLimitGuard } from "./rate-limit/rate-limit.guard.js";
 import { TokenService } from "./token/token.service.js";
+
+/** Account changes of a signed-in user (audit 2026-09-21: were unlimited). */
+const ACCOUNT_LIMIT = {
+  scope: "account-write",
+  limit: 20,
+  windowSeconds: 60,
+  key: "user",
+} as const;
 
 @ApiTags("auth")
 @Controller("auth")
@@ -49,7 +75,9 @@ export class AuthController {
   @Post("otp/request")
   @UseGuards(RateLimitGuard)
   @RateLimit({ scope: "otp-request", limit: OTP_MAX_REQUESTS_PER_IP_PER_HOUR, windowSeconds: 3600 })
-  requestOtp(@Body(new ZodValidationPipe(OtpRequestInputSchema)) body: OtpRequestInput): Promise<OtpRequestOutput> {
+  requestOtp(
+    @Body(new ZodValidationPipe(OtpRequestInputSchema)) body: OtpRequestInput,
+  ): Promise<OtpRequestOutput> {
     return this.auth.requestPhoneOtp(body.phone);
   }
 
@@ -76,7 +104,11 @@ export class AuthController {
   ): Promise<AuthTokensResult> {
     const token = body.refreshToken ?? readRefreshTokenCookie(request);
     if (!token) {
-      throw new DomainHttpException(HttpStatus.UNAUTHORIZED, "REFRESH_TOKEN_MISSING", "No refresh token provided.");
+      throw new DomainHttpException(
+        HttpStatus.UNAUTHORIZED,
+        "REFRESH_TOKEN_MISSING",
+        "No refresh token provided.",
+      );
     }
     const result = await this.auth.refresh(token, extractRequestContext(request));
     setAuthCookies(reply, this.env, this.tokens, result, this.csrf.generateToken());
@@ -84,16 +116,24 @@ export class AuthController {
   }
 
   @Post("logout")
-  @UseGuards(AuthGuard, CsrfGuard)
-  async logout(@CurrentUser() user: AuthenticatedUser, @Res({ passthrough: true }) reply: FastifyReply): Promise<{ success: true }> {
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(ACCOUNT_LIMIT)
+  async logout(
+    @CurrentUser() user: AuthenticatedUser,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<{ success: true }> {
     await this.auth.logout(user.sessionId);
     clearAuthCookies(reply, this.env);
     return { success: true };
   }
 
   @Post("logout-all")
-  @UseGuards(AuthGuard, CsrfGuard)
-  async logoutAll(@CurrentUser() user: AuthenticatedUser, @Res({ passthrough: true }) reply: FastifyReply): Promise<{ success: true }> {
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(ACCOUNT_LIMIT)
+  async logoutAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<{ success: true }> {
     await this.auth.logoutAll(user.id);
     clearAuthCookies(reply, this.env);
     return { success: true };
@@ -106,8 +146,12 @@ export class AuthController {
   }
 
   @Delete("sessions/:id")
-  @UseGuards(AuthGuard, CsrfGuard)
-  async revokeSession(@CurrentUser() user: AuthenticatedUser, @Param("id") sessionId: string): Promise<{ success: true }> {
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(ACCOUNT_LIMIT)
+  async revokeSession(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") sessionId: string,
+  ): Promise<{ success: true }> {
     await this.auth.revokeSession(user.id, sessionId);
     return { success: true };
   }
@@ -119,20 +163,25 @@ export class AuthController {
   }
 
   @Patch("me")
-  @UseGuards(AuthGuard, CsrfGuard)
-  updateMe(@CurrentUser() user: AuthenticatedUser, @Body(new ZodValidationPipe(UpdateMeInputSchema)) body: UpdateMeInput): Promise<UserDto> {
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(ACCOUNT_LIMIT)
+  updateMe(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body(new ZodValidationPipe(UpdateMeInputSchema)) body: UpdateMeInput,
+  ): Promise<UserDto> {
     return this.auth.updateMe(user.id, body.dateOfBirth);
   }
 
   @Post("roles/provider")
-  @UseGuards(AuthGuard, CsrfGuard)
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(ACCOUNT_LIMIT)
   becomeProvider(@CurrentUser() user: AuthenticatedUser): Promise<UserDto> {
     return this.auth.becomeProvider(user.id);
   }
 
   @Post("email")
   @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
-  @RateLimit({ scope: "email-attach", limit: 10, windowSeconds: 3600 })
+  @RateLimit({ scope: "email-attach", limit: 10, windowSeconds: 3600, key: "user" })
   attachEmail(
     @CurrentUser() user: AuthenticatedUser,
     @Body(new ZodValidationPipe(EmailAttachInputSchema)) body: EmailAttachInput,
@@ -141,7 +190,8 @@ export class AuthController {
   }
 
   @Post("email/verify")
-  @UseGuards(AuthGuard, CsrfGuard)
+  @UseGuards(AuthGuard, CsrfGuard, RateLimitGuard)
+  @RateLimit(ACCOUNT_LIMIT)
   verifyEmail(
     @CurrentUser() user: AuthenticatedUser,
     @Body(new ZodValidationPipe(EmailVerifyInputSchema)) body: EmailVerifyInput,

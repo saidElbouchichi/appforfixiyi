@@ -14,9 +14,12 @@ interface AuthState {
 }
 
 /**
- * Same Bearer-in-memory pattern as `apps/admin` (Decision 33) — `apps/web`
- * is just as cross-origin from `apps/api` (different ports) as the admin
- * back-office is, so the same CORS-avoiding trade-off applies here.
+ * Same Bearer pattern as `apps/admin` (Decisions 33/38): `apps/web` is just
+ * as cross-origin from `apps/api` (different ports), so cookies are avoided.
+ * NOT in memory only: `persist` writes BOTH tokens to localStorage, which an
+ * injected script could read. Accepted for an internal back-office (33);
+ * for this public app the audit of 2026-09-21 flags it — decision pending
+ * (httpOnly refresh cookie vs. memory-only tokens), see docs/DECISIONS.md.
  */
 export const useAuthStore = create<AuthState>()(
   persist(

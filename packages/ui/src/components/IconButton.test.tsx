@@ -51,4 +51,16 @@ describe("IconButton", () => {
     expect(screen.getByRole("button", { name: "Pouce" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button", { name: "Reactions" }).getAttribute("aria-expanded")).toBe("false");
   });
+
+  it("names the region it discloses with aria-controls (WAI-ARIA disclosure)", () => {
+    render(
+      <>
+        <IconButton label="Rechercher" icon="search" expanded controls="search-panel" />
+        <section id="search-panel">recherche</section>
+      </>,
+    );
+    const button = screen.getByRole("button", { name: "Rechercher" });
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(document.getElementById(button.getAttribute("aria-controls") ?? "")?.textContent).toBe("recherche");
+  });
 });
