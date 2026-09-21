@@ -198,15 +198,15 @@ complet :
 |---|---|---|
 | `pnpm lint` | **15 / 15 taches, 0 erreur, 0 warning** | 0 erreur |
 | `pnpm typecheck` | **15 / 15 taches, 0 erreur** | 0 erreur |
-| `pnpm test` | **13 / 13 taches, 59 fichiers, 373 tests, 0 echec** | 320+ |
+| `pnpm test` | **13 / 13 taches, 375 tests, 0 echec** (relance sans cache, `--force`) | 320+ |
 | `pnpm build` | **10 / 10 taches, succes** | succes |
-| Playwright | **2 / 2 scenarios** | 2+ |
+| Playwright | **4 / 4 scenarios** | 2+ |
 
-Repartition des 373 tests :
+Repartition des 375 tests :
 
 | Package | Tests |
 |---|---|
-| `@fixiyi/api` | 153 |
+| `@fixiyi/api` | **155** (153 avant) |
 | `@fixiyi/ui` | **102** (52 avant) |
 | `@fixiyi/contracts` | 69 |
 | `@fixiyi/shared-utils` | 27 |
@@ -215,12 +215,28 @@ Repartition des 373 tests :
 | `@fixiyi/i18n` | 3 |
 | `@fixiyi/worker` | 2 |
 
-+53 tests par rapport aux 320 de la fin de Phase 5.
++55 tests par rapport aux 320 de la fin de Phase 5.
 
-**Les 2 scenarios Playwright ont ete rejoues contre des images Docker
-`web` et `admin` reconstruites** avec le code redesigne — pas contre les
-images de la Phase 5. Sans cette reconstruction, le navigateur aurait
-teste l'ancienne interface et le « vert » n'aurait rien prouve.
+Playwright : les 2 scenarios d'origine plus **2 nouveaux**
+(`session-refresh.spec.ts`, couverture du bug B1). Tous rejoues contre des
+images Docker `api`, `web` et `admin` **reconstruites avec le code
+corrige** — sans quoi le navigateur aurait teste l'ancien bundle et le
+« vert » n'aurait rien prouve.
+
+### Une note honnete sur un echec intermittent
+
+Pendant la validation, le test `runs the full happy path` a depasse deux
+fois son delai de 5 s. J'ai d'abord suppose une contention avec le build
+Docker en cours — puis l'echec s'est reproduit sur ce que je croyais etre
+une machine au repos, donc l'hypothese ne tenait plus en l'etat. Mesure
+ensuite : execute seul, le test prend 250-300 ms ; en fichier complet,
+trois runs consecutifs donnent 206, 265 et 268 ms. L'explication tient
+aux horodatages : la notification de fin de build est arrivee **avec** la
+sortie du second echec, donc les **deux** echecs ont eu lieu pendant le
+build — et MinIO tourne dans la meme VM Docker, dont les E/S disque
+etaient saturees. La suite complete relancee sans cache sur machine
+reellement au repos passe a 375/375. Le test n'a pas ete modifie ni son
+delai allonge.
 
 Verification supplementaire, non demandee mais necessaire : le
 remplacement du `window.prompt()` du back-office etait le changement le
@@ -233,51 +249,104 @@ l'arbre, et **aucun `window.prompt()` natif declenche**. Le noeud cree
 pour ce test a ete desactive ensuite via la vraie API — l'environnement
 est rendu dans l'etat ou il a ete trouve.
 
-## Bugs trouves
+## Bugs trouves et corriges
 
-7 findings, **0 corrige** : une inspection constate, elle ne modifie pas
-le code qu'elle evalue. Chacun est documente avec fichier, ligne,
-scenario d'echec et correction proposee dans
+7 findings a l'inspection. Les **2 HIGH sont corriges** ; les 5 autres
+restent documentes (fichier, ligne, scenario, correction proposee) dans
 `docs/INSPECTION_ECC_PHASE_0_5.md`.
 
-| # | Severite | Titre |
-|---|---|---|
-| **B1** | **HIGH** | Token d'acces jamais rafraichi cote client, aucune recuperation sur 401 — **le bug signale** |
-| **B2** | **HIGH** | Upload presigne non borne + objets rejetes jamais supprimes + aucun rate limit |
-| B3 | MEDIUM | `User.status` (`DEACTIVATED`) defini mais applique par aucun guard |
-| B4 | MEDIUM | `trustProxy` non configure -> rate limiting par IP degenere derriere un proxy |
-| B5 | MEDIUM | MinIO absent des `services:` du workflow CI |
-| B6 | MEDIUM | Base de test `fixiyi_test` jamais purgee (819 users, 852 sessions accumules) |
-| B7 | LOW | `finalize` ne verifie pas que le media appartient a la demande de l'URL |
+| # | Severite | Titre | Statut |
+|---|---|---|---|
+| **B1** | **HIGH** | Token d'acces jamais rafraichi cote client — **le bug signale** | **CORRIGE** `13895a3` |
+| **B2** | **HIGH** | Upload presigne non borne + objets rejetes jamais supprimes | **CORRIGE** `e9cf329` (media ; voir limite) |
+| B3 | MEDIUM | `User.status` (`DEACTIVATED`) defini mais applique par aucun guard | ouvert |
+| B4 | MEDIUM | `trustProxy` non configure -> rate limiting par IP degenere derriere un proxy | ouvert |
+| B5 | MEDIUM | MinIO absent des `services:` du workflow CI | ouvert |
+| B6 | MEDIUM | Base de test `fixiyi_test` jamais purgee | ouvert |
+| B7 | LOW | `finalize` ne verifie pas que le media appartient a la demande de l'URL | ouvert |
 
-### B1 en detail — le bug signale
+### B1 — le bug signale — CORRIGE
 
-**Reproduit** (`docs/evidence/bug-expired-token-repro.png`) :
+**Cause racine** : `apps/web` et `apps/admin` stockaient un `refreshToken`
+et ne l'utilisaient **jamais** — aucun appel a `POST /api/v1/auth/refresh`
+n'existait cote client. Passe `JWT_ACCESS_TTL` (15 min), chaque appel
+authentifie prenait un 401 et la session morte restait en `localStorage`,
+sans retour a `/login`.
+
+**Correction** (`apps/web/src/lib/api-client.ts` et
+`apps/admin/src/lib/api-client.ts`, comme demande) : sur un 401 d'une
+requete authentifiee, `apiFetch` rafraichit une fois puis rejoue la
+requete ; si le refresh echoue aussi, il vide la session et la garde
+existante des pages renvoie vers `/login`.
+
+Le point non evident : **une seule requete de refresh en vol**, partagee
+par tous les appelants. Le refresh token tourne a chaque usage et
+`SessionService` traite sa re-presentation comme un rejeu — il revoque
+**toute la session**. `/requests/new` lance plusieurs appels au montage :
+N refresh paralleles auraient donc deconnecte l'utilisateur plus surement
+que le bug lui-meme. Et comme `/auth/refresh` ne renvoie que des tokens,
+le store gagne un `setTokens` qui conserve l'utilisateur connecte.
+
+**Preuve rouge -> vert** (`tests/browser/tests/session-refresh.spec.ts`) :
+les 2 nouveaux scenarios ont ete executes **contre l'ancien client** (image
+reconstruite sur le code d'avant correction) et echouent exactement sur le
+symptome signale :
 
 ```
-REPRO: refreshToken persisted in localStorage = true
-REPRO: calls to /auth/refresh                 = 0
-REPRO: dead session still in localStorage     = true
+Expected: 0   Received: 1   <- "Invalid or expired access token" affiche
+Expected pattern: /\/login$/
+Received string:  "http://localhost:3000/requests/new"   <- utilisateur bloque
+2 failed
 ```
 
-Cause racine : ce n'est pas un bug d'hydratation (celui-la a bien ete
-corrige en Phase 5) mais une **fonctionnalite absente**. `apps/web` et
-`apps/admin` stockent un `refreshToken` dans `localStorage` et ne
-l'utilisent **jamais** — aucun appel a `POST /api/v1/auth/refresh`
-n'existe dans le code client, alors que l'endpoint existe cote API,
-complet et rate-limite. Passe `JWT_ACCESS_TTL` (15 min), chaque appel
-authentifie prend un 401 `"Invalid or expired access token"`
-(`auth.guard.ts:39`), et rien ne recupere : la session morte reste dans
-`localStorage` et l'utilisateur n'est meme pas renvoye vers `/login`.
+puis passent contre le client corrige (un seul appel a `/auth/refresh`,
+en `201`, et le token stocke a bien tourne). Un test qui passe ne prouve
+rien s'il n'a jamais echoue sans la correction ; ceux-ci ont echoue.
 
-Correction proposee, **non appliquee** : rejouer une fois la requete
-apres un refresh sur 401, en **serialisant les refresh concurrents**
-derriere une seule promesse en vol — N refresh paralleles sur un token
-rotatif declencheraient la detection de rejeu (`REUSE_DETECTED`) qui
-revoque toute la session, donc le remede naif serait pire que le mal. Et
-en **extrayant `api-client.ts` dans un package partage** plutot qu'en
-corrigeant deux fichiers identiques : c'est exactement la duplication qui
-a deja coute deux corrections separees en Phase 4 (Decision 39).
+Detail qui justifie ce controle : l'endpoint du catalogue est **public**.
+Une assertion « l'ecran se remplit » seule aurait donc passe **aussi sur
+l'ancien code**. Ce sont l'absence du message d'erreur et le compte des
+appels a `/auth/refresh` qui detectent vraiment le bug — le run rouge
+l'a montre.
+
+Dette assumee : le correctif existe en deux exemplaires, conformement a
+la demande. L'extraction dans un package partage reste recommandee
+(Decision 51).
+
+### B2 — upload — CORRIGE, avec une precision sur le diagnostic
+
+La mission decrivait le bug comme « `createUploadSession` ne verifie pas
+la taille declaree ». **Cette verification existait deja** depuis la
+Phase 4 (`MEDIA_SIZE_LIMIT_EXCEEDED`) — un test la couvre desormais
+explicitement. Le vrai trou etait que la declaration **n'engageait
+rien** : l'URL presignee acceptait un PUT de n'importe quelle taille. Un
+client declarait 1 Ko, passait le controle, puis envoyait des Go ; l'exces
+n'etait vu qu'au `finalize`, apres stockage, et aucun `DeleteObject`
+n'existait dans le depot — l'objet restait pour toujours.
+
+**Correction** :
+- La taille declaree est **signee dans l'URL presignee**. MinIO repond a
+  un PUT de taille differente par **`403 SignatureDoesNotMatch`** et
+  n'ecrit rien (verifie par `objectExists`).
+- `reject()` **supprime l'objet**. Best-effort : un incident de stockage
+  est journalise, pas transforme en 500 ; le document reste `REJECTED`.
+
+Effet de bord revelateur : un test existant declarait `sizeBytes: 20` en
+envoyant 26 octets. Sans consequence tant que la declaration ne liait
+rien — elle lie desormais, donc le test a du dire la verite.
+
+`request.e2e.test.ts` : 7 -> 9 tests. Le scenario navigateur
+`create-request` (vrai PUT depuis Chrome) passe toujours : la correction
+ne casse pas l'upload legitime.
+
+**Limite — non corrigee, et c'est delibere** : signer `ContentLength`
+impose une taille **exacte**, pas un plafond. Le pipeline media connait la
+taille ; le pipeline **verification** non (son contrat
+`RequestDocumentUploadInput` n'en porte pas), donc **ses uploads restent
+non bornes**. Plafonner sans taille exacte demande une POST policy
+(`content-length-range`), qui change l'upload de PUT en formulaire
+multipart — un lot de travail distinct, documente dans le code et en
+Decision 52 plutot que glisse en douce ici.
 
 ## Commits de cette session
 
@@ -295,44 +364,52 @@ a deja coute deux corrections separees en Phase 4 (Decision 39).
 | `a3b23dd` | feat: design system unique + animations + icons + adaptation |
 | `f7b7c2b` | chore: refresh Playwright screenshots against the redesigned UI |
 | `6f4a2e9` | chore: pre-phase 6 validation |
+| `420ef37` | docs: pre-phase 6 report |
+| `13895a3` | **fix: refresh an expired access token instead of stranding the user** |
+| `e9cf329` | **fix: bind media upload size in the presigned URL and delete rejected objects** |
+| *(ce commit)* | chore: pre-phase 6 validation + docs: pre-phase 6 report (mise a jour) |
 
-12 commits. Decisions ajoutees : **47 a 50** (`docs/DECISIONS.md`).
+Decisions ajoutees : **47 a 52** (`docs/DECISIONS.md`). La mission
+proposait « 47 ou 48 » pour le correctif token et « 49 » pour l'upload ;
+47 a 50 etant deja pris par le design system, ce sont **51** et **52**.
 
 ## Verdict
 
-**OK — avec 2 HIGH a planifier, aucun bloquant pour demarrer la Phase 6.**
+**OK — les 2 HIGH sont corriges, prouves rouge -> vert, rien de bloquant.**
 
-Les Phases 0 a 5 sont conformes a ce que leurs rapports annoncent : aucune
-affirmation prise en defaut par la donnee, aucun fichier manquant, aucun
-test en echec, aucune regression. Les deux HIGH ne sont pas des
-regressions mais des **manques** — B1 une fonctionnalite
-d'authentification jamais implementee cote client, B2 un durcissement
-jamais fait sur le pipeline media.
+Les Phases 0 a 5 sont conformes a leurs rapports. Les deux defauts HIGH
+trouves a l'inspection sont corriges, chacun avec des tests qui echouent
+sans la correction et passent avec. Restent 5 findings MEDIUM/LOW, dont
+aucun ne bloque la Phase 6, plus une limite explicite de B2 (uploads de
+verification non bornes).
 
 ## Pret pour Phase 6
 
-- [x] **Oui**, sous une reserve forte : **corriger B1 en ouverture de
-      Phase 6, avant le chat lui-meme.**
+- [x] **Oui.**
 
-Raison : la Phase 6 (Chat temps reel) tiendra une connexion longue
-authentifiee. Une expiration de token non geree y sera nettement plus
-penible que sur un formulaire — une session qui meurt en silence au
-milieu d'une conversation, sans reconnexion ni retour a `/login`. Le
-corriger apres coup signifierait le corriger dans du code de chat deja
-ecrit par-dessus.
+La reserve formulee au tour precedent — « corriger B1 avant le chat » —
+est levee : B1 est corrige et couvert par deux scenarios navigateur. La
+connexion longue du chat temps reel partira d'une session qui sait se
+renouveler.
 
 ## Recommandations pour la Phase 6
 
-1. **Corriger B1 d'abord**, avec la serialisation des refresh concurrents.
-2. **Extraire `api-client.ts` et `auth-store.ts` dans un package
-   partage** — les deux copies web/admin sont identiques au caractere
-   pres ; le faire avant que B1 n'y ajoute une troisieme couche dupliquee.
-3. **Traiter B2 avec le pipeline d'attachments du chat** : la Phase 6
-   reutilise le pipeline media, c'est le moment de borner la taille a la
-   signature, de supprimer les objets rejetes et de poser un rate limit.
+1. **Extraire `api-client.ts` et `auth-store.ts` dans un package
+   partage.** Ils sont desormais identiques a deux commentaires pres *et*
+   portent une logique non triviale (refresh serialise). Le chat
+   ajoutera un troisieme consommateur — un client WebSocket authentifie —
+   qui aura besoin de la meme logique de renouvellement. C'est le moment
+   ou la duplication devient chere.
+2. **Faire suivre le renouvellement a la connexion temps reel.** Une
+   socket ouverte avec un token de 15 minutes doit se re-authentifier
+   quand `apiFetch` fait tourner les tokens, sinon elle mourra au meme
+   endroit que le bug B1.
+3. **Borner les uploads de verification** (limite de B2) — et, puisque
+   les pieces jointes du chat reutiliseront le pipeline media, s'assurer
+   qu'elles passent bien par `MediaService` (donc avec taille signee) et
+   non par un chemin parallele.
 4. **Purger `fixiyi_test` entre les runs** (B6) avant d'y ajouter les
-   collections de messages, pendant que le volume est encore gerable.
-5. **Ajouter MinIO au workflow CI** (B5).
-6. Ne pas ajouter de rate limit sur `POST /auth/refresh` : il en a deja un
-   (60/h). C'est la boucle client qui devra respecter ce plafond au lieu
-   de retenter en rafale.
+   collections de messages.
+5. **Ajouter MinIO au workflow CI** (B5) : les deux nouveaux tests de B2
+   parlent a un vrai MinIO et ne tourneraient pas en CI aujourd'hui.
+6. B3, B4, B7 : a planifier, aucun ne concerne le chat directement.
