@@ -270,3 +270,82 @@ reel ») est corroboree par 11 `verification_documents` reellement ecrits.
   s'executer en CI comme en local.
 
 **Verdict Phase 3 : OK — 1 observation MEDIUM (hygiene de la base de test).**
+
+---
+
+## Phase 4 — Requests — **OK**
+
+### Lecture effectuee
+`docs/phases/PHASE_3_REPORT.md`, `docs/phases/PHASE_4_PLAN.md`,
+`docs/phases/PHASE_4_REPORT.md`, `docs/DECISIONS.md` (Decisions 35 a 39).
+
+### Verifications structurelles
+
+| Point | Attendu | Constate | Verdict |
+|---|---|---|---|
+| `apps/api/src/requests/` | 4 fichiers | **4** | OK |
+| Pipeline media — magic bytes | oui | `media/media-signature.ts` + `media-signature.test.ts` (JPEG, PNG, WEBP, WEBM/EBML, WAV, OGG testes sur de vraies signatures) | OK |
+| Pipeline media — HeadObject | oui | `infrastructure/storage/storage.service.ts:69` `headObject()` reel, consomme par `media.service.ts:90` | OK |
+| `apps/web` login + new request | oui | `app/login/page.tsx`, `app/requests/new/page.tsx` | OK |
+| Tests Playwright | 2 scenarios | **2 scenarios, 2 passed** | OK |
+
+### Les trois bugs de la Phase 4 : corrections verifiees dans le code
+
+| Bug (Decision 39) | Correction attendue | Verifie |
+|---|---|---|
+| `Content-Type: application/json` envoye sans corps | n'ajouter l'en-tete que s'il y a un corps | `apps/web/src/lib/api-client.ts:24` **et** `apps/admin/src/lib/api-client.ts:24` — corrige dans les **deux** apps | OK |
+| Preflight CORS sans PATCH/DELETE | methodes explicites | `apps/api/src/main.ts:26` : `enableCors({ methods: ["GET","HEAD","POST","PATCH","PUT","DELETE"] })` | OK |
+| URL presignee signee sur `http://minio:9000` | endpoint public separe | `STORAGE_PUBLIC_ENDPOINT` dans `env-schema.ts:44`, second client de signature `storage.service.ts:39`, `docker-compose.dev.yml:17` -> `http://localhost:9000` | OK |
+
+Les trois corrections sont **presentes dans le code source courant**, pas
+seulement racontees dans le rapport.
+
+### Test navigateur reel re-execute
+
+```
+cd tests/browser && pnpm exec playwright test
+
+Running 2 tests using 1 worker
+  ok 1 [chromium] client logs in with OTP and creates a service request
+       with a real photo upload (3.9s)
+  ok 2 [chromium] a dispatched provider sees the client's request,
+       approximated, and can decline it (5.5s)
+  2 passed (13.6s)
+```
+
+### Verification MongoDB reelle — avant / apres le run
+
+C'est la preuve que le scenario navigateur ecrit vraiment en base et ne
+simule rien :
+
+| Collection | Avant le run | Apres le run |
+|---|---|---|
+| `service_requests` | 14 | **16** |
+| `media` | 6 | **7** |
+| `matches` | 4 | **5** |
+| `match_candidates` | 11 | **14** |
+| `dispatch_batches` | 6 | **7** |
+
+Index `media` : `{ownerUserId}`, `{targetId}` — les deux axes de lecture
+reels (« mes medias », « les medias de cette demande »).
+Index `service_requests` : `{clientUserId}` et **`{location.point: "2dsphere"}`**.
+
+Document media reellement ecrit par le run Playwright :
+
+```json
+{
+  "kind": "IMAGE", "status": "READY", "contentType": "image/png",
+  "objectKey": "media/request/01a0c18c-.../01a0c18c-...-photo.png",
+  "declaredSizeBytes": 45, "actualSizeBytes": 45,
+  "width": 1, "height": 1, "rejectionReason": null
+}
+```
+
+Point notable : le schema separe **`declaredSizeBytes`** (ce que le client
+annonce) de **`actualSizeBytes`** (ce que `HeadObject` constate reellement
+sur l'objet MinIO), et extrait les vraies dimensions. La taille annoncee
+par le client n'est donc jamais prise pour argent comptant — c'est
+exactement ce que la Phase 4 promettait, et la donnee le confirme.
+
+**Verdict Phase 4 : OK — les 3 bugs sont corriges dans le code, le
+scenario navigateur passe et ecrit de vraies donnees.**
