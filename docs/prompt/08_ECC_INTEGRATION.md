@@ -63,8 +63,15 @@ APRÈS CHAQUE PHASE VALIDÉE :
 
 ## Rollback
 
-Commit de référence : d84703e (fin Phase 5)
-En cas de problème : git reset --hard d84703e
+Commit de référence : d825a8a (fin phase 6 de la refonte design, 2026-09-22)
+En cas de problème : git reset --hard d825a8a
+
+À tenir à jour à la fin de chaque phase (Décision 69) : le commit précédent
+(d84703e, fin Phase 5 produit) était périmé et aurait effacé la Phase 6
+produit, les correctifs B1/B2, la refonte et l'audit.
+
+`reset --hard` est destructif : jamais lancé sans accord explicite de
+l'utilisateur (03_AGENT_PROTOCOL §2, 05_DECISION_POLICY).
 
 ## Résumé
 
