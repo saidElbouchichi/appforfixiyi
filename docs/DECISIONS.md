@@ -1931,3 +1931,67 @@ Tous trouves par l'execution, pas par relecture :
   commentaire du code, qui parlait a tort de stockage en memoire, est
   corrige.
 - Date : 2026-09-21
+
+---
+
+## Decision 67 - Page Profil minimale dans la phase 6 de la refonte
+
+- Contexte : la navigation de la phase 6 (refonte design) a besoin d'une
+  entree Profil et d'un moyen de se deconnecter : aucun bouton de
+  deconnexion n'existe dans `apps/web` ni dans `apps/admin`, alors que
+  `POST /auth/logout` existe depuis la Phase 2. `GET /auth/me` existe aussi.
+- Options : (a) page Profil minimale des la phase 6 ; (b) pas d'entree
+  Profil, deconnexion dans un menu de compte de l'en-tete, vraie page Profil
+  plus tard.
+- Choix : (a), **decide par l'utilisateur le 2026-09-22**.
+- Contenu, et rien d'autre : l'email de l'utilisateur (`GET /auth/me`), un
+  bouton « Se deconnecter » (`POST /auth/logout`), un lien « Retour a
+  l'accueil ». Aucune edition, aucune fonctionnalite metier.
+- Detail : `email` est nullable (la connexion se fait par OTP telephone) ;
+  la page affiche alors « Aucun e-mail renseigne » plutot qu'un champ vide.
+- Trade-offs : page provisoire, remplacee par la vraie page Profil (phases
+  7-8 produit ou phase 7-8 refonte). Le menu de compte de l'en-tete n'est
+  plus necessaire dans `apps/web` ; `apps/admin`, sans page Profil, garde un
+  bouton de deconnexion dans son en-tete.
+- Date : 2026-09-22
+
+---
+
+## Decision 68 - Regles ECC globales : Fixiyi prime, ajouts ECC non adoptes
+
+- Contexte : ECC v2.2.2 installe au niveau du compte (20/09/2026) charge des
+  regles `~/.claude/rules/ecc/{common,typescript}/*.md` hors du depot.
+  Analyse du 2026-09-22 : 3 contradictions avec Fixiyi (enveloppe
+  `{success,data,error}` contre Problem Details, 02 #62 ; cinq documents de
+  planification contre un seul `PHASE_X_PLAN.md`, 03 §3 ; agents lances sans
+  demande contre le cycle de 08) et des ajouts plus stricts que la spec.
+- Choix (**decide par l'utilisateur le 2026-09-22**) :
+  - en cas de conflit, **Fixiyi prime**, comme le prevoit
+    `08_ECC_INTEGRATION.md` ;
+  - **non adoptes pour l'instant** : couverture minimale de 80 %, rate limit
+    sur les routes de lecture, recherche externe prealable (GitHub, Context7,
+    Exa) ;
+  - **appliques quand on les rencontre, sans chasse systematique** : aucun
+    `console.log` dans le code de production, fonctions de moins de 50
+    lignes.
+- Note : `apps/admin/CLAUDE.md` et `AGENTS.md` ne sont pas des regles du
+  projet ; ils sont generes par `next dev` (Next.js 16) et commites avec la
+  Phase 3 (`0596a3b`). Leur consigne (lire la doc embarquee de Next.js avant
+  de coder) est compatible.
+- Date : 2026-09-22
+
+---
+
+## Decision 69 - Commit de rollback de `08_ECC_INTEGRATION.md` perime
+
+- Contexte : `08_ECC_INTEGRATION.md` donne comme rollback
+  `git reset --hard d84703e` (fin de la Phase 5 produit). L'executer
+  effacerait la Phase 6 produit, les correctifs B1/B2, les phases 1 a 5 de la
+  refonte et l'audit — et c'est une action destructive soumise a validation
+  (03 §2, 05).
+- Choix (**decide par l'utilisateur le 2026-09-22**) : le fichier reste tel
+  quel pour l'instant ; a la fin de la phase 6 de la refonte, la reference
+  sera remplacee par le commit de fin de cette phase. D'ici la, ce rollback
+  ne doit **pas** etre utilise, et aucun `reset --hard` n'est lance sans
+  accord explicite de l'utilisateur.
+- Date : 2026-09-22

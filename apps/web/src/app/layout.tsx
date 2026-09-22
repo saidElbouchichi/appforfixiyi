@@ -1,7 +1,7 @@
-import { AppShell, Footer, Header, Logo } from "@fixiyi/ui";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { AppChrome } from "./app-chrome";
 import { fontVariableClasses } from "./fonts";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -16,18 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="fr" className={fontVariableClasses}>
       <body>
         <Providers>
-          <AppShell
-            header={<Header brand={<Logo />} />}
-            footer={
-              <Footer
-                brand={<Logo />}
-                tagline="Plus qu'une application, une solution de confiance."
-                legal={`© ${new Date().getFullYear().toString()} Fixiyi`}
-              />
-            }
-          >
-            {children}
-          </AppShell>
+          <AppChrome legal={`© ${new Date().getFullYear().toString()} Fixiyi`}>{children}</AppChrome>
         </Providers>
       </body>
     </html>

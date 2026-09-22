@@ -26,5 +26,12 @@ export const headerHeight = {
   desktop: "64px",
 } as const;
 
-/** The bottom navigation bar of a phone, before the safe-area inset. */
-export const bottomNavHeight = "64px";
+/**
+ * The bottom navigation bar of a phone, before the safe-area inset.
+ *
+ * 72px, not 64: with five entries on a 360px screen a label takes two lines
+ * ("Demandes recues"), and 8px padding + a 24px icon + 4px gap + two 16px
+ * lines is 68 — at 64 the second line spilled out of the bar (design phase 6,
+ * seen in a real capture).
+ */
+export const bottomNavHeight = "72px";

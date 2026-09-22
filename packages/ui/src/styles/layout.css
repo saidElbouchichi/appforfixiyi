@@ -28,6 +28,22 @@
   block-size: calc(100dvh - var(--fx-shell-header-height));
 }
 
+/*
+ * With the phone's bottom bar, the shell's own bottom padding already eats
+ * that height: a fill computed from the viewport alone would push its last
+ * row (the chat composer) under the bar. Above 768px the bar is hidden and
+ * the padding is zero, so the plain rule applies again.
+ */
+.fx-shell--with-bottom-nav .fx-shell__fill {
+  block-size: calc(100dvh - var(--fx-shell-header-height) - var(--fixiyi-size-bottom-nav) - env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .fx-shell--with-bottom-nav .fx-shell__fill {
+    block-size: calc(100dvh - var(--fx-shell-header-height));
+  }
+}
+
 .fx-shell__content:focus {
   outline: none;
 }
@@ -236,16 +252,24 @@
   flex: 1;
 }
 
+/*
+ * Icons align to the top rather than the middle: with five entries on a
+ * 360px phone a label can take two lines ("Demandes recues"), and centring
+ * each link on its own height left the icons at different heights.
+ */
 .fx-bottom-nav__link {
   display: flex;
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--fixiyi-space-1);
+  padding-block-start: var(--fixiyi-space-2);
+  padding-inline: var(--fixiyi-space-1);
   min-inline-size: var(--fixiyi-size-touch-target);
   color: var(--fixiyi-color-text-muted);
   font-family: var(--fixiyi-font-sans);
+  text-align: center;
   text-decoration: none;
 }
 

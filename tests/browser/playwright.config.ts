@@ -8,6 +8,8 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./tests",
+  // Hourly OTP counters survive a run; without this a second run within the hour 429s (see support/global-setup.ts).
+  globalSetup: "./support/global-setup.ts",
   fullyParallel: false,
   workers: 1,
   retries: 0,

@@ -2,14 +2,15 @@
 
 ## Derniere mise a jour
 
-2026-09-21 - Audit complet des phases livrees TERMINE (produit 0-6,
-refonte design 1-5) : `docs/AUDIT_PHASES_0_5.md`.
+2026-09-22 - Refonte design : **phase 6 (Navigation) TERMINEE** —
+`docs/design/PHASE_6_REPORT.md`. Depot pousse sur GitHub
+(`origin/main`, https://github.com/saidElbouchichi/appforfixiyi).
 
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a 5 **TERMINEES**, audit
-fait ; STOP, en attente de "GO PHASE 6" (phase 6 de la refonte : navigation).
+refonte design). Refonte Design System V2 : phases 1 a **6 TERMINEES** ;
+STOP, en attente de "GO PHASE 7" de la refonte (pages principales).
 
 ## Phases terminees
 
@@ -209,7 +210,16 @@ la refonte.**
   Header, Logo (texte D4), Navbar, BottomNavigation, Footer, Page,
   LinkProvider (next/link) ; coque appliquee a web et admin ; 692 tests +
   29 Playwright.
-- Prochaine : Phase 6 (navigation : destinations reelles, par role).
+- **Phase 6 (Navigation) TERMINEE** — `docs/design/PHASE_6_REPORT.md` :
+  navigation par role (6 entrees, toutes vers une route reelle), etat actif
+  reel, ecrans `/requests`, `/conversations` et `/profile` (premiere
+  deconnexion du produit), compteur de non-lus en temps reel, entree
+  Catalogue et deconnexion dans l'admin ; 731 tests (dont `apps/web`, qui
+  recoit vitest : 20) + 38 Playwright. 4 defauts reels corriges, dont le
+  composeur du chat qui passait sous la barre basse et la barre elle-meme
+  trop courte de 4 px a cinq entrees (token 64 -> 72 px).
+- Prochaine : Phase 7 (pages principales : accueil sur le vrai catalogue,
+  recherche de services, profil artisan en vue publique).
 
 ## Audit complet des phases livrees (2026-09-21)
 
@@ -239,24 +249,29 @@ d'abord ou une mutation.
 
 ## Derniere action effectuee
 
-Audit complet des phases livrees : 12 corrections, Decisions 63 a 66,
-`docs/AUDIT_PHASES_0_5.md`, README et ce fichier mis a jour, gates et
-Playwright 100 % verts.
+Phase 6 de la refonte design (Navigation) : navigation par role, ecrans
+`/requests`, `/conversations`, `/profile`, deconnexion (web et admin),
+compteur de non-lus en temps reel, 4 defauts corriges, Decisions 67 a 69,
+`docs/design/PHASE_6_REPORT.md`, gates et Playwright 100 % verts, commit
+dedie pousse sur `origin/main`.
 
 ## Prochaine action exacte
 
-**Aucune** — STOP, attendre `GO PHASE 6` (phase 6 de la refonte design :
-navigation par role, destinations reelles uniquement). Apres la refonte
-seulement, `GO PHASE 7` (Offers), qui devra appeler
-`ConversationService.unlockContact` a l'acceptation d'une offre.
+**Aucune** — STOP, attendre `GO PHASE 7` de la **refonte** (pages
+principales : accueil sur le vrai catalogue, recherche de services, profil
+artisan en vue publique). Apres la refonte seulement, la Phase 7 **produit**
+(Offers), qui devra appeler `ConversationService.unlockContact` a
+l'acceptation d'une offre.
 
 ## Blocages
 
-Aucun blocage technique. Decisions attendues de l'utilisateur, sans
-bloquer la phase 6 de la refonte : stockage des jetons de `apps/web`
-(Decision 66), conservation des messages supprimes (Decision 59), couleur
-de Domotique, URL des comptes sociaux, vue publique de `GET /providers/:id`,
-logo.
+Aucun blocage technique. Decisions attendues de l'utilisateur : stockage des
+jetons de `apps/web` (Decision 66), conservation des messages supprimes
+(Decision 59), couleur de Domotique, URL des comptes sociaux, vue publique de
+`GET /providers/:id` (necessaire a la phase 7 de la refonte), logo.
+
+A traiter avant la production : pagination de `GET /requests/mine` et
+`GET /conversations` (non bornees), `trustProxy` (Decision 60).
 
 ## Validation humaine requise
 
@@ -271,7 +286,8 @@ logo.
   pas encore recu)
 - [ ] conservation des messages supprimes (Decision 59 — choix juridique)
 - [ ] stockage des jetons de `apps/web` (Decision 66 — architecture d'auth)
-- [ ] phase 6 de la refonte design ("GO PHASE 6" pas encore recu)
+- [x] phase 6 de la refonte design ("GO PHASE 6" recu le 2026-09-22)
+- [ ] phase 7 de la refonte design ("GO PHASE 7" pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
 
@@ -280,17 +296,19 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (Decisions 53 a 61 = choix techniques Phase 6)
-3. docs/phases/PHASE_6_REPORT.md
+2. docs/DECISIONS.md (67 a 69 = choix du dernier tour)
+3. docs/design/PHASE_6_REPORT.md et docs/design/PLAN.md
 
-Contexte : la Phase 6 (Chat) est TERMINEE : conversations liees a une
-candidature reelle, anti-contact avant acceptation, temps reel Socket.IO
-(HTTP ecrit, la socket notifie), ecran de chat. 542 tests, 5 scenarios
-Playwright, gates verts. La protection des coordonnees n'est levee que par
-ConversationService.unlockContact — la Phase 7 doit l'appeler a
-l'acceptation d'une offre. N'attends que "GO PHASE 7" de l'utilisateur ;
-si ce prompt est relance sans ce signal explicite, ne commence PAS la
-Phase 7 - redemande confirmation.
+Contexte : deux numerotations coexistent. Produit : phases 0 a 6 terminees,
+la Phase 7 (Offers) attend la FIN de la refonte ; elle devra appeler
+ConversationService.unlockContact a l'acceptation d'une offre. Refonte
+design : phases 1 a 6 terminees (la 6 = navigation par role, ecrans
+/requests, /conversations, /profile, deconnexion). 731 tests, 38 scenarios
+Playwright, gates verts, depot pousse sur origin/main.
+
+La suite est la phase 7 de la REFONTE (pages principales). N'attends que
+"GO PHASE 7" de l'utilisateur, et fais-lui preciser refonte ou produit ;
+sans ce signal explicite, ne commence rien - redemande confirmation.
 
 Verifie d'abord que Docker tourne toujours (`docker compose -f
 docker-compose.yml -f docker-compose.dev.yml ps` depuis la racine).

@@ -21,6 +21,20 @@ function blockOf(selector: string): string {
   return "";
 }
 
+describe("styles.css — full-height screens under the bottom bar (design phase 6)", () => {
+  it("subtracts the phone's bottom bar from a fill screen, so the chat composer stays visible", () => {
+    const withBar = blockOf(".fx-shell--with-bottom-nav .fx-shell__fill");
+    expect(withBar).toContain("--fixiyi-size-bottom-nav");
+    expect(withBar).toContain("safe-area-inset-bottom");
+  });
+
+  it("gives that height back above 768px, where the bar is hidden", () => {
+    const desktop = /@media\s*\(min-width:\s*768px\)\s*\{\s*\.fx-shell--with-bottom-nav\s+\.fx-shell__fill\s*\{([^}]*)\}/.exec(css);
+    expect(desktop?.[1]).toContain("100dvh - var(--fx-shell-header-height)");
+    expect(desktop?.[1]).not.toContain("bottom-nav");
+  });
+});
+
 describe("styles.css — RTL safety", () => {
   it("uses no physical direction properties (logical properties only)", () => {
     const physical = /(?:margin|padding|border|inset)-(?:left|right)\s*:/g;

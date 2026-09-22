@@ -20,6 +20,10 @@ import { apiFetch, uploadFile } from "./api-client";
  */
 
 const MessageListSchema = z.array(MessageSchema);
+const ConversationListSchema = z.array(ConversationSchema);
+
+/** Shared by the Messages screen and the unread badge of the navigation: one query, one source. */
+export const CONVERSATIONS_KEY = ["conversations"];
 
 function base(conversationId: string): string {
   return `/api/v1/conversations/${conversationId}`;
@@ -27,6 +31,10 @@ function base(conversationId: string): string {
 
 export async function openConversation(input: { requestId: string; candidateId?: string }): Promise<Conversation> {
   return ConversationSchema.parse(await apiFetch("/api/v1/conversations", { method: "POST", auth: true, body: input }));
+}
+
+export async function listConversations(): Promise<Conversation[]> {
+  return ConversationListSchema.parse(await apiFetch("/api/v1/conversations", { auth: true }));
 }
 
 export async function getConversation(conversationId: string): Promise<Conversation> {
