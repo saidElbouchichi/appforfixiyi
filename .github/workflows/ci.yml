@@ -52,6 +52,26 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # MinIO cannot be a `services:` container: the official image needs the
+      # `server /data` command, and service containers accept options only,
+      # never a command. Same pinned image as docker-compose.yml, so the object
+      # storage the e2e suites boot against is the one dev runs.
+      - name: Start MinIO
+        run: |
+          docker run -d --name minio -p 9000:9000 \
+            -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
+            quay.io/minio/minio:RELEASE.2024-01-16T16-07-38Z server /data
+          for _ in $(seq 1 30); do
+            if curl -fsS http://localhost:9000/minio/health/live > /dev/null; then
+              echo "MinIO is ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "MinIO did not become ready within 30s"
+          docker logs minio
+          exit 1
+
       - name: Lint
         run: pnpm lint
 
