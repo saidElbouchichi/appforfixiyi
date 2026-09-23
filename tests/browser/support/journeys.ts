@@ -87,7 +87,19 @@ async function findSeededServiceId(request: APIRequestContext): Promise<string> 
  * profile, service + service area, and finally AVAILABLE — every hard
  * eligibility filter of the matching engine.
  */
-export async function setUpProvider(request: APIRequestContext, phone: string, displayName: string): Promise<OnboardedProvider> {
+/**
+ * `availability` defaults to AVAILABLE — the only status the dispatch picks up
+ * (`DISPATCHABLE_STATUSES`). A spec that only needs a provider to LOOK at, not
+ * to be matched, passes "OFFLINE": every AVAILABLE provider in Casablanca
+ * competes for the bounded dispatch batch of the matching spec, and enough of
+ * them push its own provider out of the batch.
+ */
+export async function setUpProvider(
+  request: APIRequestContext,
+  phone: string,
+  displayName: string,
+  initialStatus: "AVAILABLE" | "OFFLINE" = "AVAILABLE",
+): Promise<OnboardedProvider> {
   const otp = await request.post(`${API_URL}/api/v1/auth/otp/request`, { data: { phone } });
   const { devCode } = (await otp.json()) as { devCode?: string };
   if (!devCode) {
@@ -124,7 +136,7 @@ export async function setUpProvider(request: APIRequestContext, phone: string, d
 
   const availability = await request.patch(`${API_URL}/api/v1/providers/me/availability`, {
     headers: auth(tokens.accessToken),
-    data: { status: "AVAILABLE" },
+    data: { status: initialStatus },
   });
   expect(availability.status()).toBe(200);
   const finalProfile = (await availability.json()) as { availabilityStatus: string };

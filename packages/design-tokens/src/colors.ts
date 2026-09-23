@@ -97,6 +97,31 @@ export const avatarColors = {
 } as const;
 
 /**
+ * The icon drawn ON a trade tile (D3: a trade icon is never alone on white —
+ * several fills fail against it, electrician at 1.92:1). An icon is a
+ * graphical object, so the threshold is 3:1, and every pair below is measured
+ * by `tokens.test.ts` through `contrastPairs`.
+ *
+ * The tile carries the icon only; the category name sits underneath it, on
+ * the page background, in ordinary text colour. That is deliberate:
+ * `locksmith` reaches 4.23:1 with white and 4.13:1 with ink, so it could
+ * never carry TEXT on its own fill — putting names on the tiles would have
+ * forced a tenth colour or an unreadable label.
+ */
+export const tradeIconColors = {
+  electrician: colors.neutral[900],
+  plumber: colors.neutral[900],
+  hvac: colors.neutral[900],
+  locksmith: colors.neutral[0],
+  painter: colors.neutral[900],
+  carpenter: colors.neutral[0],
+  appliance: colors.neutral[900],
+  it: colors.neutral[0],
+  cleaning: colors.neutral[900],
+  gardening: colors.neutral[900],
+} as const;
+
+/**
  * What components use. Each role points at a scale step; the CSS mirror
  * declares it as `var(--fixiyi-color-<scale>-<step>)`, so re-pointing a role
  * is a one-line change.
@@ -171,6 +196,16 @@ export const contrastPairs: readonly { fg: string; bg: string; min: 3 | 4.5; use
   { fg: colors.neutral[900], bg: colors.primary[500], min: 4.5, use: "gradient button label, orange end" },
   { fg: colors.neutral[900], bg: colors.accent[500], min: 4.5, use: "gradient button label, yellow end" },
   { fg: roles.action, bg: roles.surfaceMuted, min: 4.5, use: "text logo placeholder (D4)" },
+  { fg: tradeIconColors.electrician, bg: colors.trade.electrician, min: 3, use: "trade icon on its electrician tile" },
+  { fg: tradeIconColors.plumber, bg: colors.trade.plumber, min: 3, use: "trade icon on its plumber tile" },
+  { fg: tradeIconColors.hvac, bg: colors.trade.hvac, min: 3, use: "trade icon on its hvac tile" },
+  { fg: tradeIconColors.locksmith, bg: colors.trade.locksmith, min: 3, use: "trade icon on its locksmith tile" },
+  { fg: tradeIconColors.painter, bg: colors.trade.painter, min: 3, use: "trade icon on its painter tile" },
+  { fg: tradeIconColors.carpenter, bg: colors.trade.carpenter, min: 3, use: "trade icon on its carpenter tile" },
+  { fg: tradeIconColors.appliance, bg: colors.trade.appliance, min: 3, use: "trade icon on its appliance tile" },
+  { fg: tradeIconColors.it, bg: colors.trade.it, min: 3, use: "trade icon on its it tile" },
+  { fg: tradeIconColors.cleaning, bg: colors.trade.cleaning, min: 3, use: "trade icon on its cleaning tile" },
+  { fg: tradeIconColors.gardening, bg: colors.trade.gardening, min: 3, use: "trade icon on its gardening tile" },
   { fg: roles.onAction, bg: roles.successText, min: 4.5, use: "button label in its success state" },
   { fg: roles.textMuted, bg: roles.surfaceSunken, min: 4.5, use: "neutral badge / chip" },
   { fg: colors.accent[700], bg: roles.surface, min: 3, use: "rating star outline (the filled state is not colour alone)" },

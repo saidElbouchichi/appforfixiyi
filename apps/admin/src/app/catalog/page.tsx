@@ -10,6 +10,8 @@ import { z } from "zod";
 import { ApiError, apiFetch } from "../../lib/api-client";
 import { isAdminOrManager, useAuthHydrated, useAuthStore } from "../../lib/auth-store";
 
+import { AppearanceDialog, type AppearanceValue } from "./appearance-dialog";
+
 /** Inverse of @fixiyi/contracts' `CATALOG_PARENT_LEVEL` — what a node of this level's children must be, if any. */
 const CHILD_LEVEL: Record<CatalogLevel, CatalogLevel | null> = {
   DOMAIN: "CATEGORY",
@@ -24,7 +26,8 @@ const TreeListSchema = z.array(CatalogTreeNodeSchema);
 const CATALOG_TREE_QUERY_KEY = ["catalog-tree"];
 
 async function fetchTree(): Promise<CatalogTreeNode[]> {
-  return TreeListSchema.parse(await apiFetch("/api/v1/catalog/tree?includeInactive=true"));
+  // `rawDisplay=true`: the editor must show what THIS node carries, not what it inherits (Decision 62).
+  return TreeListSchema.parse(await apiFetch("/api/v1/catalog/tree?includeInactive=true&rawDisplay=true"));
 }
 
 /** What the creation dialog is currently collecting a name for. */
@@ -54,6 +57,7 @@ export default function CatalogPage(): React.JSX.Element | null {
   const [pendingNode, setPendingNode] = useState<PendingNode | null>(null);
   const [nodeName, setNodeName] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
+  const [appearanceNode, setAppearanceNode] = useState<CatalogTreeNode | null>(null);
 
   useEffect(() => {
     if (hydrated && !user) {
@@ -78,6 +82,15 @@ export default function CatalogPage(): React.JSX.Element | null {
         ? apiFetch(`/api/v1/catalog/nodes/${node.id}`, { method: "DELETE", auth: true })
         : apiFetch(`/api/v1/catalog/nodes/${node.id}`, { method: "PATCH", auth: true, body: { active: true } }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CATALOG_TREE_QUERY_KEY }),
+  });
+
+  const appearanceMutation = useMutation({
+    mutationFn: ({ id, value }: { id: string; value: AppearanceValue }) =>
+      apiFetch(`/api/v1/catalog/nodes/${id}`, { method: "PATCH", auth: true, body: value }),
+    onSuccess: async () => {
+      setAppearanceNode(null);
+      await queryClient.invalidateQueries({ queryKey: CATALOG_TREE_QUERY_KEY });
+    },
   });
 
   function openDialog(level: CatalogLevel, parentId: string | null): void {
@@ -115,8 +128,8 @@ export default function CatalogPage(): React.JSX.Element | null {
     );
   }
 
-  const error = treeQuery.error ?? createMutation.error ?? toggleMutation.error;
-  const busy = createMutation.isPending || toggleMutation.isPending;
+  const error = treeQuery.error ?? createMutation.error ?? toggleMutation.error ?? appearanceMutation.error;
+  const busy = createMutation.isPending || toggleMutation.isPending || appearanceMutation.isPending;
 
   return (
     <main className="fx-page fx-page--wide">
@@ -171,6 +184,7 @@ export default function CatalogPage(): React.JSX.Element | null {
                 onToggleActive={(target) => {
                   toggleMutation.mutate(target);
                 }}
+                onEditAppearance={setAppearanceNode}
                 busy={busy}
               />
             ))}
@@ -230,6 +244,21 @@ export default function CatalogPage(): React.JSX.Element | null {
           />
         </form>
       </Modal>
+
+      <AppearanceDialog
+        // Remounted per node so the fields start from that node's own values.
+        key={appearanceNode?.id ?? "none"}
+        node={appearanceNode}
+        saving={appearanceMutation.isPending}
+        onClose={() => {
+          setAppearanceNode(null);
+        }}
+        onSubmit={(value) => {
+          if (appearanceNode) {
+            appearanceMutation.mutate({ id: appearanceNode.id, value });
+          }
+        }}
+      />
     </main>
   );
 }
@@ -238,12 +267,14 @@ function TreeNodeRow({
   node,
   onAddChild,
   onToggleActive,
+  onEditAppearance,
   busy,
   depth = 0,
 }: {
   node: CatalogTreeNode;
   onAddChild: (level: CatalogLevel, parentId: string) => void;
   onToggleActive: (node: CatalogTreeNode) => void;
+  onEditAppearance: (node: CatalogTreeNode) => void;
   busy: boolean;
   depth?: number;
 }): React.JSX.Element {
@@ -253,6 +284,7 @@ function TreeNodeRow({
       <div className="fx-row py-1">
         <Badge variant={node.active ? "info" : "warning"}>{node.level}</Badge>
         <span className={node.active ? "" : "text-[var(--fixiyi-color-text-subtle)] line-through"}>{node.name}</span>
+        {node.icon ? <Icon name={node.icon} size="sm" /> : null}
         <Button
           variant="ghost"
           disabled={busy}
@@ -262,6 +294,17 @@ function TreeNodeRow({
         >
           <Icon name={node.active ? "close" : "check"} size="sm" />
           {node.active ? "Desactiver" : "Reactiver"}
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={busy}
+          onClick={() => {
+            onEditAppearance(node);
+          }}
+          testId={`appearance-${node.id}`}
+        >
+          <Icon name="edit" size="sm" />
+          Apparence
         </Button>
         {childLevel ? (
           <Button
@@ -279,7 +322,15 @@ function TreeNodeRow({
       {node.children.length > 0 ? (
         <ul>
           {node.children.map((child) => (
-            <TreeNodeRow key={child.id} node={child} onAddChild={onAddChild} onToggleActive={onToggleActive} busy={busy} depth={depth + 1} />
+            <TreeNodeRow
+              key={child.id}
+              node={child}
+              onAddChild={onAddChild}
+              onToggleActive={onToggleActive}
+              onEditAppearance={onEditAppearance}
+              busy={busy}
+              depth={depth + 1}
+            />
           ))}
         </ul>
       ) : null}

@@ -5,6 +5,7 @@ import { loadEnv } from "@fixiyi/config";
 import {
   ProblemDetailsSchema,
   ProviderProfileSchema,
+  PublicProviderProfileSchema,
   RequestDocumentUploadOutputSchema,
   VerificationCaseSchema,
   VerificationDocumentSchema,
@@ -211,6 +212,13 @@ describe("Verification (e2e)", () => {
       .send({ outcome: "APPROVED" });
     expect(reapprove.status).toBe(400);
     expect(ProblemDetailsSchema.parse(reapprove.body).code).toBe("VERIFICATION_INVALID_TRANSITION");
+
+    // Decision 70: the public badge is this case, and nothing else about it.
+    const publicProfile = await request(server).get(`/api/v1/providers/${provider.profileId}`);
+    const publicBody = PublicProviderProfileSchema.parse(publicProfile.body);
+    expect(publicBody.verified).toBe(true);
+    expect(publicProfile.body).not.toHaveProperty("verificationCaseId");
+    expect(publicProfile.body).not.toHaveProperty("verifiedAt");
 
     const decisions = await request(server)
       .get(`/api/v1/verification/cases/${kase.id}/decisions`)

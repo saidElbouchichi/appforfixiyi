@@ -24,14 +24,23 @@ import { CatalogNodeEntity, type CatalogNodeDocument } from "./schemas/catalog-n
 export class CatalogService {
   constructor(@InjectModel(CatalogNodeEntity.name) private readonly model: Model<CatalogNodeEntity>) {}
 
-  /** Nested tree for client-facing browsing (01_SPEC_PRODUCT.md #9 "Choisir un service") — excludes the flat SKILL catalog. */
-  async getTree(includeInactive = false): Promise<CatalogTreeNode[]> {
+  /**
+   * Nested tree for client-facing browsing (01_SPEC_PRODUCT.md #9 "Choisir un
+   * service") — excludes the flat SKILL catalog.
+   *
+   * `rawDisplay` is for the back-office: it must see which node actually
+   * carries an icon or a colour, because a resolved value pre-filled into an
+   * editor would be saved back as the node's own and silently break the
+   * inheritance the administrator was relying on.
+   */
+  async getTree(includeInactive = false, rawDisplay = false): Promise<CatalogTreeNode[]> {
     const filter: Record<string, unknown> = { level: { $ne: "SKILL" } };
     if (!includeInactive) {
       filter.active = true;
     }
     const nodes = await this.model.find(filter).sort({ order: 1, name: 1 });
-    return buildTree(nodes.map(toCatalogNode));
+    const tree = buildTree(nodes.map(toCatalogNode));
+    return rawDisplay ? tree : inheritDisplayMetadata(tree);
   }
 
   async listByLevel(level: CatalogLevel, parentId: string | undefined, includeInactive: boolean): Promise<CatalogNode[]> {
@@ -62,6 +71,8 @@ export class CatalogService {
       order: input.order ?? 0,
       active: true,
       requiredSkillIds,
+      icon: input.icon ?? null,
+      accentColor: input.accentColor ?? null,
     });
     return toCatalogNode(created);
   }
@@ -80,6 +91,8 @@ export class CatalogService {
     if (input.description !== undefined) node.description = input.description;
     if (input.order !== undefined) node.order = input.order;
     if (input.active !== undefined) node.active = input.active;
+    if (input.icon !== undefined) node.icon = input.icon;
+    if (input.accentColor !== undefined) node.accentColor = input.accentColor;
 
     await node.save();
     return toCatalogNode(node);
@@ -164,9 +177,30 @@ function toCatalogNode(doc: CatalogNodeDocument): CatalogNode {
     order: doc.order,
     active: doc.active,
     requiredSkillIds: doc.requiredSkillIds,
+    icon: doc.icon,
+    accentColor: doc.accentColor,
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };
+}
+
+/**
+ * A node without an icon or an accent colour takes its nearest ancestor's
+ * (Decision 62). Resolved on read rather than copied on write: the
+ * back-office sets a domain's colour once and every level below follows,
+ * including nodes created later. `listByLevel` and `getById` keep the RAW
+ * value on purpose — the administrator must see what is actually set, and
+ * `null` is what tells them the value is inherited.
+ */
+function inheritDisplayMetadata(
+  nodes: CatalogTreeNode[],
+  inherited: { icon: CatalogNode["icon"]; accentColor: CatalogNode["accentColor"] } = { icon: null, accentColor: null },
+): CatalogTreeNode[] {
+  return nodes.map((node) => {
+    const icon = node.icon ?? inherited.icon;
+    const accentColor = node.accentColor ?? inherited.accentColor;
+    return { ...node, icon, accentColor, children: inheritDisplayMetadata(node.children, { icon, accentColor }) };
+  });
 }
 
 function buildTree(nodes: CatalogNode[]): CatalogTreeNode[] {

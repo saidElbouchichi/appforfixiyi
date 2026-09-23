@@ -3,6 +3,7 @@
 import { MatchCandidateSchema, MatchSchema, type Match, type MatchCandidate } from "@fixiyi/contracts";
 import { Badge, Button, Card, EmptyState, ErrorState, Icon, Input, Skeleton } from "@fixiyi/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -204,7 +205,10 @@ export default function MatchPage(): React.JSX.Element | null {
               <ul className="fx-animate-stagger flex flex-col gap-3" data-testid="candidate-list">
                 {candidatesQuery.data.map((candidate) => (
                   <li key={candidate.id} className="fx-row" data-testid="candidate-row">
-                    <strong>{candidate.providerDisplayName}</strong>
+                    {/* The public profile of this artisan — the entry point to it (Decision 70). */}
+                    <Link href={`/providers/${candidate.providerId}`} data-testid="candidate-profile-link">
+                      <strong>{candidate.providerDisplayName}</strong>
+                    </Link>
                     <Badge variant={CANDIDATE_VARIANT[candidate.status]}>{candidate.status}</Badge>
                     <span className="fx-text-muted">
                       vague {(candidate.batchIndex + 1).toString()} · {candidate.distanceKm.toFixed(1)} km · score{" "}

@@ -12,7 +12,6 @@ import {
   Controller,
   Get,
   NotFoundException,
-  Param,
   Patch,
   Post,
   UseGuards,
@@ -86,10 +85,5 @@ export class ProviderController {
     body: UpdateProviderAvailabilityInput,
   ): Promise<ProviderProfile> {
     return this.providers.updateAvailability(user.id, body);
-  }
-
-  @Get(":id")
-  getById(@Param("id") id: string): Promise<ProviderProfile> {
-    return this.providers.getById(id);
   }
 }

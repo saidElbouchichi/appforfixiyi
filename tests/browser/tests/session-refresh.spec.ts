@@ -19,7 +19,7 @@ interface PersistedAuth {
 
 async function loginWithOtp(page: Page): Promise<void> {
   const phone = `+2126${Date.now().toString().slice(-8)}`;
-  await page.goto("/");
+  await page.goto("/login");
   await page.getByTestId("phone-input").fill(phone);
   await page.getByTestId("request-otp-button").click();
 

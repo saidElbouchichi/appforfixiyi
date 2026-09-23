@@ -14,6 +14,7 @@ import { RedisModule } from "./infrastructure/redis/redis.module.js";
 import { MatchingModule } from "./matching/matching.module.js";
 import { MediaModule } from "./media/media.module.js";
 import { ProviderModule } from "./providers/provider.module.js";
+import { PublicProviderModule } from "./providers/public/public-provider.module.js";
 import { RequestModule } from "./requests/request.module.js";
 import { VerificationModule } from "./verification/verification.module.js";
 
@@ -30,6 +31,7 @@ export class AppModule {
         AuthModule,
         CatalogModule,
         ProviderModule,
+        PublicProviderModule,
         CompanyModule,
         VerificationModule,
         MediaModule,

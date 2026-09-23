@@ -1,4 +1,4 @@
-import type { CatalogLevel } from "@fixiyi/contracts";
+import type { CatalogAccentColor, CatalogIcon, CatalogLevel } from "@fixiyi/contracts";
 import { generateId } from "@fixiyi/shared-utils";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import type { HydratedDocument } from "mongoose";
@@ -37,6 +37,18 @@ export class CatalogNodeEntity {
   /** Only meaningful when `level === "COMPLEXITY"` — the "RequiredSkill" relation, as SKILL node ids. */
   @Prop({ type: [String], required: true, default: [] })
   requiredSkillIds!: string[];
+
+  /**
+   * Display metadata (Decision 62 / D3). `null` means "inherit from the
+   * nearest ancestor that has one" — resolved when the tree is built, not
+   * stored, so renaming or re-parenting a node cannot leave a stale copy.
+   * The admissible values are closed lists in `@fixiyi/contracts`.
+   */
+  @Prop({ type: String, default: null })
+  icon!: CatalogIcon | null;
+
+  @Prop({ type: String, default: null })
+  accentColor!: CatalogAccentColor | null;
 
   createdAt!: Date;
   updatedAt!: Date;

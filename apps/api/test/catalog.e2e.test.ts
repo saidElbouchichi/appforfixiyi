@@ -27,6 +27,7 @@ import { login } from "./otp-test-helper.js";
 import { clearRateLimitState } from "./rate-limit-test-helper.js";
 
 const CatalogNodeListSchema = z.array(CatalogNodeSchema);
+const CatalogTreeSchema = z.array(CatalogTreeNodeSchema);
 
 /**
  * Real integration test against MongoDB/Redis Docker (04_ENVIRONMENT.md).
@@ -214,6 +215,95 @@ describe("Catalog (e2e)", () => {
       const withInactive = await request(server).get(`/api/v1/catalog/nodes?level=DOMAIN&includeInactive=true`);
       const found = CatalogNodeListSchema.parse(withInactive.body).find((node) => node.id === created.id);
       expect(found?.active).toBe(false);
+    });
+
+    /**
+     * Decision 62 / D3. Inheritance is resolved when the tree is read, never
+     * copied onto children: setting a domain's colour once has to reach a
+     * category created afterwards, and renaming or re-parenting must not
+     * leave a stale copy behind.
+     */
+    it("inherits icon and accent colour from the nearest ancestor that has one", async () => {
+      const token = await loginAsAdmin();
+      const domain = await createNode(token, { level: "DOMAIN", name: uniqueName("Inherit") });
+      await request(server)
+        .patch(`/api/v1/catalog/nodes/${domain.id}`)
+        .set(...bearer(token))
+        .send({ icon: "bolt", accentColor: "electrician" });
+
+      const category = await createNode(token, { level: "CATEGORY", parentId: domain.id, name: uniqueName("Child") });
+      const service = await createNode(token, { level: "SERVICE", parentId: category.id, name: uniqueName("Grandchild") });
+      await request(server)
+        .patch(`/api/v1/catalog/nodes/${service.id}`)
+        .set(...bearer(token))
+        .send({ icon: "droplet" });
+
+      const tree = await request(server).get("/api/v1/catalog/tree");
+      const domainNode = CatalogTreeSchema.parse(tree.body).find((node) => node.id === domain.id);
+      expect(domainNode?.icon).toBe("bolt");
+
+      const categoryNode = domainNode?.children.find((node) => node.id === category.id);
+      expect(categoryNode?.icon).toBe("bolt");
+      expect(categoryNode?.accentColor).toBe("electrician");
+
+      // Its own icon wins; the colour it never set still comes from the domain.
+      const serviceNode = categoryNode?.children.find((node) => node.id === service.id);
+      expect(serviceNode?.icon).toBe("droplet");
+      expect(serviceNode?.accentColor).toBe("electrician");
+    });
+
+    it("serves the raw values to the back-office, which must know what is inherited", async () => {
+      const token = await loginAsAdmin();
+      const domain = await createNode(token, { level: "DOMAIN", name: uniqueName("RawTree") });
+      await request(server)
+        .patch(`/api/v1/catalog/nodes/${domain.id}`)
+        .set(...bearer(token))
+        .send({ icon: "wrench", accentColor: "carpenter" });
+      const category = await createNode(token, { level: "CATEGORY", parentId: domain.id, name: uniqueName("RawTreeChild") });
+
+      const raw = await request(server).get("/api/v1/catalog/tree?includeInactive=true&rawDisplay=true");
+      const rawChild = CatalogTreeSchema.parse(raw.body)
+        .find((node) => node.id === domain.id)
+        ?.children.find((node) => node.id === category.id);
+      expect(rawChild?.icon).toBeNull();
+      expect(rawChild?.accentColor).toBeNull();
+
+      const resolved = await request(server).get("/api/v1/catalog/tree?includeInactive=true");
+      const resolvedChild = CatalogTreeSchema.parse(resolved.body)
+        .find((node) => node.id === domain.id)
+        ?.children.find((node) => node.id === category.id);
+      expect(resolvedChild?.icon).toBe("wrench");
+    });
+
+    it("keeps the raw value on the admin views, so an administrator sees what is actually set", async () => {
+      const token = await loginAsAdmin();
+      const domain = await createNode(token, { level: "DOMAIN", name: uniqueName("Raw") });
+      await request(server)
+        .patch(`/api/v1/catalog/nodes/${domain.id}`)
+        .set(...bearer(token))
+        .send({ accentColor: "plumber" });
+      const category = await createNode(token, { level: "CATEGORY", parentId: domain.id, name: uniqueName("RawChild") });
+
+      const listed = await request(server).get(`/api/v1/catalog/nodes?level=CATEGORY&parentId=${domain.id}`);
+      const found = CatalogNodeListSchema.parse(listed.body).find((node) => node.id === category.id);
+      expect(found?.accentColor).toBeNull();
+    });
+
+    it("refuses an icon or a colour outside the closed lists", async () => {
+      const token = await loginAsAdmin();
+      const domain = await createNode(token, { level: "DOMAIN", name: uniqueName("Closed") });
+
+      const badIcon = await request(server)
+        .patch(`/api/v1/catalog/nodes/${domain.id}`)
+        .set(...bearer(token))
+        .send({ icon: "rocket" });
+      expect(badIcon.status).toBe(400);
+
+      const badColour = await request(server)
+        .patch(`/api/v1/catalog/nodes/${domain.id}`)
+        .set(...bearer(token))
+        .send({ accentColor: "#FF0000" });
+      expect(badColour.status).toBe(400);
     });
   });
 });

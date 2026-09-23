@@ -1995,3 +1995,66 @@ Tous trouves par l'execution, pas par relecture :
   ne doit **pas** etre utilise, et aucun `reset --hard` n'est lance sans
   accord explicite de l'utilisateur.
 - Date : 2026-09-22
+
+---
+
+## Decision 70 - Vue publique de `GET /providers/:id`
+
+- Contexte : la phase 7 de la refonte design cree l'ecran « profil artisan ».
+  `GET /providers/:id` renvoie aujourd'hui le `ProviderProfile` **entier**,
+  dont `serviceAreas[].center` — le point GPS **exact** du fournisseur — et
+  `userId`. Le telephone et l'e-mail vivent sur `User` et ne sont pas
+  renvoyes par cette route ; la fuite reelle est donc la position exacte.
+- Choix (**decide par l'utilisateur le 2026-09-22**) : la route publique
+  expose une vue restreinte.
+  - **Autorise** : nom, photo, type (bricoleur, technicien, expert,
+    entreprise), competences et services, zone approximative (ville),
+    verifications (badges), reputation (note, nombre d'interventions),
+    disponibilite, langues.
+  - **Interdit** : telephone, e-mail, adresse exacte, coordonnees GPS
+    precises. Ces donnees ne sont revelees qu'apres acceptation d'une offre,
+    par `ConversationService.unlockContact`.
+- Consequence technique : un schema `PublicProviderProfile` distinct de
+  `ProviderProfile`, sur le modele de `ProviderMatchSchema` (deja « vue
+  restreinte deliberee » face a `MatchCandidateSchema`). `GET /providers/:id`
+  renvoie la vue publique ; `GET /providers/me` garde la vue complete.
+- Trois champs de la liste autorisee n'ont **aucune source** aujourd'hui, et
+  ne seront donc pas affichees tant qu'elles n'en ont pas (D2,
+  03_AGENT_PROTOCOL §2) :
+  - **photo** : aucun champ sur `ProviderProfile` — avatar a initiales (D4) ;
+  - **ville** : aucun champ ville, `MAP_PROVIDER=dev`, `reverseGeocode()`
+    sans appelant — la zone sera rendue par `approximateCoordinates()` et le
+    rayon, **sans nom de ville** ;
+  - **reputation** : ni note, ni avis, ni compteur d'interventions
+    n'existent en base (Phase 10 produit) — **rien ne sera affiche**, et
+    surtout aucune valeur inventee.
+  « Entreprise » n'est pas non plus un `ProviderType` : c'est `Company`, un
+  contrat separe.
+- Le badge de verification demande un champ public (`verified`) derive du
+  `VerificationCase` approuve, qui n'existe pas encore : ajout prevu par le
+  plan de la phase 7.
+- Date : 2026-09-22
+
+---
+
+## Decision 71 - Pas de route publique de liste d'artisans (mode DIRECT)
+
+- Contexte : `StartMatchInput` accepte deja `mode: "DIRECT"` avec un
+  `providerId`, mais **aucune route ne liste ni ne cherche les
+  fournisseurs** — `providers` n'expose que `me` et `:id`. Un client ne peut
+  donc designer un artisan que s'il connait deja son identifiant. La phase 7
+  de la refonte devait trancher (`docs/design/PLAN.md`, decisions ouvertes).
+- Options : (a) reporter — la phase livre la recherche **de services**, le
+  DIRECT reste atteignable depuis l'ecran de matching ; (b) ouvrir un
+  `GET /providers` filtre et pagine ; (c) ne lister que les candidats deja
+  dispatches sur une demande.
+- Choix (**decide par l'utilisateur le 2026-09-22**) : **(a) reporter**.
+- Raison, dans les termes de l'utilisateur :
+  - la Phase 7 livre la recherche de services ;
+  - le DIRECT reste atteignable depuis le matching existant ;
+  - pas d'exposition de donnees personnelles dans une phase de design ;
+  - une route publique d'annuaire merite sa propre phase, avec la
+    reputation, la photo et les prix qui la rendraient utilisable.
+- Consequence : l'ecran « liste d'artisans » de la planche reste absent, et
+  l'annuaire est hors perimetre de la refonte (`PHASE_7_PLAN.md` §7 et §10).
+- Date : 2026-09-22

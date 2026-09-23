@@ -34,27 +34,39 @@ async function expectInternalLinksResolve(page: Page): Promise<void> {
   }
 }
 
-test("a signed-out visitor landing on / is sent to login, and every link on it resolves", async ({ page }) => {
+/**
+ * Design phase 7 changed what `/` is: it was a bare redirect to each role's
+ * start screen, it is now the catalogue home. `startRouteFor()` still decides
+ * where a fresh LOGIN lands (Decision 65) — the three tests below draw that
+ * line.
+ */
+test("a signed-out visitor landing on / gets the home, and every link on it resolves", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByTestId("domain-grid")).toBeVisible();
   await expectInternalLinksResolve(page);
 });
 
-test("a signed-in client who clicks the logo stays signed in, on their start screen", async ({ page }) => {
+test("a signed-in client who clicks the logo comes home, still signed in", async ({ page }) => {
   await loginThroughUi(page, uniquePhone("6"));
+  // A fresh login still lands on the client's start screen.
   await expect(page).toHaveURL(/\/requests\/new$/);
 
   await page.getByRole("banner").getByRole("link", { name: "Fixiyi" }).click();
-  await expect(page).toHaveURL(/\/requests\/new$/);
-  await expect(page.getByTestId("description-input")).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  // Still signed in: the home offers the action, not the login link.
+  await expect(page.getByTestId("home-primary-action")).toContainText("Demander");
   await expectInternalLinksResolve(page);
 });
 
-test("a provider opening the app reaches their inbox, not the client form", async ({ page, request }) => {
+test("a provider reaches their inbox from the home, and it is their start screen at login", async ({ page, request }) => {
   const provider = await setUpProvider(request, uniquePhone("7"), `Nav Pro ${Date.now().toString().slice(-4)}`);
   await page.addInitScript(...sessionInitScript(provider.session));
 
   await page.goto("/");
+  await expect(page.getByTestId("domain-grid")).toBeVisible();
+
+  await page.getByTestId("home-start-route").click();
   await expect(page).toHaveURL(/\/provider\/requests$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Demandes");
 });
@@ -94,8 +106,7 @@ test("the navigation holds at tablet width and in Arabic reading order", async (
   await context.addInitScript(...sessionInitScript(provider.session));
   const page = await context.newPage();
 
-  await page.goto("/");
-  await expect(page).toHaveURL(/\/provider\/requests$/);
+  await page.goto("/provider/requests");
   // 768px is exactly where the bottom bar gives way to the header's navigation.
   await expect(page.getByTestId("navbar")).toBeVisible();
   await expect(page.getByTestId("bottom-nav")).toBeHidden();
@@ -115,8 +126,7 @@ test("a provider on a phone gets the bottom bar, and every entry of it answers",
   await context.addInitScript(...sessionInitScript(provider.session));
   const page = await context.newPage();
 
-  await page.goto("/");
-  await expect(page).toHaveURL(/\/provider\/requests$/);
+  await page.goto("/provider/requests");
 
   const bottomNav = page.getByTestId("bottom-nav");
   await expect(bottomNav).toBeVisible();

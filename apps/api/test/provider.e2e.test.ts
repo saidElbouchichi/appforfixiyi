@@ -2,7 +2,7 @@ import "reflect-metadata";
 import "./setup-env.js";
 
 import { loadEnv } from "@fixiyi/config";
-import { ProblemDetailsSchema, ProviderProfileSchema, type CreateProviderProfileInput } from "@fixiyi/contracts";
+import { ProblemDetailsSchema, ProviderProfileSchema, PublicProviderProfileSchema, type CreateProviderProfileInput } from "@fixiyi/contracts";
 import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
@@ -112,9 +112,10 @@ describe("Providers (e2e)", () => {
     expect(duplicate.status).toBe(409);
     expect(ProblemDetailsSchema.parse(duplicate.body).code).toBe("PROVIDER_PROFILE_ALREADY_EXISTS");
 
+    // Public view since Decision 70 — `ProviderProfileSchema` no longer describes this response.
     const byId = await request(server).get(`/api/v1/providers/${profile.id}`);
     expect(byId.status).toBe(200);
-    expect(ProviderProfileSchema.parse(byId.body).id).toBe(profile.id);
+    expect(PublicProviderProfileSchema.parse(byId.body).id).toBe(profile.id);
   });
 
   it("rejects skillIds/serviceIds that don't reference real catalog nodes", async () => {
@@ -150,5 +151,64 @@ describe("Providers (e2e)", () => {
     expect(profile.skillIds).toEqual([firstSkillId]);
     expect(profile.availability).toHaveLength(1);
     expect(profile.serviceAreas[0]?.radiusKm).toBe(20);
+  });
+  /**
+   * Decision 70. The exact centre is the whole point: a provider's service
+   * area is their home or workshop often enough that publishing it would be
+   * publishing their address. These assertions fail if the route is ever
+   * widened back to the full `ProviderProfile`.
+   */
+  it("serves a public view that carries no identity, no exact position and no invented reputation", async () => {
+    const token = await loginAsProvider();
+    const created = await request(server).post("/api/v1/providers/me").set(...bearer(token)).send(validProfile);
+    const providerId = ProviderProfileSchema.parse(created.body).id;
+
+    const exactCenter: [number, number] = [-7.612345, 33.512345];
+    await request(server)
+      .patch("/api/v1/providers/me")
+      .set(...bearer(token))
+      .send({ serviceAreas: [{ center: { type: "Point", coordinates: exactCenter }, radiusKm: 20 }] });
+
+    const response = await request(server).get(`/api/v1/providers/${providerId}`);
+    expect(response.status).toBe(200);
+
+    const body = response.body as Record<string, unknown>;
+    for (const forbidden of ["userId", "serviceAreas", "phone", "email", "address", "updatedAt", "rating", "reviewCount", "interventionCount"]) {
+      expect(body).not.toHaveProperty(forbidden);
+    }
+
+    const publicProfile = PublicProviderProfileSchema.parse(body);
+    expect(publicProfile.serviceZones).toHaveLength(1);
+    expect(publicProfile.serviceZones[0]?.radiusKm).toBe(20);
+    // Blurred, not copied: an equal coordinate would mean the exact point went out.
+    expect(publicProfile.serviceZones[0]?.approximateCenter.coordinates).not.toEqual(exactCenter);
+  });
+
+  it("does not claim a verification nobody granted", async () => {
+    const token = await loginAsProvider();
+    const created = await request(server).post("/api/v1/providers/me").set(...bearer(token)).send(validProfile);
+    const providerId = ProviderProfileSchema.parse(created.body).id;
+
+    const response = await request(server).get(`/api/v1/providers/${providerId}`);
+    expect(PublicProviderProfileSchema.parse(response.body).verified).toBe(false);
+  });
+
+  it("keeps the full profile on GET /providers/me — it is the provider's own", async () => {
+    const token = await loginAsProvider();
+    await request(server).post("/api/v1/providers/me").set(...bearer(token)).send(validProfile);
+    await request(server)
+      .patch("/api/v1/providers/me")
+      .set(...bearer(token))
+      .send({ serviceAreas: [{ center: { type: "Point", coordinates: [-7.6, 33.5] }, radiusKm: 20 }] });
+
+    const mine = await request(server).get("/api/v1/providers/me").set(...bearer(token));
+    const profile = ProviderProfileSchema.parse(mine.body);
+    expect(profile.serviceAreas[0]?.center.coordinates).toEqual([-7.6, 33.5]);
+    expect(profile.userId).toBeTruthy();
+  });
+
+  it("returns 404 for a provider id that does not exist", async () => {
+    const response = await request(server).get("/api/v1/providers/018f5b0a-6e2a-7c3d-9b1a-1234567890ff");
+    expect(response.status).toBe(404);
   });
 });

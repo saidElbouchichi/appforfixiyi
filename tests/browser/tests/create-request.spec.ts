@@ -21,7 +21,8 @@ test("client logs in with OTP and creates a service request with a real photo up
 
   const phone = `+2126${Date.now().toString().slice(-8)}`;
 
-  await page.goto("/");
+  // `/` is the catalogue home since design phase 7; the login screen is its own route.
+  await page.goto("/login");
   await expect(page).toHaveURL(/\/login$/);
   await page.screenshot({ path: "screenshots/01-login-phone.png", animations: "disabled" });
 

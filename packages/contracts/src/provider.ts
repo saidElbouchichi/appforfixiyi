@@ -90,3 +90,53 @@ export const UpdateProviderProfileInputSchema = z.object({
   serviceAreas: z.array(ServiceAreaSchema).optional(),
 });
 export type UpdateProviderProfileInput = z.infer<typeof UpdateProviderProfileInputSchema>;
+
+/**
+ * The public view's zone: the centre is APPROXIMATE (`approximateCoordinates()`
+ * in `@fixiyi/shared-utils`), never the stored one. Deliberately not
+ * `ServiceAreaSchema` — a different field name is what stops the exact centre
+ * from being passed through by accident.
+ */
+export const PublicServiceZoneSchema = z
+  .object({
+    approximateCenter: GeoPointSchema,
+    radiusKm: z.number().positive().max(500),
+  })
+  .strict();
+export type PublicServiceZone = z.infer<typeof PublicServiceZoneSchema>;
+
+/**
+ * What `GET /providers/:id` returns to anyone (Decision 70). Same intent as
+ * `ProviderMatchSchema` facing `MatchCandidateSchema`: a deliberately poorer
+ * shape, not a filtered copy.
+ *
+ * Absent by design, and each for its own reason:
+ * - `userId` — identifies the human behind the profile;
+ * - `serviceAreas` — carries the EXACT centre that `serviceZones` blurs;
+ * - phone, e-mail, exact address — released only after an offer is accepted,
+ *   through `ConversationService.unlockContact`;
+ * - rating, review count, intervention count — **no source exists** (D2,
+ *   03_AGENT_PROTOCOL §2); inventing them is what this schema prevents.
+ *
+ * `.strict()` is the guard rail: re-widening the route fails the contract
+ * tests instead of leaking quietly.
+ */
+export const PublicProviderProfileSchema = z
+  .object({
+    id: IdSchema,
+    type: ProviderTypeSchema,
+    displayName: z.string().min(1),
+    bio: z.string().nullable(),
+    languages: z.array(z.string()),
+    experienceYears: z.number().int().nonnegative().nullable(),
+    skillIds: z.array(IdSchema),
+    serviceIds: z.array(IdSchema),
+    availability: z.array(AvailabilitySlotSchema),
+    availabilityStatus: ProviderAvailabilityStatusSchema,
+    serviceZones: z.array(PublicServiceZoneSchema),
+    /** Derived from an APPROVED `VerificationCase`. A bare boolean: nothing about the case itself leaves. */
+    verified: z.boolean(),
+    createdAt: IsoDateTimeSchema,
+  })
+  .strict();
+export type PublicProviderProfile = z.infer<typeof PublicProviderProfileSchema>;

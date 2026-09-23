@@ -12,12 +12,13 @@ import {
 } from "@fixiyi/contracts";
 import { Badge, Button, Card, ErrorState, Icon, Input, RadioGroup, Select, Skeleton } from "@fixiyi/ui";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { z } from "zod";
 
 import { ApiError, apiFetch, uploadFile } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
+import { ancestryOf } from "../../../lib/catalog";
 
 const TreeListSchema = z.array(CatalogTreeNodeSchema);
 const RequestListSchema = z.array(ServiceRequestSchema);
@@ -59,8 +60,9 @@ function toOptions(nodes: CatalogTreeNode[]): { value: string; label: string }[]
  * pilote par le vrai pipeline `apps/api/src/media/`. Construit sur
  * `@fixiyi/ui` (01_SPEC_PRODUCT.md #82).
  */
-export default function NewRequestPage(): React.JSX.Element | null {
+function NewRequestForm(): React.JSX.Element | null {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthHydrated();
 
@@ -80,6 +82,8 @@ export default function NewRequestPage(): React.JSX.Element | null {
   const [serviceId, setServiceId] = useState("");
   const [interventionTypeId, setInterventionTypeId] = useState("");
   const [complexityId, setComplexityId] = useState("");
+  /** Arriving from the catalogue search, which links a SERVICE (design phase 7). */
+  const preselectedServiceId = searchParams.get("serviceId");
   const [description, setDescription] = useState("");
   const [urgency, setUrgency] = useState<RequestUrgency>("NORMAL");
   const [address, setAddress] = useState("");
@@ -87,6 +91,23 @@ export default function NewRequestPage(): React.JSX.Element | null {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [pendingMedia, setPendingMedia] = useState<PendingMedia[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
+
+  /**
+   * Opening the form from a catalogue search result fills the cascade for the
+   * visitor. Only once, and only while they have chosen nothing: re-running it
+   * would fight whatever they picked afterwards.
+   */
+  useEffect(() => {
+    if (!preselectedServiceId || domainId !== "" || !treeQuery.data) {
+      return;
+    }
+    const [domain, category, service] = ancestryOf(treeQuery.data, preselectedServiceId);
+    if (domain && category && service) {
+      setDomainId(domain);
+      setCategoryId(category);
+      setServiceId(service);
+    }
+  }, [preselectedServiceId, domainId, treeQuery.data]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<ServiceRequest | null>(null);
 
@@ -416,5 +437,14 @@ export default function NewRequestPage(): React.JSX.Element | null {
         </Button>
       </div>
     </main>
+  );
+}
+
+/** `useSearchParams()` needs a Suspense boundary to prerender (Next.js). */
+export default function NewRequestPage(): React.JSX.Element {
+  return (
+    <Suspense fallback={null}>
+      <NewRequestForm />
+    </Suspense>
   );
 }

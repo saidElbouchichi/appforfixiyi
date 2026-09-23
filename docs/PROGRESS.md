@@ -2,15 +2,27 @@
 
 ## Derniere mise a jour
 
+2026-09-23 - Refonte design : **phase 7 (Pages principales) TERMINEE** —
+`docs/design/PHASE_7_REPORT.md` : accueil sur le vrai catalogue, recherche de
+services, profil artisan en vue publique restreinte (Decision 70), plus les
+trois changements de contrat qui les rendent possibles
+(`PublicProviderProfile`, `icon`/`accentColor` sur le catalogue, badge
+`verified`). 48 scenarios Playwright, gates 4/4 verts.
+
 2026-09-22 - Refonte design : **phase 6 (Navigation) TERMINEE** —
 `docs/design/PHASE_6_REPORT.md`. Depot pousse sur GitHub
-(`origin/main`, https://github.com/saidElbouchichi/appforfixiyi).
+(`origin/main`, https://github.com/saidElbouchichi/appforfixiyi). **CI
+GitHub Actions verte** (`a46fa28`) : le workflow ne demarrait pas MinIO, que
+`docker-compose.yml` fournit en dev — les 11 suites e2e de `apps/api`
+echouaient au boot sur `ECONNREFUSED :9000`. Phase 7 de la refonte : plan
+ecrit (`docs/design/PHASE_7_PLAN.md`), **implementation en attente du GO**.
 
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a **6 TERMINEES** ;
-STOP, en attente de "GO PHASE 7" de la refonte (pages principales).
+refonte design). Refonte Design System V2 : phases 1 a **7 TERMINEES** ;
+STOP, en attente de "GO PHASE 8" de la refonte (pages secondaires : creation
+de demande, matching, boite fournisseur, chat, admin).
 
 ## Phases terminees
 
@@ -257,9 +269,8 @@ dedie pousse sur `origin/main`.
 
 ## Prochaine action exacte
 
-**Aucune** — STOP, attendre `GO PHASE 7` de la **refonte** (pages
-principales : accueil sur le vrai catalogue, recherche de services, profil
-artisan en vue publique). Apres la refonte seulement, la Phase 7 **produit**
+**Aucune** — STOP, attendre `GO PHASE 8` de la **refonte** (pages
+secondaires). Apres la refonte seulement, la Phase 7 **produit**
 (Offers), qui devra appeler `ConversationService.unlockContact` a
 l'acceptation d'une offre.
 
@@ -267,11 +278,22 @@ l'acceptation d'une offre.
 
 Aucun blocage technique. Decisions attendues de l'utilisateur : stockage des
 jetons de `apps/web` (Decision 66), conservation des messages supprimes
-(Decision 59), couleur de Domotique, URL des comptes sociaux, vue publique de
-`GET /providers/:id` (necessaire a la phase 7 de la refonte), logo.
+(Decision 59), couleur de Domotique, URL des comptes sociaux, logo.
+
+Signale par la phase 7 de la refonte, **non decide seul** :
+`GET /providers/:id` est public et sans limite de debit, ce qui rend les
+profils enumerables — la Decision 68 a ecarte le rate limit sur les routes de
+lecture, l'enumeration de profils merite peut-etre une exception.
 
 A traiter avant la production : pagination de `GET /requests/mine` et
-`GET /conversations` (non bornees), `trustProxy` (Decision 60).
+`GET /conversations` (non bornees), `trustProxy` (Decision 60),
+**`STORAGE_PROVIDER` est un parametre mort** — declare dans
+`packages/config/src/env-schema.ts:48`, lu nulle part : `STORAGE_PROVIDER=fake`
+dans `.env.test.example` ne desactive rien, `StorageService` construit son
+client S3 et cree son bucket dans tous les cas. C'est ce qui a masque
+l'absence de MinIO dans la CI jusqu'au 2026-09-22. A implementer ou a retirer
+du schema ; **pas bloquant pour la phase 7** (decide par l'utilisateur le
+2026-09-22).
 
 ## Validation humaine requise
 
@@ -287,7 +309,11 @@ A traiter avant la production : pagination de `GET /requests/mine` et
 - [ ] conservation des messages supprimes (Decision 59 — choix juridique)
 - [ ] stockage des jetons de `apps/web` (Decision 66 — architecture d'auth)
 - [x] phase 6 de la refonte design ("GO PHASE 6" recu le 2026-09-22)
-- [ ] phase 7 de la refonte design ("GO PHASE 7" pas encore recu)
+- [x] phase 7 de la refonte design ("GO PHASE 7" recu le 2026-09-22, GO
+  d'implementation le 2026-09-22) — **TERMINEE**
+- [x] vue publique de `GET /providers/:id` (Decision 70)
+- [x] route de liste d'artisans (mode DIRECT) : reportee (Decision 71)
+- [ ] phase 8 de la refonte design ("GO PHASE 8" pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
 
@@ -296,18 +322,20 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (67 a 69 = choix du dernier tour)
-3. docs/design/PHASE_6_REPORT.md et docs/design/PLAN.md
+2. docs/DECISIONS.md (70 et 71 = choix du dernier tour)
+3. docs/design/PHASE_7_REPORT.md et docs/design/PLAN.md
 
 Contexte : deux numerotations coexistent. Produit : phases 0 a 6 terminees,
 la Phase 7 (Offers) attend la FIN de la refonte ; elle devra appeler
 ConversationService.unlockContact a l'acceptation d'une offre. Refonte
-design : phases 1 a 6 terminees (la 6 = navigation par role, ecrans
-/requests, /conversations, /profile, deconnexion). 731 tests, 38 scenarios
-Playwright, gates verts, depot pousse sur origin/main.
+design : phases 1 a 7 terminees (la 6 = navigation par role ; la 7 = accueil
+sur le vrai catalogue, recherche de services, profil artisan en vue publique
+restreinte, Decisions 70 et 71). 782 tests, 48 scenarios Playwright, gates
+verts, depot pousse sur origin/main, CI GitHub Actions verte.
 
-La suite est la phase 7 de la REFONTE (pages principales). N'attends que
-"GO PHASE 7" de l'utilisateur, et fais-lui preciser refonte ou produit ;
+La suite est la phase 8 de la REFONTE (pages secondaires : creation de
+demande, matching, boite fournisseur, chat, admin). N'attends que
+"GO PHASE 8" de l'utilisateur, et fais-lui preciser refonte ou produit ;
 sans ce signal explicite, ne commence rien - redemande confirmation.
 
 Verifie d'abord que Docker tourne toujours (`docker compose -f

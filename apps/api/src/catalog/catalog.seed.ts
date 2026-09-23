@@ -40,7 +40,8 @@ export class CatalogSeedService implements OnModuleInit {
       return id;
     };
 
-    const electricite = await this.catalog.create({ level: "DOMAIN", name: "Electricite", order: 0 });
+    // Trade identity of the domain (Decision 62): every node below inherits it unless it sets its own.
+    const electricite = await this.catalog.create({ level: "DOMAIN", name: "Electricite", order: 0, icon: "bolt", accentColor: "electrician" });
     const installation = await this.catalog.create({ level: "CATEGORY", parentId: electricite.id, name: "Installation electrique", order: 0 });
     const prise = await this.catalog.create({ level: "SERVICE", parentId: installation.id, name: "Installation de prise", order: 0 });
     const installationNeuve = await this.catalog.create({
@@ -88,7 +89,7 @@ export class CatalogSeedService implements OnModuleInit {
       requiredSkillIds: [skill("Diagnostic electrique"), skill("Certification haute tension")],
     });
 
-    const plomberie = await this.catalog.create({ level: "DOMAIN", name: "Plomberie", order: 1 });
+    const plomberie = await this.catalog.create({ level: "DOMAIN", name: "Plomberie", order: 1, icon: "droplet", accentColor: "plumber" });
     const fuite = await this.catalog.create({ level: "CATEGORY", parentId: plomberie.id, name: "Fuite d'eau", order: 0 });
     const reparationFuite = await this.catalog.create({ level: "SERVICE", parentId: fuite.id, name: "Reparation de fuite", order: 0 });
     const diagnosticFuite = await this.catalog.create({

@@ -16,6 +16,50 @@ export const CATALOG_PARENT_LEVEL: Record<CatalogLevel, CatalogLevel | null> = {
   SKILL: null,
 };
 
+/**
+ * Display metadata for a catalogue node (Decision 62 / D3). Both lists are
+ * CLOSED: a free string would let the back-office point at a glyph that does
+ * not exist, and a free colour would escape the trade palette whose contrast
+ * pairs were measured in phase 1 of the redesign.
+ *
+ * `apps/web` holds the test that fails if either list drifts from the Design
+ * System — `@fixiyi/contracts` stays dependency-free (zod only), so it cannot
+ * import the icons or the tokens itself.
+ */
+export const CATALOG_ICONS = [
+  "bolt",
+  "droplet",
+  "snowflake",
+  "key",
+  "paint-roller",
+  "hammer",
+  "washing-machine",
+  "smart-home",
+  "monitor",
+  "sparkles",
+  "leaf",
+  "wrench",
+  "tools",
+] as const;
+export const CatalogIconSchema = z.enum(CATALOG_ICONS);
+export type CatalogIcon = z.infer<typeof CatalogIconSchema>;
+
+/** The trade colours of `@fixiyi/design-tokens` (`colors.trade`), by key. */
+export const TRADE_ACCENT_COLORS = [
+  "electrician",
+  "plumber",
+  "hvac",
+  "locksmith",
+  "painter",
+  "carpenter",
+  "appliance",
+  "it",
+  "cleaning",
+  "gardening",
+] as const;
+export const CatalogAccentColorSchema = z.enum(TRADE_ACCENT_COLORS);
+export type CatalogAccentColor = z.infer<typeof CatalogAccentColorSchema>;
+
 /** One node of the catalog tree — same shape at every level (see Decision: 1 generic collection instead of 6). */
 export const CatalogNodeSchema = z.object({
   id: IdSchema,
@@ -27,6 +71,9 @@ export const CatalogNodeSchema = z.object({
   active: z.boolean(),
   /** Only meaningful when `level === "COMPLEXITY"` — the "RequiredSkill" relation from #8, as skill ids. */
   requiredSkillIds: z.array(IdSchema),
+  /** Display metadata (Decision 62). `.default(null)` keeps every node stored before these fields existed valid. */
+  icon: CatalogIconSchema.nullable().default(null),
+  accentColor: CatalogAccentColorSchema.nullable().default(null),
   createdAt: IsoDateTimeSchema,
   updatedAt: IsoDateTimeSchema,
 });
@@ -46,6 +93,8 @@ export const CreateCatalogNodeInputSchema = z.object({
   description: z.string().max(2000).nullable().optional(),
   order: z.number().int().optional(),
   requiredSkillIds: z.array(IdSchema).optional(),
+  icon: CatalogIconSchema.nullable().optional(),
+  accentColor: CatalogAccentColorSchema.nullable().optional(),
 });
 export type CreateCatalogNodeInput = z.infer<typeof CreateCatalogNodeInputSchema>;
 
@@ -55,5 +104,7 @@ export const UpdateCatalogNodeInputSchema = z.object({
   order: z.number().int().optional(),
   active: z.boolean().optional(),
   requiredSkillIds: z.array(IdSchema).optional(),
+  icon: CatalogIconSchema.nullable().optional(),
+  accentColor: CatalogAccentColorSchema.nullable().optional(),
 });
 export type UpdateCatalogNodeInput = z.infer<typeof UpdateCatalogNodeInputSchema>;

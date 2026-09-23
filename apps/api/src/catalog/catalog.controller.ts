@@ -54,8 +54,8 @@ export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
 
   @Get("tree")
-  getTree(@Query("includeInactive") includeInactive?: string): Promise<CatalogTreeNode[]> {
-    return this.catalog.getTree(includeInactive === "true");
+  getTree(@Query("includeInactive") includeInactive?: string, @Query("rawDisplay") rawDisplay?: string): Promise<CatalogTreeNode[]> {
+    return this.catalog.getTree(includeInactive === "true", rawDisplay === "true");
   }
 
   @Get("skills")
