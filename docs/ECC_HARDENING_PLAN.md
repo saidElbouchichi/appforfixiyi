@@ -13,9 +13,19 @@ Statut : **HIGH livre** (H1, H2, H3), **M1 livre**, MEDIUM en cours.
 | M1 couverture mesuree et verrouillee | **fait** | **Decision 74** |
 | M2 LOG_LEVEL applique | **fait** | `8f42a6a`, **Decision 75** |
 | M3 pagination | **fait, en partie** | `adcea6d`, **Decision 76** |
-| M4 `NewRequestForm` decoupe | a faire | |
+| M4 `NewRequestForm` decoupe | **fait** | `fac65d8`, **Decision 78** |
 | M5 lectures authentifiees | **fait** | `b33c9b9`, **Decision 77** |
-| L1 / L2 / L3 | a faire | |
+| L1 recherche prealable documentee | **fait** | `03_AGENT_PROTOCOL.md` §3bis |
+| L2 fonctions longues | **fait, sans code** | **Decision 79** — la mesure de l'audit etait fausse |
+| L3 debris des e2e | **fait** | nettoyage en `afterAll` du catalogue |
+
+**Tout le plan est livre.** Deux taches ne se sont pas terminees comme
+elles avaient ete ecrites, et c'est le resultat :
+- **M3** n'est pagine qu'a moitie (voir ci-dessous) ;
+- **L2** ne livre aucun code : `enabledIndexes`, que l'audit annoncait a 142
+  lignes, en fait **une**. Le compteur d'accolades de l'audit courait
+  au-dela des fonctions flechees d'une ligne. Mesure refaite : 22 fonctions
+  et non 23, dont 19 composants React longs de leur JSX (Decision 79).
 
 **M3 n'est delivree qu'a moitie, et volontairement.**
 `GET /requests/mine` est pagine par curseur. `GET /conversations` ne l'est

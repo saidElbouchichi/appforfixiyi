@@ -2359,3 +2359,30 @@ le compteur, et il est pose, pas resolu.
   `data-testid` existants. **Aucun n'a ete modifie** pendant l'extraction —
   c'est ce qui prouve que le comportement n'a pas bouge.
 - Date : 2026-09-23
+
+---
+
+## Decision 79 - Fonctions longues : la mesure etait fausse, et la regle s'arrete la
+
+- Contexte : l'audit ECC annoncait **23 fonctions de plus de 50 lignes** et
+  designait `enabledIndexes` (142 lignes) et `Menu` (133) dans
+  `packages/ui` comme des cas a reprendre (tache L2).
+- **`enabledIndexes` fait une ligne.** C'est une fonction flechee sur une
+  seule ligne ; le script de l'audit comptait les accolades et, ne trouvant
+  pas de bloc, courait jusqu'au suivant. Refactorer sur cette base aurait
+  ete du bruit.
+- Mesure refaite correctement : **22 fonctions**, et la liste est desormais
+  homogene — 19 composants React, 2 crochets, 1 script de graine.
+- Choix : **aucun refactor supplementaire.**
+  - Les 19 composants sont longs de leur JSX. La regle ECC
+    `coding-style.md` vise la complexite ; les decouper deplacerait du
+    balisage d'un fichier a l'autre (voir Decision 78).
+  - `useChatThread` (101 lignes) est un crochet **cohesif** : sept etats qui
+    doivent rester synchronises pour un seul objet, le fil de discussion en
+    direct. Le decouper disperserait ce qui doit rester ensemble — et la
+    seule separation qui avait du sens, `useRealtime`, a deja ete faite.
+  - `seed` (83 lignes) est un script lineaire sans branche.
+- Ce que cette tache livre n'est donc pas du code mais **une mesure juste**
+  et la raison de s'arreter. Un audit qui se trompe et le reconnait vaut
+  mieux qu'un audit qu'on applique a la lettre.
+- Date : 2026-09-25

@@ -66,6 +66,10 @@ describe("Catalog (e2e)", () => {
   }, 30_000);
 
   afterAll(async () => {
+    // Deactivating needs an admin, so it happens before the app is torn down.
+    if (createdNodeIds.length > 0) {
+      await deactivateCreatedNodes(await loginAsAdmin());
+    }
     await app.close();
   });
 
@@ -86,13 +90,34 @@ describe("Catalog (e2e)", () => {
   }
 
   /** Creates a catalog node as the given admin token and returns the parsed, typed node. */
+  /**
+   * Every node this suite creates is remembered and deactivated afterwards
+   * (ECC hardening, L1/L3). They used to stay ACTIVE in the development
+   * catalogue for good, and since design phase 7 put the catalogue on the
+   * home page, `Inherit 4821` and friends showed up in the grid a developer
+   * looks at. A test that leaves debris in the screen it tests is a test that
+   * costs more than it gives.
+   */
+  const createdNodeIds: string[] = [];
+
   async function createNode(token: string, input: Partial<CreateCatalogNodeInput> & { level: CreateCatalogNodeInput["level"] }): Promise<CatalogNode> {
     const response = await request(server)
       .post("/api/v1/catalog/nodes")
       .set(...bearer(token))
       .send(input);
     expect(response.status).toBe(201);
-    return CatalogNodeSchema.parse(response.body);
+    const node = CatalogNodeSchema.parse(response.body);
+    createdNodeIds.push(node.id);
+    return node;
+  }
+
+  /** Children first: the API refuses to leave a node pointing at a dead parent. */
+  async function deactivateCreatedNodes(token: string): Promise<void> {
+    for (const id of [...createdNodeIds].reverse()) {
+      await request(server)
+        .delete(`/api/v1/catalog/nodes/${id}`)
+        .set(...bearer(token));
+    }
   }
 
   describe("Public reads", () => {

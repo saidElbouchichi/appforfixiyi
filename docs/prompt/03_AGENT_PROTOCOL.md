@@ -26,6 +26,8 @@ production-ready, pas une demo.
     â†“
     IDENTIFIER phase suivante (jamais refaire une phase validee)
     â†“
+    CHERCHER AVANT D'ECRIRE (voir 3bis)
+    â†“
     PLANIFIER (ecrire dans docs/phases/PHASE_X_PLAN.md)
     â†“
     IMPLEMENTER
@@ -43,6 +45,33 @@ production-ready, pas une demo.
     METTRE A JOUR docs/DECISIONS.md si decision prise
     â†“
     STOP + attendre GO PHASE X+1
+
+## 3bis. CHERCHER AVANT D'ECRIRE
+
+Avant d'implementer quelque chose de non trivial, chercher si ca existe
+deja, dans cet ordre :
+
+1. **Le depot lui-meme, d'abord.** C'est la regle qui a le plus servi :
+   la pagination de la Decision 76 a repris la forme `{ items, hasMore }`
+   que le chat avait deja ; le commutateur `STORAGE_PROVIDER` de la
+   Decision 73 a repris le motif que `SMS_PROVIDER`, `EMAIL_PROVIDER` et
+   `MAP_PROVIDER` respectaient deja. Deux fois, la bonne reponse etait a
+   quelques fichiers de la.
+2. **Recherche de code public** (`gh search code`, `gh search repos`) pour
+   une implementation eprouvee a reprendre plutot qu'a reecrire.
+3. **Documentation de l'editeur** (Context7, ou la doc officielle) pour
+   confirmer le comportement d'une API et sa version.
+4. **Registres de paquets** (npm) avant d'ecrire un utilitaire : une
+   bibliotheque eprouvee vaut mieux qu'un equivalent maison.
+5. **Recherche web large** en dernier, quand les precedents n'ont pas suffi.
+
+Regle ECC `development-workflow.md`, laissee en attente par la Decision 68
+et adoptee par l'audit du 2026-09-23 (`docs/ECC_HARDENING_PLAN.md`, L1).
+
+Elle ne remplace pas le jugement : reprendre une solution qui ne correspond
+pas au besoin coute plus cher que d'ecrire la bonne. Et elle ne prime pas
+sur Fixiyi — une forme deja etablie dans le depot l'emporte sur une forme
+plus repandue ailleurs.
 
 ## 4. FORMAT DU RAPPORT DE PHASE
 
