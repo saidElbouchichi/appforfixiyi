@@ -5,6 +5,7 @@ import {
   CatalogTreeNodeSchema,
   CreateUploadSessionOutputSchema,
   MediaSchema,
+  ServiceRequestPageSchema,
   ServiceRequestSchema,
   type CatalogTreeNode,
   type RequestUrgency,
@@ -21,7 +22,6 @@ import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 import { ancestryOf } from "../../../lib/catalog";
 
 const TreeListSchema = z.array(CatalogTreeNodeSchema);
-const RequestListSchema = z.array(ServiceRequestSchema);
 
 type MediaUploadStatus = "pending" | "uploading" | "ready" | "rejected" | "error";
 
@@ -119,8 +119,10 @@ function NewRequestForm(): React.JSX.Element | null {
 
     async function initializeDraft(): Promise<void> {
       try {
-        const mine = RequestListSchema.parse(await apiFetch("/api/v1/requests/mine", { auth: true }));
-        const draft = mine.find((candidate) => candidate.status === "DRAFT");
+        // The first page is newest-first and a client holds at most one open
+        // draft, which they just started — it cannot be further down (Decision 76).
+        const mine = ServiceRequestPageSchema.parse(await apiFetch("/api/v1/requests/mine", { auth: true }));
+        const draft = mine.requests.find((candidate) => candidate.status === "DRAFT");
         if (draft) {
           setRequestId(draft.id);
           return;

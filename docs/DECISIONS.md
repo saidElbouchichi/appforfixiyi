@@ -2255,3 +2255,49 @@ son `main.ts`, demarre par Docker et par aucun test unitaire.
     `{}`, et c'est precisement ce pour quoi on l'a journalise.
 - Il ne reste **aucun `console.*`** dans le code de production du depot.
 - Date : 2026-09-23
+
+---
+
+## Decision 76 - Pagination par curseur sur `GET /requests/mine`
+
+- Contexte : audit ECC. `GET /requests/mine` renvoyait **toutes** les demandes
+  d'un client, sans borne — point deja signale dans `PROGRESS.md` avant la
+  production.
+- Forme retenue : celle que le depot avait **deja** invente pour le chat —
+  `{ items, hasMore }` avec un curseur, jamais un decalage. Pas l'enveloppe
+  `{ success, data, meta }` de la regle ECC `patterns.md`, que la
+  Decision 68 a ecartee au profit de Problem Details ; Fixiyi prime.
+- Curseur : **l'identifiant de la derniere ligne de la page**. Les
+  identifiants sont des UUIDv7, donc `_id` decroissant **est** `createdAt`
+  decroissant : un seul champ indexe, aucune rupture d'egalite a gerer,
+  aucune dependance a l'horloge. Le service lit `limit + 1` lignes pour
+  repondre `hasMore` sans seconde requete de comptage.
+- Bornes partagees (`LIST_PAGE_DEFAULT_LIMIT` 20, `LIST_PAGE_MAX_LIMIT` 100)
+  pour qu'un appelant n'ait pas a apprendre un plafond par route.
+- Cote interface : la liste des demandes passe en `useInfiniteQuery` avec un
+  bouton « Afficher les demandes plus anciennes ». Le formulaire de nouvelle
+  demande, qui cherchait un brouillon dans la liste entiere, se contente de
+  la premiere page : elle est triee du plus recent au plus ancien et un
+  client n'a qu'un brouillon ouvert, celui qu'il vient de commencer.
+
+### `GET /conversations` : **pas** pagine, et pourquoi
+
+Le travail a ete fait puis **retire**, ce qui est le resultat utile de cette
+tache : paginer la boite de reception **casse le compteur de non-lus**.
+
+`totalUnread` additionne les `unreadCount` de la liste ; paginee, la
+pastille ne compterait plus que la premiere page et afficherait « 3 » la ou
+il y en a 7. Un badge faux est pire qu'un badge absent.
+
+Le calculer correctement demande soit de charger toutes les conversations —
+ce qui annule la pagination — soit un compteur denormalise sur la
+conversation, c'est-a-dire une **modification du modele de donnees** qui
+merite sa propre decision et sa propre validation
+(`05_DECISION_POLICY.md`), pas d'etre glissee comme effet de bord d'une
+tache de pagination.
+
+La liste reste donc non bornee, et c'est un choix assume : elle grandit avec
+les conversations d'**un** utilisateur, pas avec la base. Le vrai sujet est
+le compteur, et il est pose, pas resolu.
+
+- Date : 2026-09-25

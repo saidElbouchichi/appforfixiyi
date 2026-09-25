@@ -1,19 +1,17 @@
 "use client";
 
-import { ServiceRequestSchema, type RequestStatus, type ServiceRequest } from "@fixiyi/contracts";
+import { ServiceRequestPageSchema, type RequestStatus, type ServiceRequest } from "@fixiyi/contracts";
 import { Badge, Button, Card, EmptyState, ErrorState, Icon, Skeleton, type BadgeVariant } from "@fixiyi/ui";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { z } from "zod";
 
 import { ApiError, apiFetch } from "../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../lib/auth-store";
 import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../lib/catalog";
 import { NAV_HREFS, requestHref } from "../../lib/navigation";
 
-const RequestListSchema = z.array(ServiceRequestSchema);
 const REQUESTS_KEY = ["my-requests"];
 
 const DATE_FORMAT = new Intl.DateTimeFormat("fr-MA", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -34,8 +32,10 @@ const STATUS_VARIANT: Record<RequestStatus, BadgeVariant> = {
   EXPIRED: "warning",
 };
 
-async function fetchMyRequests(): Promise<ServiceRequest[]> {
-  return RequestListSchema.parse(await apiFetch("/api/v1/requests/mine", { auth: true }));
+/** One page, newest first; `before` is the previous page's last id (Decision 76). */
+async function fetchMyRequests(before?: string): Promise<{ requests: ServiceRequest[]; hasMore: boolean }> {
+  const query = before ? `?before=${before}` : "";
+  return ServiceRequestPageSchema.parse(await apiFetch(`/api/v1/requests/mine${query}`, { auth: true }));
 }
 
 function RequestRow({ request, serviceName }: { request: ServiceRequest; serviceName: string }): React.JSX.Element {
@@ -82,7 +82,15 @@ export default function MyRequestsPage(): React.JSX.Element | null {
     }
   }, [hydrated, user, router]);
 
-  const requestsQuery = useQuery({ queryKey: REQUESTS_KEY, queryFn: fetchMyRequests, enabled });
+  const requestsQuery = useInfiniteQuery({
+    queryKey: REQUESTS_KEY,
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) => fetchMyRequests(pageParam),
+    initialPageParam: undefined as string | undefined,
+    // The cursor is the last id of the page just received; `undefined` stops it.
+    getNextPageParam: (page) => (page.hasMore ? page.requests.at(-1)?.id : undefined),
+    enabled,
+  });
+  const requests = requestsQuery.data?.pages.flatMap((page) => page.requests) ?? [];
   const treeQuery = useQuery({ queryKey: CATALOG_TREE_KEY, queryFn: fetchCatalogTree, enabled });
 
   if (!hydrated || !user) {
@@ -108,11 +116,25 @@ export default function MyRequestsPage(): React.JSX.Element | null {
             void requestsQuery.refetch();
           }}
         />
-      ) : requestsQuery.data.length > 0 ? (
+      ) : requests.length > 0 ? (
         <ul className="fx-animate-stagger flex flex-col gap-4" data-testid="request-list">
-          {requestsQuery.data.map((request) => (
+          {requests.map((request) => (
             <RequestRow key={request.id} request={request} serviceName={serviceNameOf(request)} />
           ))}
+          {requestsQuery.hasNextPage ? (
+            <li>
+              <Button
+                variant="secondary"
+                testId="load-more-requests"
+                loading={requestsQuery.isFetchingNextPage}
+                onClick={() => {
+                  void requestsQuery.fetchNextPage();
+                }}
+              >
+                Afficher les demandes plus anciennes
+              </Button>
+            </li>
+          ) : null}
         </ul>
       ) : (
         <Card>

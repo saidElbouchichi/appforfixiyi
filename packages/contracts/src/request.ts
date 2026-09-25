@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { IdSchema, IsoDateTimeSchema } from "./common.js";
+import { IdSchema, IsoDateTimeSchema, LIST_PAGE_DEFAULT_LIMIT, LIST_PAGE_MAX_LIMIT } from "./common.js";
 import { RequestLocationInputSchema, RequestLocationSchema } from "./location.js";
 
 /** 01_SPEC_PRODUCT.md #10 worked example only shows "Normale" — no scheduling/appointment concept exists yet (Phase 33 territory), so this stays binary. */
@@ -45,3 +45,23 @@ export const UpdateServiceRequestInputSchema = z.object({
   location: RequestLocationInputSchema.optional(),
 });
 export type UpdateServiceRequestInput = z.infer<typeof UpdateServiceRequestInputSchema>;
+
+/**
+ * Cursor pagination for a client's own requests (Decision 76).
+ *
+ * The cursor is the last item's **id**, not a timestamp: ids are UUIDv7, so
+ * they sort by creation time, and the list is sorted by `createdAt` desc.
+ * One field, no tie-break, no clock skew.
+ */
+export const RequestListQuerySchema = z.object({
+  before: IdSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(LIST_PAGE_MAX_LIMIT).default(LIST_PAGE_DEFAULT_LIMIT),
+});
+export type RequestListQuery = z.infer<typeof RequestListQuerySchema>;
+
+export const ServiceRequestPageSchema = z.object({
+  requests: z.array(ServiceRequestSchema),
+  /** Whether older requests remain past this page. */
+  hasMore: z.boolean(),
+});
+export type ServiceRequestPage = z.infer<typeof ServiceRequestPageSchema>;

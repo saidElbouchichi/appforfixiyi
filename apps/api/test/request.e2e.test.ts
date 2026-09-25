@@ -9,6 +9,7 @@ import {
   ProblemDetailsSchema,
   ServiceRequestSchema,
   type CatalogTreeNode,
+  ServiceRequestPageSchema,
 } from "@fixiyi/contracts";
 import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
 import { Test } from "@nestjs/testing";
@@ -290,6 +291,69 @@ describe("Requests (e2e)", () => {
     const cancelAgain = await request(server).post(`/api/v1/requests/${requestId}/cancel`).set(...bearer(token));
     expect(cancelAgain.status).toBe(400);
     expect(ProblemDetailsSchema.parse(cancelAgain.body).code).toBe("REQUEST_NOT_CANCELLABLE");
+  });
+
+  /**
+   * Decision 76. The list used to return every request a client had ever
+   * made, unbounded. These check the page is real, that the cursor walks the
+   * whole history without gaps or repeats, and that one client never sees
+   * another's.
+   */
+  describe("GET /requests/mine — cursor pagination", () => {
+    it("answers a bounded page and says whether more remain", async () => {
+      const session = await login(server, redis, uniquePhone());
+      const token = session.accessToken;
+      for (let made = 0; made < 3; made += 1) {
+        await request(server).post("/api/v1/requests").set(...bearer(token));
+      }
+
+      const first = await request(server).get("/api/v1/requests/mine?limit=2").set(...bearer(token));
+      expect(first.status).toBe(200);
+      const page = ServiceRequestPageSchema.parse(first.body);
+      expect(page.requests).toHaveLength(2);
+      expect(page.hasMore).toBe(true);
+    });
+
+    it("walks the whole history through the cursor, newest first, without repeating one", async () => {
+      const session = await login(server, redis, uniquePhone());
+      const token = session.accessToken;
+      const created: string[] = [];
+      for (let made = 0; made < 5; made += 1) {
+        const response = await request(server).post("/api/v1/requests").set(...bearer(token));
+        created.push(ServiceRequestSchema.parse(response.body).id);
+      }
+
+      const seen: string[] = [];
+      let cursor: string | undefined;
+      for (let page = 0; page < 5; page += 1) {
+        const query = cursor === undefined ? "?limit=2" : `?limit=2&before=${cursor}`;
+        const response = await request(server).get(`/api/v1/requests/mine${query}`).set(...bearer(token));
+        const parsed = ServiceRequestPageSchema.parse(response.body);
+        seen.push(...parsed.requests.map((item) => item.id));
+        if (!parsed.hasMore) break;
+        cursor = parsed.requests.at(-1)?.id;
+      }
+
+      expect(seen).toEqual([...created].reverse());
+      expect(new Set(seen).size).toBe(seen.length);
+    });
+
+    it("refuses a page size beyond the ceiling instead of silently serving everything", async () => {
+      const session = await login(server, redis, uniquePhone());
+      const response = await request(server).get("/api/v1/requests/mine?limit=1000").set(...bearer(session.accessToken));
+      expect(response.status).toBe(400);
+    });
+
+    it("never leaks another client's requests through the cursor", async () => {
+      const mine = await login(server, redis, uniquePhone());
+      const theirs = await login(server, redis, uniquePhone());
+      await request(server).post("/api/v1/requests").set(...bearer(theirs.accessToken));
+      await request(server).post("/api/v1/requests").set(...bearer(mine.accessToken));
+
+      const response = await request(server).get("/api/v1/requests/mine").set(...bearer(mine.accessToken));
+      const page = ServiceRequestPageSchema.parse(response.body);
+      expect(page.requests.every((item) => item.clientUserId === mine.user.id)).toBe(true);
+    });
   });
 });
 

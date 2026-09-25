@@ -5,11 +5,13 @@ import type {
   RequestStatus,
   ServiceRequest,
   UpdateServiceRequestInput,
+  RequestListQuery,
+  ServiceRequestPage,
 } from "@fixiyi/contracts";
 import { generateId } from "@fixiyi/shared-utils";
 import { ForbiddenException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import type { Model } from "mongoose";
+import type { Model, QueryFilter } from "mongoose";
 
 import { CatalogService } from "../catalog/catalog.service.js";
 import { DomainHttpException } from "../common/exceptions/domain-http.exception.js";
@@ -46,9 +48,28 @@ export class RequestService {
     return this.toServiceRequest(created);
   }
 
-  async listMine(clientUserId: string): Promise<ServiceRequest[]> {
-    const docs = await this.model.find({ clientUserId }).sort({ createdAt: -1 });
-    return Promise.all(docs.map((doc) => this.toServiceRequest(doc)));
+  /**
+   * One bounded page, newest first (Decision 76). The cursor is the previous
+   * page's last id: ids are UUIDv7, so `_id` descending IS `createdAt`
+   * descending, and one indexed field does the whole job.
+   *
+   * `limit + 1` is fetched to answer `hasMore` without a second count query.
+   */
+  async listMine(clientUserId: string, query: RequestListQuery): Promise<ServiceRequestPage> {
+    const filter: QueryFilter<ServiceRequestEntity> = { clientUserId };
+    if (query.before) {
+      filter._id = { $lt: query.before };
+    }
+    const docs = await this.model
+      .find(filter)
+      .sort({ _id: -1 })
+      .limit(query.limit + 1);
+
+    const page = docs.slice(0, query.limit);
+    return {
+      requests: await Promise.all(page.map((doc) => this.toServiceRequest(doc))),
+      hasMore: docs.length > query.limit,
+    };
   }
 
   async getById(id: string, clientUserId: string): Promise<ServiceRequest> {

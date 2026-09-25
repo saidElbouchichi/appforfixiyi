@@ -6,8 +6,11 @@ import {
   type Media,
   type ServiceRequest,
   type UpdateServiceRequestInput,
+  RequestListQuerySchema,
+  type RequestListQuery,
+  type ServiceRequestPage,
 } from "@fixiyi/contracts";
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import type { AuthenticatedUser } from "../auth/auth-request.types.js";
@@ -55,8 +58,11 @@ export class RequestController {
   }
 
   @Get("mine")
-  listMine(@CurrentUser() user: AuthenticatedUser): Promise<ServiceRequest[]> {
-    return this.requests.listMine(user.id);
+  listMine(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query(new ZodValidationPipe(RequestListQuerySchema)) query: RequestListQuery,
+  ): Promise<ServiceRequestPage> {
+    return this.requests.listMine(user.id, query);
   }
 
   @Get(":id")

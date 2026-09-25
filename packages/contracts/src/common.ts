@@ -56,3 +56,12 @@ export const GeoPointSchema = z.object({
   coordinates: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
 });
 export type GeoPoint = z.infer<typeof GeoPointSchema>;
+
+/**
+ * Shared bounds for list pagination (Decision 76). The chat set the shape
+ * first — `{ items, hasMore }` with a cursor, never an offset — and these are
+ * the numbers the other lists reuse so a caller does not have to learn a
+ * different ceiling per endpoint.
+ */
+export const LIST_PAGE_DEFAULT_LIMIT = 20;
+export const LIST_PAGE_MAX_LIMIT = 100;
