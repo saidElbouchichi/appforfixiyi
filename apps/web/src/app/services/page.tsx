@@ -7,8 +7,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 
-import { ApiError } from "../../lib/api-client";
 import { CATALOG_TREE_KEY, fetchCatalogTree, searchCatalog } from "../../lib/catalog";
+import { errorMessage } from "../../lib/errors";
 
 /** Only a SERVICE can start a request: that is the level the form asks for. */
 const REQUESTABLE_LEVEL = "SERVICE";
@@ -66,7 +66,7 @@ function SearchResults(): React.JSX.Element {
         </Card>
       ) : treeQuery.error ? (
         <ErrorState
-          message={treeQuery.error instanceof ApiError ? treeQuery.error.message : "Impossible de charger le catalogue."}
+          message={errorMessage(treeQuery.error, "Impossible de charger le catalogue.")}
           onRetry={() => {
             void treeQuery.refetch();
           }}

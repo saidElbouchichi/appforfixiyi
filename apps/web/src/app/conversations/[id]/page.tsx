@@ -6,9 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
-import { ApiError } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 import { getConversation, searchMessages } from "../../../lib/chat-api";
+import { errorMessage } from "../../../lib/errors";
 import { useChatThread } from "../../../lib/use-chat-thread";
 
 import { Composer } from "./composer";
@@ -44,7 +44,7 @@ export default function ConversationPage(): React.JSX.Element | null {
     return (
       <main className="fx-page fx-page--narrow">
         <ErrorState
-          message={conversationQuery.error instanceof ApiError ? conversationQuery.error.message : "Conversation introuvable."}
+          message={errorMessage(conversationQuery.error, "Conversation introuvable.")}
           onRetry={() => void conversationQuery.refetch()}
         />
       </main>
@@ -100,7 +100,7 @@ function ConversationThread({ conversation, userId }: { conversation: Conversati
           </li>
         ) : null}
         {thread.loading ? <Skeleton lines={4} label="Chargement des messages…" /> : null}
-        {thread.error === null ? null : <ErrorState message={thread.error} />}
+        {thread.error === null ? null : <ErrorState message={thread.error} onRetry={thread.reload} />}
         {!thread.loading && thread.messages.length === 0 ? (
           <EmptyState icon={<Icon name="message" size="xl" />} title="Aucun message" message="Posez vos questions avant de recevoir une offre." />
         ) : null}

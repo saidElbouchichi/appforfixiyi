@@ -7,10 +7,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
-import { ApiError, apiFetch } from "../../../lib/api-client";
+import { apiFetch } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../../lib/catalog";
 import { openConversation } from "../../../lib/chat-api";
+import { errorMessage } from "../../../lib/errors";
 import { attachmentCount, CANDIDATE_STATUS_LABEL, URGENCY_LABEL } from "../../../lib/labels";
 
 const ProviderMatchListSchema = z.array(ProviderMatchSchema);
@@ -103,7 +104,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
         </Card>
       ) : matchesQuery.error ? (
         <ErrorState
-          message={matchesQuery.error instanceof ApiError ? matchesQuery.error.message : "Impossible de charger les demandes."}
+          message={errorMessage(matchesQuery.error, "Impossible de charger les demandes.")}
           onRetry={() => {
             void matchesQuery.refetch();
           }}
@@ -173,7 +174,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
                 </div>
                 {chatMutation.error ? (
                   <p className="fx-field__error" role="alert">
-                    {chatMutation.error instanceof ApiError ? chatMutation.error.message : "Impossible d'ouvrir la conversation."}
+                    {errorMessage(chatMutation.error, "Impossible d'ouvrir la conversation.")}
                   </p>
                 ) : null}
               </Card>

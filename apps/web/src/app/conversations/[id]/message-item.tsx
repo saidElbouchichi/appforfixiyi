@@ -4,7 +4,7 @@ import { ALLOWED_REACTIONS, type Message, type ReactionEmoji } from "@fixiyi/con
 import { Button, IconButton, Input, MessageBubble, Modal, ReplyQuote, type ReactionSummary } from "@fixiyi/ui";
 import { useId, useState } from "react";
 
-import { ApiError } from "../../../lib/api-client";
+import { errorMessage } from "../../../lib/errors";
 
 const TIME_FORMAT = new Intl.DateTimeFormat("fr-MA", { hour: "2-digit", minute: "2-digit" });
 
@@ -55,7 +55,7 @@ export function MessageItem({ message, myUserId, counterpartName, canAct, onRepl
     try {
       await action();
     } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : "Action impossible.");
+      setActionError(errorMessage(err, "Action impossible."));
     }
   }
 

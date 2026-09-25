@@ -17,9 +17,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { z } from "zod";
 
-import { ApiError, apiFetch, uploadFile } from "../../../lib/api-client";
+import { apiFetch, uploadFile } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 import { ancestryOf } from "../../../lib/catalog";
+import { errorMessage } from "../../../lib/errors";
 
 import { LocationCard } from "./location-card";
 import { MediaCard, type PendingMedia } from "./media-card";
@@ -58,6 +59,8 @@ function NewRequestForm(): React.JSX.Element | null {
 
   const [requestId, setRequestId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
+  // Bumped to re-run the draft lookup: a failed one left the form unusable with no way back (design phase 9).
+  const [draftAttempt, setDraftAttempt] = useState(0);
 
   const [selection, setSelection] = useState<CascadeSelection>({
     domainId: "",
@@ -112,10 +115,10 @@ function NewRequestForm(): React.JSX.Element | null {
         const created = ServiceRequestSchema.parse(await apiFetch("/api/v1/requests", { method: "POST", auth: true }));
         setRequestId(created.id);
       } catch (err) {
-        setInitError(err instanceof ApiError ? err.message : "Impossible de creer la demande.");
+        setInitError(errorMessage(err, "Impossible de creer la demande."));
       }
     }
-  }, [user]);
+  }, [user, draftAttempt]);
 
   function handleUseMyLocation(): void {
     setLocationError(null);
@@ -158,7 +161,7 @@ function NewRequestForm(): React.JSX.Element | null {
       );
     } catch (err) {
       setPendingMedia((previous) =>
-        previous.map((p) => (p.file === item.file ? { ...p, status: "error", detail: err instanceof ApiError ? err.message : "Echec de l'upload" } : p)),
+        previous.map((p) => (p.file === item.file ? { ...p, status: "error", detail: errorMessage(err, "Echec de l'upload") } : p)),
       );
     }
   }
@@ -206,7 +209,7 @@ function NewRequestForm(): React.JSX.Element | null {
       const result = ServiceRequestSchema.parse(await apiFetch(`/api/v1/requests/${requestId}/submit`, { method: "POST", auth: true }));
       setSubmitted(result);
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Une erreur est survenue.");
+      setFormError(errorMessage(err, "Une erreur est survenue."));
     } finally {
       setSubmitting(false);
     }
@@ -255,7 +258,15 @@ function NewRequestForm(): React.JSX.Element | null {
     <main className="fx-page fx-page--narrow">
       <h1 className="fx-page__title">Nouvelle demande</h1>
 
-      {initError === null ? null : <ErrorState message={initError} />}
+      {initError === null ? null : (
+        <ErrorState
+          message={initError}
+          onRetry={() => {
+            setInitError(null);
+            setDraftAttempt((attempt) => attempt + 1);
+          }}
+        />
+      )}
 
       <ServiceCascade domains={domains} selection={selection} onChange={setSelection} loading={treeQuery.isPending} />
 

@@ -7,8 +7,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { ApiError, apiFetch } from "../../lib/api-client";
+import { apiFetch } from "../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../lib/auth-store";
+import { errorMessage } from "../../lib/errors";
 import { signOut } from "../../lib/session";
 
 async function fetchMe(): Promise<User> {
@@ -54,7 +55,7 @@ export default function ProfilePage(): React.JSX.Element | null {
           <Skeleton lines={1} label="Chargement du profil…" />
         ) : meQuery.error ? (
           <ErrorState
-            message={meQuery.error instanceof ApiError ? meQuery.error.message : "Impossible de charger le profil."}
+            message={errorMessage(meQuery.error, "Impossible de charger le profil.")}
             onRetry={() => {
               void meQuery.refetch();
             }}

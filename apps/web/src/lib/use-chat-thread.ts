@@ -87,6 +87,8 @@ export interface ChatThread {
   connected: boolean;
   counterpartTyping: boolean;
   loadOlder: () => Promise<void>;
+  /** Re-runs the initial load: an error the reader cannot act on is a dead end (design phase 9). */
+  reload: () => void;
   stopTyping: () => void;
   send: (input: { body: string; replyToMessageId?: string; files?: File[] }) => Promise<Message>;
   edit: (messageId: string, body: string) => Promise<void>;
@@ -121,6 +123,14 @@ export function useChatThread(conversation: Conversation | null, myUserId: strin
     setMessages((current) => upsertMessages(current, incoming));
   }, []);
 
+  // A failed first load must be retryable; bumping this re-runs the effect.
+  const [reloadToken, setReloadToken] = useState(0);
+  const reload = useCallback(() => {
+    setError(null);
+    setLoading(true);
+    setReloadToken((token) => token + 1);
+  }, []);
+
   // ------------------------------------------------------------ initial page
   useEffect(() => {
     if (!conversationId) return;
@@ -142,7 +152,7 @@ export function useChatThread(conversation: Conversation | null, myUserId: strin
     return () => {
       cancelled = true;
     };
-  }, [conversationId]);
+  }, [conversationId, reloadToken]);
 
   useRealtime(conversationId, myUserId, { merge, setMessages, setConnected, setCounterpartTyping, messagesRef, loadedRef });
   useReadReceipts(conversationId, myUserId, messages);
@@ -199,7 +209,7 @@ export function useChatThread(conversation: Conversation | null, myUserId: strin
 
   const ordered = useMemo(() => [...messages.values()].sort((a, b) => a.seq - b.seq), [messages]);
 
-  return { messages: ordered, hasOlder, loading, error, connected, counterpartTyping, loadOlder, stopTyping, send, edit, remove, react, notifyTyping };
+  return { messages: ordered, hasOlder, loading, error, connected, counterpartTyping, loadOlder, reload, stopTyping, send, edit, remove, react, notifyTyping };
 }
 
 interface RealtimeHandles {

@@ -7,9 +7,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { ApiError, apiFetch } from "../../lib/api-client";
+import { apiFetch } from "../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../lib/auth-store";
 import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../lib/catalog";
+import { errorMessage } from "../../lib/errors";
 import { NAV_HREFS, requestHref } from "../../lib/navigation";
 
 const REQUESTS_KEY = ["my-requests"];
@@ -111,7 +112,7 @@ export default function MyRequestsPage(): React.JSX.Element | null {
         </Card>
       ) : requestsQuery.error ? (
         <ErrorState
-          message={requestsQuery.error instanceof ApiError ? requestsQuery.error.message : "Impossible de charger les demandes."}
+          message={errorMessage(requestsQuery.error, "Impossible de charger les demandes.")}
           onRetry={() => {
             void requestsQuery.refetch();
           }}

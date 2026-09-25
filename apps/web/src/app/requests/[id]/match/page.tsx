@@ -12,6 +12,7 @@ import { ApiError, apiFetch } from "../../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../../lib/auth-store";
 import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../../../lib/catalog";
 import { openConversation } from "../../../../lib/chat-api";
+import { errorMessage } from "../../../../lib/errors";
 import { CANDIDATE_STATUS_LABEL, MATCH_STATUS_LABEL, searchProgress } from "../../../../lib/labels";
 
 const CandidateListSchema = z.array(MatchCandidateSchema);
@@ -104,7 +105,7 @@ export default function MatchPage(): React.JSX.Element | null {
       router.push(`/conversations/${conversation.id}`);
     },
     onError: (error: unknown) => {
-      setActionError(error instanceof ApiError ? error.message : "Impossible d'ouvrir la conversation.");
+      setActionError(errorMessage(error, "Impossible d'ouvrir la conversation."));
     },
   });
 
@@ -112,7 +113,7 @@ export default function MatchPage(): React.JSX.Element | null {
     mutationFn: () => apiFetch(`/api/v1/requests/${requestId}/match`, { method: "POST", auth: true, body: {} }),
     onSuccess: invalidate,
     onError: (error: unknown) => {
-      setActionError(error instanceof ApiError ? error.message : "Impossible de lancer la recherche.");
+      setActionError(errorMessage(error, "Impossible de lancer la recherche."));
     },
   });
 
@@ -124,7 +125,7 @@ export default function MatchPage(): React.JSX.Element | null {
       await invalidate();
     },
     onError: (error: unknown) => {
-      setActionError(error instanceof ApiError ? error.message : "Impossible d'elargir le rayon.");
+      setActionError(errorMessage(error, "Impossible d'elargir le rayon."));
     },
   });
 
@@ -142,11 +143,11 @@ export default function MatchPage(): React.JSX.Element | null {
 
       {matchQuery.isPending ? (
         <Card>
-          <Skeleton lines={4} label="Chargement du matching…" />
+          <Skeleton lines={4} label="Chargement de votre recherche…" />
         </Card>
       ) : matchQuery.error ? (
         <ErrorState
-          message={matchQuery.error instanceof ApiError ? matchQuery.error.message : "Impossible de charger le matching."}
+          message={errorMessage(matchQuery.error, "Impossible de charger votre recherche.")}
           onRetry={() => {
             void matchQuery.refetch();
           }}

@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { ApiError, apiFetch } from "../../lib/api-client";
 import { useAuthStore } from "../../lib/auth-store";
+import { errorMessage } from "../../lib/errors";
 
 export default function LoginPage(): React.JSX.Element {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function LoginPage(): React.JSX.Element {
       });
       router.push("/catalog");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Code invalide ou expire.");
+      setError(errorMessage(err, "Code invalide ou expire."));
     } finally {
       setLoading(false);
     }

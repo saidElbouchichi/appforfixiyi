@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { ApiError } from "../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../lib/auth-store";
 import { CATALOG_TREE_KEY, fetchCatalogTree } from "../lib/catalog";
+import { errorMessage } from "../lib/errors";
 import { NAV_HREFS } from "../lib/navigation";
 import { startRouteFor } from "../lib/start-route";
 
@@ -75,7 +75,7 @@ export default function HomePage(): React.JSX.Element {
           <Skeleton lines={3} label="Chargement du catalogue…" />
         ) : treeQuery.error ? (
           <ErrorState
-            message={treeQuery.error instanceof ApiError ? treeQuery.error.message : "Impossible de charger le catalogue."}
+            message={errorMessage(treeQuery.error, "Impossible de charger le catalogue.")}
             onRetry={() => {
               void treeQuery.refetch();
             }}

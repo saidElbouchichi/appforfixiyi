@@ -7,9 +7,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { ApiError } from "../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../lib/auth-store";
 import { CONVERSATIONS_KEY, listConversations } from "../../lib/chat-api";
+import { errorMessage } from "../../lib/errors";
 
 const DATE_FORMAT = new Intl.DateTimeFormat("fr-MA", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
@@ -83,7 +83,7 @@ export default function ConversationsPage(): React.JSX.Element | null {
         </Card>
       ) : conversationsQuery.error ? (
         <ErrorState
-          message={conversationsQuery.error instanceof ApiError ? conversationsQuery.error.message : "Impossible de charger les conversations."}
+          message={errorMessage(conversationsQuery.error, "Impossible de charger les conversations.")}
           onRetry={() => {
             void conversationsQuery.refetch();
           }}

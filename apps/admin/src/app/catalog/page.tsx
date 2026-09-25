@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
-import { ApiError, apiFetch } from "../../lib/api-client";
+import { apiFetch } from "../../lib/api-client";
 import { isAdminOrManager, useAuthHydrated, useAuthStore } from "../../lib/auth-store";
+import { errorMessage } from "../../lib/errors";
 
 import { AppearanceDialog, type AppearanceValue } from "./appearance-dialog";
 
@@ -163,7 +164,7 @@ export default function CatalogPage(): React.JSX.Element | null {
       {error ? (
         <div className="fx-animate-fade-in">
           <ErrorState
-            message={error instanceof ApiError ? error.message : "Impossible de charger le catalogue."}
+            message={errorMessage(error, "Impossible de charger le catalogue.")}
             onRetry={() => {
               void treeQuery.refetch();
             }}
