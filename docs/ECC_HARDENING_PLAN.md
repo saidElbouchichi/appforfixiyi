@@ -1,6 +1,32 @@
 # RENFORCEMENT ECC — AUDIT ET PLAN
 
-Date : 2026-09-23. Statut : **audit termine, plan soumis, aucun code ecrit**.
+Date : 2026-09-23, mis a jour le 2026-09-25.
+Statut : **HIGH livre** (H1, H2, H3), **M1 livre**, MEDIUM en cours.
+
+## Avancement
+
+| Tache | Etat | Trace |
+|---|---|---|
+| H2 rollback perime | **fait** | `da20c23`, Decision 69 renforcee |
+| H1 lectures publiques plafonnees | **fait** | `0c2fab7`, **Decision 72** |
+| H3 configuration assainie | **fait** | `0c2fab7`, **Decision 73** |
+| M1 couverture mesuree et verrouillee | **fait** | **Decision 74** |
+| M2 LOG_LEVEL applique | a faire | |
+| M3 pagination | a faire | changement de contrat |
+| M4 `NewRequestForm` decoupe | a faire | |
+| M5 lectures authentifiees | a faire | |
+| L1 / L2 / L3 | a faire | |
+
+**Imprevu traite en cours de route** : entre le 2026-09-23 et le
+2026-09-25, `quay.io/minio/minio` a cesse de repondre aux pull anonymes
+(401 sur le manifeste) et `minio/minio` sur Docker Hub est ferme lui aussi.
+La CI et le `docker compose up` d'un clone neuf etaient casses tous les
+deux. Image remplacee par `bitnamilegacy/minio:2025.5.24` dans la CI **et**
+dans `docker-compose.yml`, pour garder la parite dev/CI.
+
+---
+
+## Audit d'origine (2026-09-23)
 
 Perimetre : appliquer les regles ECC laissees en attente par la **Decision
 68**, apres la phase 7 de la refonte design. Hierarchie inchangee

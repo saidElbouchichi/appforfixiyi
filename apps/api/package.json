@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test:coverage": "vitest run --coverage --testTimeout=30000"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1136.0",

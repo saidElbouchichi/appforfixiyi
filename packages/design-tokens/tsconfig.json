@@ -2,12 +2,14 @@
   "extends": "@fixiyi/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "noEmit": true,
-    // `tokens.test.ts` reads tokens.css from disk to assert it mirrors
-    // tokens.ts, so Node's typings must be opted into explicitly — same
-    // reason as packages/ui.
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "vitest.config.mts"
+  ]
 }

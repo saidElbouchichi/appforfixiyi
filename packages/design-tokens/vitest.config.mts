@@ -1,6 +1,5 @@
 import { defineConfig } from "vitest/config";
 
-/** JSX needs no explicit transform option: Vitest 5 transforms with oxc, which reads `jsx` from tsconfig.json. */
 export default defineConfig({
   test: {
     /**
@@ -25,10 +24,7 @@ export default defineConfig({
         // Process entry point: started by Docker, never imported by a unit test.
         "src/main.ts",
       ],
-      thresholds: { lines: 95, statements: 93, functions: 92, branches: 88 },
+      thresholds: { lines: 100, statements: 100, functions: 100, branches: 100 },
     },
-    environment: "jsdom",
-    globals: false,
-    setupFiles: ["./src/test-setup.ts"],
   },
 });

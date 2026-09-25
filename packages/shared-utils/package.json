@@ -20,7 +20,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test:coverage": "vitest run --coverage --testTimeout=30000"
   },
   "dependencies": {
     "uuid": "^14.0.2"

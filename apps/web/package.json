@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rimraf .next"
+    "clean": "rimraf .next",
+    "test:coverage": "vitest run --coverage --testTimeout=30000"
   },
   "dependencies": {
     "@fixiyi/contracts": "workspace:*",

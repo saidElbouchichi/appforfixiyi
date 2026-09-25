@@ -2143,3 +2143,82 @@ Tous trouves par l'execution, pas par relecture :
   donc un deploiement qui fournit encore une cle retiree la voit ignoree,
   sans echec au demarrage.
 - Date : 2026-09-23
+
+---
+
+## Decision 74 - Couverture : mesurer, verrouiller au niveau atteint, remonter
+
+- Contexte : la regle ECC `testing.md` impose 80 % de couverture minimale.
+  La Decision 68 l'avait classee « non adoptee ». L'audit du 2026-09-23 a
+  constate que la couverture n'avait **jamais ete mesuree** :
+  `@vitest/coverage-v8` n'etait pas installe et aucune configuration vitest
+  ne declarait de bloc `coverage`.
+- Choix (**decide par l'utilisateur le 2026-09-23**) : mesurer d'abord,
+  verrouiller les planchers au niveau reellement atteint, combler, puis
+  remonter. **Ne pas** poser 80 % avant de connaitre le point de depart :
+  cela aurait fait echouer la CI sans rien apprendre et pousse a ecrire des
+  tests pour le chiffre plutot que pour le comportement.
+
+### Mesure du 2026-09-25 (lignes, `all: true`)
+
+| Paquet | Lignes | Couvert / total |
+|---|---|---|
+| design-tokens | **100 %** | 29 / 29 |
+| worker | **100 %** | 7 / 7 |
+| contracts | **98,63 %** | 144 / 146 |
+| shared-utils | **97,91 %** | 47 / 48 |
+| config | **97,36 %** | 37 / 38 |
+| ui | **95,65 %** | 396 / 414 |
+| i18n | **88,88 %** | 8 / 9 |
+| **api** | **88,02 %** | 1765 / 2005 |
+| web | 16,61 % | 57 / 343 |
+| admin | 0 % | 0 / 57 |
+| **monorepo** | **82,3 %** | 2494 / 3031 |
+
+Chiffres de l'execution de reference du 2026-09-25, avec les exclusions du
+preset partage (`*.module.ts`, `src/main.ts`, `layout.tsx`, `fonts.ts` :
+declarations et points d'entree sans branche propre). Le worker passe de
+27 % a 100 % par cette seule exclusion — ses lignes non couvertes etaient
+son `main.ts`, demarre par Docker et par aucun test unitaire.
+
+- **L'audit s'etait trompe sur `apps/api`.** Il notait 14 % de sources
+  ayant un test voisin et prevenait que le chiffre etait trompeur ; il
+  l'etait : 11 suites e2e reelles traversent controleurs, services et base,
+  et la couverture reelle est **87,43 %**, au-dessus du seuil ECC. Sept
+  paquets sur dix depassent 87 %.
+- **Le retard est entierement cote interface.** `apps/web` (16 %),
+  `apps/admin` (0 %) et `apps/worker` (27 %) ne sont pas non testes : ils
+  sont exerces par **48 scenarios Playwright** contre les images Docker
+  reelles, que la couverture vitest ne voit pas. « 0 % » veut dire « aucun
+  test unitaire », pas « aucun test ». Les confondre justifierait d'ecrire
+  des tests unitaires redondants pour faire monter un chiffre.
+- `all: true` est ce qui rend la mesure honnete : sans lui, un fichier
+  qu'aucun test n'importe n'apparait pas. `apps/web` affichait 54 % ainsi,
+  et 16 % une fois tous ses fichiers comptes.
+- **Planchers** : verrouilles au niveau mesure, par paquet, dans le
+  `vitest.config` de chacun. Ils ne bougent **que vers le haut**.
+  `pnpm test:coverage` (turbo, `--concurrency=1`) les verifie.
+  Un seul est desserre d'un point : `apps/api` mesure 88,02 % puis 88,07 %
+  d'une execution a l'autre selon les branches qu'une vraie base Mongo/Redis
+  emprunte ; son plancher est a 87, pour qu'il echoue sur une regression et
+  non sur la meteo.
+- Le bloc de couverture est **duplique** dans les dix configurations plutot
+  que partage par un fichier racine. Le partage a ete essaye et retire : un
+  `.mts` importe d'un paquet a l'autre se heurte a `rootDir`, a
+  `allowImportingTsExtensions` et au service de projet d'ESLint, pour
+  economiser douze lignes de configuration.
+- `apps/admin` declare `passWithNoTests` : il n'a aucun test unitaire et
+  vitest sortirait en erreur sur « no test files found ». Le chiffre honnete
+  est le 0 % rapporte, pas un echec d'outillage.
+- Le delai des tests est releve a 30 s **pour la mesure seulement** :
+  l'instrumentation v8 fait depasser le delai de 5 s par defaut aux tests de
+  composants sous jsdom. Sans ce reglage, 17 tests de `packages/ui`
+  echouaient en mesure alors qu'ils passent en execution normale — un
+  artefact de mesure, pas un defaut.
+- La mesure tourne **par paquet, en sequence** (`--concurrency=1`). Une
+  execution consolidee en un seul processus lance 123 workers, sature la
+  machine et casse l'isolation `fileParallelism: false` dont `apps/api`
+  depend pour ses tests contre Mongo et Redis partages.
+- `pnpm test` (turbo, par paquet) reste la porte de la CI ; `test:coverage`
+  est la mesure.
+- Date : 2026-09-25
