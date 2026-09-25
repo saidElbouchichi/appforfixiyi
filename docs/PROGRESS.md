@@ -2,6 +2,16 @@
 
 ## Derniere mise a jour
 
+2026-09-25 - **Renforcement ECC TERMINE** — `docs/ECC_HARDENING_PLAN.md`.
+Audit complet puis correction par priorite : lectures publiques et
+authentifiees plafonnees (Decisions 72 et 77), configuration assainie
+(73 : 17 cles mortes sur 39), couverture mesuree et verrouillee au niveau
+atteint (74 : monorepo 82,3 %, api 88 %), `LOG_LEVEL` applique et journal du
+worker (75), pagination de `GET /requests/mine` (76), `NewRequestForm`
+decoupe (78), mesure des fonctions longues corrigee (79). Reference de
+rollback perimee corrigee. Image MinIO remplacee : `quay.io` a cesse de
+servir les pull anonymes et cassait la CI **et** tout clone neuf.
+
 2026-09-23 - Refonte design : **phase 7 (Pages principales) TERMINEE** —
 `docs/design/PHASE_7_REPORT.md` : accueil sur le vrai catalogue, recherche de
 services, profil artisan en vue publique restreinte (Decision 70), plus les
@@ -270,7 +280,8 @@ dedie pousse sur `origin/main`.
 ## Prochaine action exacte
 
 **Aucune** — STOP, attendre `GO PHASE 8` de la **refonte** (pages
-secondaires). Apres la refonte seulement, la Phase 7 **produit**
+secondaires). Le renforcement ECC est termine ; ce qu'il a laisse ouvert est
+dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
 (Offers), qui devra appeler `ConversationService.unlockContact` a
 l'acceptation d'une offre.
 
@@ -280,10 +291,18 @@ Aucun blocage technique. Decisions attendues de l'utilisateur : stockage des
 jetons de `apps/web` (Decision 66), conservation des messages supprimes
 (Decision 59), couleur de Domotique, URL des comptes sociaux, logo.
 
-Signale par la phase 7 de la refonte, **non decide seul** :
-`GET /providers/:id` est public et sans limite de debit, ce qui rend les
-profils enumerables — la Decision 68 a ecarte le rate limit sur les routes de
-lecture, l'enumeration de profils merite peut-etre une exception.
+Laisse ouvert par le renforcement ECC du 2026-09-25 :
+
+- **`trustProxy`** (Decision 60) doit etre regle **avant la production** :
+  les plafonds par IP des Decisions 72 et 77 comptent l'adresse du proxy tant
+  qu'il ne l'est pas. Les deux vont ensemble.
+- **Compteur de non-lus denormalise** : sans lui, `GET /conversations` ne
+  peut pas etre pagine sans rendre la pastille fausse (Decision 76). C'est
+  une modification du modele de donnees, donc soumise a validation.
+- **`apps/web` 16,6 % et `apps/admin` 0 %** de couverture unitaire. Les deux
+  sont exerces par 48 scenarios Playwright, que la couverture vitest ne voit
+  pas ; les planchers sont verrouilles a ce niveau et ne montent que vers le
+  haut (Decision 74).
 
 A traiter avant la production : pagination de `GET /requests/mine` et
 `GET /conversations` (non bornees), `trustProxy` (Decision 60),
