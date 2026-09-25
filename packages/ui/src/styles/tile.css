@@ -64,3 +64,45 @@
     transition: none;
   }
 }
+
+/* --------------------------------------------------------- catalogue tree */
+
+/**
+ * The back-office catalogue (design phase 8). It was a flat list of rows
+ * pushed right by a margin: at five levels deep, telling a CATEGORY from the
+ * SERVICE under it meant counting pixels — and phase 7 asks an administrator
+ * to set an icon at the right level.
+ *
+ * A guide line per level makes the nesting readable without indenting so far
+ * that the controls fall off a narrow screen.
+ */
+.fx-tree,
+.fx-tree__children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fx-tree__children {
+  margin-inline-start: var(--fixiyi-space-3);
+  padding-inline-start: var(--fixiyi-space-4);
+  border-inline-start: 1px solid var(--fixiyi-color-border);
+}
+
+.fx-tree__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  padding-block: var(--fixiyi-space-2);
+  border-radius: var(--fixiyi-radius-inset);
+}
+
+.fx-tree__row:hover {
+  background-color: var(--fixiyi-color-surface-muted);
+}
+
+/* The level a node sits at, in the contract's own words — this screen is an operator's tool. */
+.fx-tree__level {
+  flex: none;
+}

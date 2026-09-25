@@ -175,7 +175,7 @@ export default function CatalogPage(): React.JSX.Element | null {
         {treeQuery.isPending ? (
           <Skeleton lines={6} label="Chargement du catalogue…" />
         ) : treeQuery.data && treeQuery.data.length > 0 ? (
-          <ul className="fx-animate-fade-in flex flex-col gap-1">
+          <ul className="fx-tree fx-animate-fade-in">
             {treeQuery.data.map((node) => (
               <TreeNodeRow
                 key={node.id}
@@ -269,20 +269,20 @@ function TreeNodeRow({
   onToggleActive,
   onEditAppearance,
   busy,
-  depth = 0,
 }: {
   node: CatalogTreeNode;
   onAddChild: (level: CatalogLevel, parentId: string) => void;
   onToggleActive: (node: CatalogTreeNode) => void;
   onEditAppearance: (node: CatalogTreeNode) => void;
   busy: boolean;
-  depth?: number;
 }): React.JSX.Element {
   const childLevel = CHILD_LEVEL[node.level];
   return (
-    <li style={{ marginInlineStart: depth * 16 }}>
-      <div className="fx-row py-1">
-        <Badge variant={node.active ? "info" : "warning"}>{node.level}</Badge>
+    <li>
+      <div className="fx-tree__row">
+        <Badge variant={node.active ? "info" : "warning"} className="fx-tree__level">
+          {node.level}
+        </Badge>
         <span className={node.active ? "" : "text-[var(--fixiyi-color-text-subtle)] line-through"}>{node.name}</span>
         {node.icon ? <Icon name={node.icon} size="sm" /> : null}
         <Button
@@ -320,7 +320,7 @@ function TreeNodeRow({
         ) : null}
       </div>
       {node.children.length > 0 ? (
-        <ul>
+        <ul className="fx-tree__children">
           {node.children.map((child) => (
             <TreeNodeRow
               key={child.id}
@@ -329,7 +329,6 @@ function TreeNodeRow({
               onToggleActive={onToggleActive}
               onEditAppearance={onEditAppearance}
               busy={busy}
-              depth={depth + 1}
             />
           ))}
         </ul>

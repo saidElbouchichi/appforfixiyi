@@ -4,18 +4,33 @@ import { ProviderMatchSchema, type ProviderMatch } from "@fixiyi/contracts";
 import { Badge, Button, Card, EmptyState, ErrorState, Icon, Skeleton } from "@fixiyi/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { ApiError, apiFetch } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
+import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../../lib/catalog";
 import { openConversation } from "../../../lib/chat-api";
+import { attachmentCount, CANDIDATE_STATUS_LABEL, URGENCY_LABEL } from "../../../lib/labels";
 
 const ProviderMatchListSchema = z.array(ProviderMatchSchema);
 const PROVIDER_MATCHES_KEY = ["provider-matches"];
 
 function formatMoney(amountMinor: number, currency: string): string {
   return `${(amountMinor / 100).toFixed(2)} ${currency}`;
+}
+
+/**
+ * How long is left to answer. `expiresAt` was in the contract and shown
+ * nowhere, and it is the one thing that presses an artisan (design phase 8).
+ * Past the deadline it says so rather than printing a negative number.
+ */
+function timeLeft(expiresAt: string, now: number): string {
+  const minutes = Math.round((new Date(expiresAt).getTime() - now) / 60_000);
+  if (minutes <= 0) return "Delai depasse";
+  if (minutes < 60) return `Reste ${minutes.toString()} min pour repondre`;
+  const hours = Math.floor(minutes / 60);
+  return `Reste ${hours.toString()} h pour repondre`;
 }
 
 /**
@@ -42,6 +57,19 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
     queryFn: async (): Promise<ProviderMatch[]> => ProviderMatchListSchema.parse(await apiFetch("/api/v1/matches/mine", { auth: true })),
     enabled: hydrated && user !== null,
   });
+  const treeQuery = useQuery({ queryKey: CATALOG_TREE_KEY, queryFn: fetchCatalogTree, enabled: hydrated && user !== null });
+  const names = treeQuery.data ? catalogNames(treeQuery.data) : new Map<string, string>();
+  // Every row counts down from the same instant, and it stays true while the
+  // artisan reads: a deadline frozen at page load says "reste 3 h" an hour later.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 60_000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   // Opening a conversation also marks the dispatch as viewed server-side, so it will not expire mid-discussion.
   const chatMutation = useMutation({
@@ -86,21 +114,27 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
             <li key={match.candidateId} data-testid="provider-match-row">
               <Card>
                 <div className="fx-row mb-3">
-                  <Badge variant={match.urgency === "URGENT" ? "warning" : "info"}>{match.urgency}</Badge>
-                  <Badge variant={match.status === "VIEWED" ? "success" : "info"}>{match.status}</Badge>
+                  <Badge variant={match.urgency === "URGENT" ? "warning" : "info"}>{URGENCY_LABEL[match.urgency]}</Badge>
+                  <Badge variant={match.status === "VIEWED" ? "success" : "info"}>{CANDIDATE_STATUS_LABEL[match.status]}</Badge>
                   <span className="fx-text-muted">
                     <Icon name="map" size="sm" /> {match.distanceKm.toFixed(1)} km
                   </span>
                 </div>
 
+                {/* What the client picked in the catalogue — the first thing an artisan needs to decide. */}
+                <p className="mb-1">
+                  <strong data-testid="match-service-name">{names.get(match.serviceId) ?? "Service a preciser"}</strong>
+                </p>
                 <p className="mb-3">{match.description}</p>
 
-                <p className="fx-text-body-sm mb-1 text-[var(--fixiyi-color-text-muted)]" data-testid="approximate-location">
-                  Zone approximative : {match.approximateLocation.coordinates[1].toFixed(2)},{" "}
-                  {match.approximateLocation.coordinates[0].toFixed(2)}
+                <p className="fx-text-body-sm mb-3 text-[var(--fixiyi-color-text-muted)]" data-testid="match-time-left">
+                  <Icon name="clock" size="sm" /> {timeLeft(match.expiresAt, now)}
                 </p>
-                <p className="fx-text-body-sm mb-1 text-[var(--fixiyi-color-text-muted)]">
-                  Adresse exacte communiquee apres acceptation de l&apos;offre.
+
+                <p className="fx-text-body-sm mb-1 text-[var(--fixiyi-color-text-muted)]" data-testid="approximate-location">
+                  Aux alentours de {match.approximateLocation.coordinates[1].toFixed(2)},{" "}
+                  {match.approximateLocation.coordinates[0].toFixed(2)} — position approchee, l&apos;adresse exacte vous sera communiquee si le
+                  client accepte votre offre.
                 </p>
                 <p className="fx-text-body-sm mb-3 text-[var(--fixiyi-color-text-muted)]" data-testid="transport-quote">
                   Deplacement :{" "}
@@ -108,11 +142,11 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
                   {match.transportQuote.travelTimeMinutes.toString()} min estimees
                 </p>
 
-                {match.mediaCount > 0 ? (
+                {attachmentCount(match.mediaCount) === null ? null : (
                   <p className="fx-text-body-sm mb-3 text-[var(--fixiyi-color-text-muted)]">
-                    {match.mediaCount.toString()} media(s) joint(s) par le client
+                    {attachmentCount(match.mediaCount)} par le client
                   </p>
-                ) : null}
+                )}
 
                 <div className="fx-row">
                   <Button

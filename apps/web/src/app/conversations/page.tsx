@@ -35,6 +35,12 @@ function ConversationRow({ conversation }: { conversation: Conversation }): Reac
         <p className="fx-text-body-sm text-[var(--fixiyi-color-text-muted)]">
           {conversation.lastMessageAt ? `Dernier message le ${DATE_FORMAT.format(new Date(conversation.lastMessageAt))}` : "Aucun message"}
         </p>
+        {/* A badge cannot carry a reason, and "Lecture seule" without one reads like a fault of the reader's. */}
+        {conversation.canSend ? null : (
+          <p className="fx-text-body-sm text-[var(--fixiyi-color-text-muted)]" data-testid="conversation-readonly-reason">
+            La demande a ete annulee ou la candidature de l&apos;artisan n&apos;est plus active.
+          </p>
+        )}
       </Card>
     </li>
   );

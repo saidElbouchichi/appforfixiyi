@@ -35,7 +35,8 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   await expect(page).toHaveURL(/\/match$/);
 
   await page.getByTestId("start-match-button").click();
-  await expect(page.getByTestId("match-status")).toContainText("ACTIVE", { timeout: 20_000 });
+  // Design phase 8: the status is the client's word for it, not the engine's.
+  await expect(page.getByTestId("match-status")).toContainText("Recherche en cours", { timeout: 20_000 });
   await expect(page.getByTestId("candidate-list")).toContainText(providerName, { timeout: 20_000 });
   await page.screenshot({ path: "screenshots/11-match-candidates.png", animations: "disabled" });
 
@@ -67,7 +68,7 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   const approximate = await providerPage.getByTestId("approximate-location").first().innerText();
   expect(approximate).toContain("33.57");
   expect(approximate).not.toContain("33.5731");
-  await expect(row).toContainText("Adresse exacte communiquee apres acceptation");
+  await expect(row).toContainText("l'adresse exacte vous sera communiquee si le client accepte");
   await providerPage.screenshot({ path: "screenshots/12-provider-inbox.png", animations: "disabled" });
 
   await providerPage.getByTestId("decline-button").first().click();
@@ -76,4 +77,32 @@ test("a dispatched provider sees the client's request, approximated, and can dec
 
   console.log(`Provider ${providerName} (${provider.profileId}) was dispatched to and declined through the UI.`);
   await providerContext.close();
+});
+
+/**
+ * Design phase 8. The thesis of the phase, as an assertion: this screen used
+ * to print `ACTIVE`, `NOTIFIED` and `score 0.78` at a client waiting for a
+ * plumber. Those are the words of `matching.service.ts`.
+ */
+test("the client's waiting screen speaks to the client, not the engine", async ({ page, request }) => {
+  const provider = await setUpProvider(request, `+2126${Date.now().toString().slice(-8)}`, `Wording Pro ${Date.now().toString().slice(-4)}`);
+  expect(provider.availabilityStatus).toBe("AVAILABLE");
+
+  await loginThroughUi(page, `+2127${Date.now().toString().slice(-8)}`);
+  await fillAndSubmitRequest(page);
+  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+
+  await page.getByTestId("go-to-match-button").click();
+  await page.getByTestId("start-match-button").click();
+  await expect(page.getByTestId("match-status")).toContainText("Recherche en cours", { timeout: 20_000 });
+
+  // The service the client picked, resolved from the catalogue.
+  await expect(page.getByTestId("match-service-name")).toBeVisible();
+  // How far the search has gone, in one line — no "vague".
+  await expect(page.getByTestId("match-progress")).toContainText("artisan");
+
+  const body = (await page.locator("main").textContent()) ?? "";
+  for (const enginese of ["ACTIVE", "NOTIFIED", "EXHAUSTED", "score", "vague"]) {
+    expect(body, enginese).not.toContain(enginese);
+  }
 });

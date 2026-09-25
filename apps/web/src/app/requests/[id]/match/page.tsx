@@ -1,6 +1,6 @@
 "use client";
 
-import { MatchCandidateSchema, MatchSchema, type Match, type MatchCandidate } from "@fixiyi/contracts";
+import { MatchCandidateSchema, MatchSchema, ServiceRequestSchema, type Match, type MatchCandidate } from "@fixiyi/contracts";
 import { Badge, Button, Card, EmptyState, ErrorState, Icon, Input, Skeleton } from "@fixiyi/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -10,7 +10,9 @@ import { z } from "zod";
 
 import { ApiError, apiFetch } from "../../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../../lib/auth-store";
+import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../../../lib/catalog";
 import { openConversation } from "../../../../lib/chat-api";
+import { CANDIDATE_STATUS_LABEL, MATCH_STATUS_LABEL, searchProgress } from "../../../../lib/labels";
 
 const CandidateListSchema = z.array(MatchCandidateSchema);
 
@@ -28,10 +30,17 @@ const CANDIDATE_VARIANT: Record<MatchCandidate["status"], "info" | "success" | "
 };
 
 /**
- * Client view of the progressive dispatch (01_SPEC_PRODUCT.md #15/#18):
- * how many providers were contacted, in which wave, at which radius — and
- * the manual "search wider" control. The scores are shown because the
- * client is entitled to see that the selection is not arbitrary.
+ * Client view of the progressive dispatch (01_SPEC_PRODUCT.md #15/#18): who
+ * was contacted, how far the search reaches, and the manual "search wider"
+ * control.
+ *
+ * Design phase 8 took two things off this screen. The ranking **score** went
+ * because it is an implementation detail: showing `0.78` invites a client to
+ * compare artisans on a number that means nothing to them, and the engine
+ * already explains itself to the back-office. The dispatch **batch** ("vague")
+ * went for the same reason — it is a word from `matching.service.ts`. What a
+ * client can act on is how many artisans have been reached and how far out
+ * the search goes, which is what `searchProgress()` says in one line.
  */
 export default function MatchPage(): React.JSX.Element | null {
   const router = useRouter();
@@ -49,6 +58,16 @@ export default function MatchPage(): React.JSX.Element | null {
       router.push("/login");
     }
   }, [hydrated, user, router]);
+
+  // The service the client chose: `Match` carries the request id, not the
+  // service, so the name comes from the request plus the catalogue — the same
+  // resolution `/requests` already does.
+  const requestQuery = useQuery({
+    queryKey: ["request", requestId],
+    queryFn: async () => ServiceRequestSchema.parse(await apiFetch(`/api/v1/requests/${requestId}`, { auth: true })),
+    enabled: hydrated && user !== null,
+  });
+  const treeQuery = useQuery({ queryKey: CATALOG_TREE_KEY, queryFn: fetchCatalogTree, enabled: hydrated && user !== null });
 
   const matchQuery = useQuery({
     queryKey: ["match", requestId],
@@ -114,6 +133,8 @@ export default function MatchPage(): React.JSX.Element | null {
   }
 
   const match = matchQuery.data ?? null;
+  const serviceId = requestQuery.data?.serviceId ?? null;
+  const serviceName = serviceId && treeQuery.data ? (catalogNames(treeQuery.data).get(serviceId) ?? null) : null;
 
   return (
     <main className="fx-page fx-page--narrow">
@@ -153,19 +174,16 @@ export default function MatchPage(): React.JSX.Element | null {
         </Card>
       ) : (
         <>
-          <Card title="Etat de la recherche" headingLevel={2}>
+          <Card title="Ou en est votre demande" headingLevel={2}>
             <p className="mb-2" data-testid="match-status">
-              Statut : <Badge variant={STATUS_VARIANT[match.status]}>{match.status}</Badge>
+              <Badge variant={STATUS_VARIANT[match.status]}>{MATCH_STATUS_LABEL[match.status]}</Badge>
             </p>
-            <p className="mb-2" data-testid="match-radius">
-              Rayon de recherche : <strong>{match.currentRadiusKm.toString()} km</strong>
-            </p>
-            <p className="mb-2" data-testid="match-batch-count">
-              Vagues envoyees : <strong>{match.batchCount.toString()}</strong>
-            </p>
-            <p data-testid="match-candidate-count">
-              Fournisseurs contactes : <strong>{match.candidateCount.toString()}</strong>
-            </p>
+            <p data-testid="match-progress">{searchProgress(match.candidateCount, match.currentRadiusKm)}</p>
+            {serviceName === null ? null : (
+              <p className="fx-text-body-sm text-[var(--fixiyi-color-text-muted)]" data-testid="match-service-name">
+                Service demande : {serviceName}
+              </p>
+            )}
           </Card>
 
           {match.status === "ACTIVE" ? (
@@ -209,11 +227,8 @@ export default function MatchPage(): React.JSX.Element | null {
                     <Link href={`/providers/${candidate.providerId}`} data-testid="candidate-profile-link">
                       <strong>{candidate.providerDisplayName}</strong>
                     </Link>
-                    <Badge variant={CANDIDATE_VARIANT[candidate.status]}>{candidate.status}</Badge>
-                    <span className="fx-text-muted">
-                      vague {(candidate.batchIndex + 1).toString()} · {candidate.distanceKm.toFixed(1)} km · score{" "}
-                      {candidate.score.toFixed(2)}
-                    </span>
+                    <Badge variant={CANDIDATE_VARIANT[candidate.status]}>{CANDIDATE_STATUS_LABEL[candidate.status]}</Badge>
+                    <span className="fx-text-muted">a {candidate.distanceKm.toFixed(1)} km</span>
                     {candidate.status === "NOTIFIED" || candidate.status === "VIEWED" ? (
                       <Button
                         variant="ghost"
