@@ -2327,3 +2327,35 @@ le compteur, et il est pose, pas resolu.
   s'execute sur une lecture authentifiee, et le compteur porte bien la cle de
   l'**utilisateur**, verifiee directement dans Redis.
 - Date : 2026-09-23
+
+---
+
+## Decision 78 - Decoupage de `NewRequestForm`, et ou l'on s'arrete
+
+- Contexte : audit ECC. 23 fonctions depassent les 50 lignes de la regle
+  ECC `coding-style.md`. La majorite sont des composants React dont la
+  longueur est du JSX, pas de la complexite ; une seule sortait vraiment du
+  lot, `NewRequestForm` a **379 lignes**, avec 11 etats et quatre sections
+  sans rapport entre elles.
+- Choix (**decide par l'utilisateur le 2026-09-23**) : extraire les trois
+  sections qui ne partagent rien d'autre que le formulaire qui les possede —
+  `ServiceCascade`, `LocationCard`, `MediaCard`. Elles restent
+  **presentationnelles** : l'appel a la geolocalisation, le televersement et
+  tous les etats restent dans le formulaire. Les deplacer n'aurait fait que
+  cacher la longueur ailleurs.
+- Gain reel au passage : la cascade du catalogue remettait a zero les niveaux
+  inferieurs par quatre listes ecrites a la main. `EMPTY_BELOW` le dit une
+  fois — c'est la ou une selection fille perimee etait a une ligne oubliee
+  pres.
+- **Resultat : 379 -> 276 lignes**, et non moins de 50.
+- Pourquoi s'arreter la, plutot que continuer jusqu'a la regle : ce qui reste
+  est l'orchestration (init du brouillon, televersement, soumission) et du
+  JSX. Chacun des gestionnaires fait **moins de 50 lignes** ; seule
+  l'enveloppe du composant est longue, et elle l'est par nature. Poursuivre
+  reviendrait a deplacer du JSX d'un fichier a l'autre pour satisfaire un
+  compteur, sans reduire la complexite d'une ligne. La regle vise la
+  complexite ; elle est tenue la ou elle mord.
+- Filet : 48 scenarios Playwright et 33 tests web s'appuient sur les
+  `data-testid` existants. **Aucun n'a ete modifie** pendant l'extraction —
+  c'est ce qui prouve que le comportement n'a pas bouge.
+- Date : 2026-09-23

@@ -11,7 +11,7 @@ import {
   type RequestUrgency,
   type ServiceRequest,
 } from "@fixiyi/contracts";
-import { Badge, Button, Card, ErrorState, Icon, Input, RadioGroup, Select, Skeleton } from "@fixiyi/ui";
+import { Badge, Button, Card, ErrorState, Icon, Input, RadioGroup } from "@fixiyi/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -21,35 +21,17 @@ import { ApiError, apiFetch, uploadFile } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 import { ancestryOf } from "../../../lib/catalog";
 
+import { LocationCard } from "./location-card";
+import { MediaCard, type PendingMedia } from "./media-card";
+import { ServiceCascade, type CascadeSelection } from "./service-cascade";
+
 const TreeListSchema = z.array(CatalogTreeNodeSchema);
 
-type MediaUploadStatus = "pending" | "uploading" | "ready" | "rejected" | "error";
 
-interface PendingMedia {
-  file: File;
-  status: MediaUploadStatus;
-  detail: string | null;
-}
 
-const MEDIA_STATUS_VARIANT: Record<MediaUploadStatus, "info" | "success" | "warning" | "error"> = {
-  pending: "info",
-  uploading: "info",
-  ready: "success",
-  rejected: "warning",
-  error: "error",
-};
 
 async function fetchTree(): Promise<CatalogTreeNode[]> {
   return TreeListSchema.parse(await apiFetch("/api/v1/catalog/tree"));
-}
-
-function childrenOf(nodes: CatalogTreeNode[], id: string): CatalogTreeNode[] {
-  return nodes.find((node) => node.id === id)?.children ?? [];
-}
-
-/** Catalog nodes -> `Select` options. The `Select` disables itself when this is empty. */
-function toOptions(nodes: CatalogTreeNode[]): { value: string; label: string }[] {
-  return nodes.map((node) => ({ value: node.id, label: node.name }));
 }
 
 /**
@@ -77,11 +59,13 @@ function NewRequestForm(): React.JSX.Element | null {
   const [requestId, setRequestId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
 
-  const [domainId, setDomainId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [serviceId, setServiceId] = useState("");
-  const [interventionTypeId, setInterventionTypeId] = useState("");
-  const [complexityId, setComplexityId] = useState("");
+  const [selection, setSelection] = useState<CascadeSelection>({
+    domainId: "",
+    categoryId: "",
+    serviceId: "",
+    interventionTypeId: "",
+    complexityId: "",
+  });
   /** Arriving from the catalogue search, which links a SERVICE (design phase 7). */
   const preselectedServiceId = searchParams.get("serviceId");
   const [description, setDescription] = useState("");
@@ -98,16 +82,14 @@ function NewRequestForm(): React.JSX.Element | null {
    * would fight whatever they picked afterwards.
    */
   useEffect(() => {
-    if (!preselectedServiceId || domainId !== "" || !treeQuery.data) {
+    if (!preselectedServiceId || selection.domainId !== "" || !treeQuery.data) {
       return;
     }
     const [domain, category, service] = ancestryOf(treeQuery.data, preselectedServiceId);
     if (domain && category && service) {
-      setDomainId(domain);
-      setCategoryId(category);
-      setServiceId(service);
+      setSelection((previous) => ({ ...previous, domainId: domain, categoryId: category, serviceId: service }));
     }
-  }, [preselectedServiceId, domainId, treeQuery.data]);
+  }, [preselectedServiceId, selection.domainId, treeQuery.data]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<ServiceRequest | null>(null);
 
@@ -186,7 +168,7 @@ function NewRequestForm(): React.JSX.Element | null {
     if (!requestId) {
       return;
     }
-    if (!serviceId || !interventionTypeId || !complexityId) {
+    if (!selection.serviceId || !selection.interventionTypeId || !selection.complexityId) {
       setFormError("Choisissez un service complet dans le catalogue (domaine, categorie, service, type, complexite).");
       return;
     }
@@ -205,9 +187,9 @@ function NewRequestForm(): React.JSX.Element | null {
         method: "PATCH",
         auth: true,
         body: {
-          serviceId,
-          interventionTypeId,
-          complexityId,
+          serviceId: selection.serviceId,
+          interventionTypeId: selection.interventionTypeId,
+          complexityId: selection.complexityId,
           description,
           urgency,
           location: { address: address || null, point: { type: "Point", coordinates: [coordinates.lng, coordinates.lat] } },
@@ -268,10 +250,6 @@ function NewRequestForm(): React.JSX.Element | null {
   }
 
   const domains = treeQuery.data ?? [];
-  const categories = childrenOf(domains, domainId);
-  const services = childrenOf(categories, categoryId);
-  const interventionTypes = childrenOf(services, serviceId);
-  const complexities = childrenOf(interventionTypes, interventionTypeId);
 
   return (
     <main className="fx-page fx-page--narrow">
@@ -279,61 +257,7 @@ function NewRequestForm(): React.JSX.Element | null {
 
       {initError === null ? null : <ErrorState message={initError} />}
 
-      <Card title="Quel service vous faut-il ?" headingLevel={2}>
-        {treeQuery.isPending ? (
-          <Skeleton lines={5} label="Chargement du catalogue…" />
-        ) : (
-          <div className="fx-animate-fade-in grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Select
-              testId="domain-select"
-              label="Domaine"
-              value={domainId}
-              options={toOptions(domains)}
-              onChange={(value) => {
-                setDomainId(value);
-                setCategoryId("");
-                setServiceId("");
-                setInterventionTypeId("");
-                setComplexityId("");
-              }}
-            />
-            <Select
-              testId="category-select"
-              label="Categorie"
-              value={categoryId}
-              options={toOptions(categories)}
-              onChange={(value) => {
-                setCategoryId(value);
-                setServiceId("");
-                setInterventionTypeId("");
-                setComplexityId("");
-              }}
-            />
-            <Select
-              testId="service-select"
-              label="Service"
-              value={serviceId}
-              options={toOptions(services)}
-              onChange={(value) => {
-                setServiceId(value);
-                setInterventionTypeId("");
-                setComplexityId("");
-              }}
-            />
-            <Select
-              testId="intervention-type-select"
-              label="Type d'intervention"
-              value={interventionTypeId}
-              options={toOptions(interventionTypes)}
-              onChange={(value) => {
-                setInterventionTypeId(value);
-                setComplexityId("");
-              }}
-            />
-            <Select testId="complexity-select" label="Complexite" value={complexityId} options={toOptions(complexities)} onChange={setComplexityId} />
-          </div>
-        )}
-      </Card>
+      <ServiceCascade domains={domains} selection={selection} onChange={setSelection} loading={treeQuery.isPending} />
 
       <Card title="Decrivez le probleme" headingLevel={2}>
         <div className="flex flex-col gap-4">
@@ -362,62 +286,15 @@ function NewRequestForm(): React.JSX.Element | null {
         </div>
       </Card>
 
-      <Card title="Ou se trouve l'intervention ?" headingLevel={2}>
-        <div className="flex flex-col gap-3">
-          <Input
-            label="Adresse (optionnel)"
-            value={address}
-            onChange={setAddress}
-            placeholder="12 rue des Fleurs, Casablanca"
-            testId="address-input"
-          />
-          <div>
-            <Button variant="secondary" onClick={handleUseMyLocation} testId="use-my-location-button">
-              <Icon name="map" size="sm" />
-              Utiliser ma position
-            </Button>
-          </div>
-          {coordinates ? (
-            <p className="fx-text-muted fx-animate-fade-in" data-testid="coordinates-display">
-              <Icon name="check" size="sm" /> Position : {coordinates.lat.toFixed(5)}, {coordinates.lng.toFixed(5)}
-            </p>
-          ) : null}
-          {locationError === null ? null : <p className="fx-field__error">{locationError}</p>}
-        </div>
-      </Card>
+      <LocationCard
+        address={address}
+        onAddressChange={setAddress}
+        coordinates={coordinates}
+        onUseMyLocation={handleUseMyLocation}
+        error={locationError}
+      />
 
-      <Card title="Photos, video ou audio (optionnel)" headingLevel={2}>
-        <div className="fx-field">
-          <label className="fx-field__label" htmlFor="media">
-            Ajouter des fichiers
-          </label>
-          <input
-            id="media"
-            data-testid="media-input"
-            type="file"
-            multiple
-            accept={ALLOWED_MEDIA_CONTENT_TYPES.join(",")}
-            onChange={(event) => {
-              handleFilesSelected(event.target.files);
-            }}
-            className="fx-text-body-sm"
-          />
-        </div>
-
-        {pendingMedia.length > 0 ? (
-          <ul className="fx-animate-stagger mt-3 flex flex-col gap-2 fx-text-body-sm" data-testid="media-list">
-            {pendingMedia.map((item) => (
-              <li key={item.file.name} className="fx-row">
-                <span>{item.file.name}</span>
-                <Badge variant={MEDIA_STATUS_VARIANT[item.status]} testId="media-status">
-                  {item.status}
-                </Badge>
-                {item.detail === null ? null : <span className="fx-text-muted">{item.detail}</span>}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </Card>
+      <MediaCard pending={pendingMedia} onFilesSelected={handleFilesSelected} />
 
       {formError === null ? null : (
         <p className="fx-field__error fx-animate-fade-in" role="alert" data-testid="form-error">

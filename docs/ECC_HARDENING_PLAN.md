@@ -11,11 +11,19 @@ Statut : **HIGH livre** (H1, H2, H3), **M1 livre**, MEDIUM en cours.
 | H1 lectures publiques plafonnees | **fait** | `0c2fab7`, **Decision 72** |
 | H3 configuration assainie | **fait** | `0c2fab7`, **Decision 73** |
 | M1 couverture mesuree et verrouillee | **fait** | **Decision 74** |
-| M2 LOG_LEVEL applique | a faire | |
-| M3 pagination | a faire | changement de contrat |
+| M2 LOG_LEVEL applique | **fait** | `8f42a6a`, **Decision 75** |
+| M3 pagination | **fait, en partie** | `adcea6d`, **Decision 76** |
 | M4 `NewRequestForm` decoupe | a faire | |
-| M5 lectures authentifiees | a faire | |
+| M5 lectures authentifiees | **fait** | `b33c9b9`, **Decision 77** |
 | L1 / L2 / L3 | a faire | |
+
+**M3 n'est delivree qu'a moitie, et volontairement.**
+`GET /requests/mine` est pagine par curseur. `GET /conversations` ne l'est
+pas : le travail a ete fait puis **retire** en constatant que paginer la
+boite de reception casse le compteur de non-lus, qui additionne la liste et
+n'aurait plus compte que la premiere page. Le corriger demande un compteur
+denormalise sur la conversation — une modification du modele de donnees qui
+merite sa propre validation, pas un effet de bord (Decision 76).
 
 **Imprevu traite en cours de route** : entre le 2026-09-23 et le
 2026-09-25, `quay.io/minio/minio` a cesse de repondre aux pull anonymes

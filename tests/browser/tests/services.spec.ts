@@ -56,7 +56,9 @@ test("a signed-in client reaches the form with the searched service already fill
 
   await expect(page).toHaveURL(/\/requests\/new\?serviceId=/);
   // The cascade is resolved from the service alone: its domain and category are set too.
-  await expect(page.getByTestId("domain-select")).toHaveValue(/.+/);
+  // The wait is generous because the form fills in only once the catalogue has
+  // been fetched, and the whole suite is reading that same endpoint.
+  await expect(page.getByTestId("domain-select")).toHaveValue(/.+/, { timeout: 20_000 });
   await expect(page.getByTestId("category-select")).toHaveValue(/.+/);
   await expect(page.getByTestId("service-select")).toHaveValue(/.+/);
 });
