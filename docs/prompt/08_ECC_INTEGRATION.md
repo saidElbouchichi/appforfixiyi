@@ -10,9 +10,32 @@ Minimal. Il est utilisé UNIQUEMENT dans Fixiyi.
 1. Règles Fixiyi (03_AGENT_PROTOCOL.md, 05_DECISION_POLICY.md, 06_SCOPE.md)
 2. Contrats Fixiyi (01_SPEC_PRODUCT.md, 02_SPEC_ENGINEERING.md)
 3. Commandes utilisateur (GO PHASE X, STOP, etc.)
-4. ECC agents et skills (uniquement si compatibles)
+4. Compétences externes — ECC **et tout autre plugin, skill ou agent**
+   (uniquement si compatibles)
 
 En cas de conflit, Fixiyi gagne toujours.
+
+## Compétences externes (plugins, skills, agents)
+
+En cas de conflit entre une compétence externe (plugin, skill, agent)
+et Fixiyi (spec, décisions, code existant), **Fixiyi prime**.
+Aucune compétence externe ne peut introduire de données inventées
+(D2, 03 §2), ni contredire D1-D7.
+
+Pourquoi ce point précis : une compétence qui génère de l'interface remplit
+naturellement ses écrans de notes, d'avis, de photos et de témoignages. Le
+profil artisan de la phase 7 n'affiche volontairement **rien** là où la base
+n'a rien (Décision 70) ; une compétence de design le remplirait de
+« 4,8 (342 avis) » sans y penser. C'est la règle que sept phases ont passé
+leur temps à tenir.
+
+Installées le 2026-09-25 et **non utilisées** pour la refonte :
+`frontend-design`, `figma`, `design`, `example-skills`. Le design system est
+déjà choisi, construit et mesuré (`packages/ui`, D1-D7) ; ces compétences
+répondent à une question qui ne se pose plus. Deux exceptions prévues :
+`design:accessibility-review` en phase 11 (audit WCAG), et `figma` le jour
+où un vrai fichier Figma existera — ce serait la vraie sortie du placeholder
+de D4.
 
 ## Lecture obligatoire avant chaque phase
 
