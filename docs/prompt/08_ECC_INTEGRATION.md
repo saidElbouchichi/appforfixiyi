@@ -86,9 +86,9 @@ APRÈS CHAQUE PHASE VALIDÉE :
 
 ## Rollback
 
-Commit de référence : **3add35f** (fin phase 8 de la refonte design,
-2026-09-25 — pages secondaires : matching, boîte fournisseur, chat, admin).
-En cas de problème : git reset --hard 3add35f
+Commit de référence : **d839f14** (fin phase 9 de la refonte design,
+2026-09-25 — états loading / error / empty, consolidation).
+En cas de problème : git reset --hard d839f14
 
 **À METTRE À JOUR À LA FIN DE CHAQUE PHASE, avant le commit de phase**
 (Décision 69). C'est une étape de la phase, pas une intention : deux fois
@@ -101,7 +101,7 @@ l'exécution aurait effacé du travail livré —
 
 Historique des références, pour retrouver un état plus ancien sans relire
 le journal : d84703e (Phase 5 produit) → d825a8a (refonte phase 6) →
-d7d1aca (refonte phase 7) → 3add35f (refonte phase 8).
+d7d1aca (refonte phase 7) → 3add35f (refonte phase 8) → d839f14 (refonte phase 9).
 
 `reset --hard` est destructif : jamais lancé sans accord explicite de
 l'utilisateur (03_AGENT_PROTOCOL §2, 05_DECISION_POLICY).
