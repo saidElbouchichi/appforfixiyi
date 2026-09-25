@@ -63,12 +63,22 @@ APRÈS CHAQUE PHASE VALIDÉE :
 
 ## Rollback
 
-Commit de référence : d825a8a (fin phase 6 de la refonte design, 2026-09-22)
-En cas de problème : git reset --hard d825a8a
+Commit de référence : **d7d1aca** (fin phase 7 de la refonte design,
+2026-09-23 — accueil, recherche de services, profil artisan public).
+En cas de problème : git reset --hard d7d1aca
 
-À tenir à jour à la fin de chaque phase (Décision 69) : le commit précédent
-(d84703e, fin Phase 5 produit) était périmé et aurait effacé la Phase 6
-produit, les correctifs B1/B2, la refonte et l'audit.
+**À METTRE À JOUR À LA FIN DE CHAQUE PHASE, avant le commit de phase**
+(Décision 69). C'est une étape de la phase, pas une intention : deux fois
+déjà cette référence est devenue périmée et pointait vers un commit dont
+l'exécution aurait effacé du travail livré —
+- d84703e (fin Phase 5 produit) aurait effacé la Phase 6 produit, les
+  correctifs B1/B2, les phases 1 à 5 de la refonte et l'audit ;
+- d825a8a (fin phase 6 de la refonte) aurait effacé toute la phase 7,
+  constaté par l'audit ECC du 2026-09-23.
+
+Historique des références, pour retrouver un état plus ancien sans relire
+le journal : d84703e (Phase 5 produit) → d825a8a (refonte phase 6) →
+d7d1aca (refonte phase 7).
 
 `reset --hard` est destructif : jamais lancé sans accord explicite de
 l'utilisateur (03_AGENT_PROTOCOL §2, 05_DECISION_POLICY).
