@@ -2222,3 +2222,36 @@ son `main.ts`, demarre par Docker et par aucun test unitaire.
 - `pnpm test` (turbo, par paquet) reste la porte de la CI ; `test:coverage`
   est la mesure.
 - Date : 2026-09-25
+
+---
+
+## Decision 75 - `LOG_LEVEL` applique, et un journal pour le worker
+
+- Contexte : audit ECC. `LOG_LEVEL` etait declare dans le schema et valide
+  par zod, mais **lu nulle part**. Le niveau de journalisation n'etait donc
+  pas configurable, quoi que l'operateur mette dans son environnement. Le
+  meme audit relevait les 3 seuls `console.*` du depot, tous dans
+  `apps/worker/src/main.ts`.
+- Choix (**decide par l'utilisateur le 2026-09-23**) : implementer la
+  variable des deux cotes plutot que la retirer (elle est, elle, une vraie
+  intention d'exploitation).
+  - **API** : `main.ts` creait deja l'application avec `bufferLogs: true`
+    mais n'appelait jamais `useLogger` — les lignes mises en tampon etaient
+    donc vidangees a la verbosite par defaut de Nest. `logLevelsFor()` fait
+    la correspondance `LOG_LEVEL` -> niveaux Nest, et le tampon prend enfin
+    son sens : rien n'est ecrit avant que le niveau soit connu, donc les
+    lignes de demarrage obeissent au reglage comme les autres.
+  - **Worker** : il n'a ni surface HTTP ni conteneur Nest, donc aucun
+    journal. Ajout d'un `createLogger` sans dependance, une ligne JSON par
+    entree, qui remplace les trois `console.*`. Une ligne de journal est une
+    chaine ; ce processus n'a pas besoin d'un cadre de journalisation pour en
+    ecrire une.
+- Deux regles inscrites dans les tests :
+  - **`fatal` passe a tous les niveaux.** Un niveau est une demande de moins
+    de bruit, jamais une demande de cacher la mort du processus.
+  - **Une entree = une ligne.** `JSON.stringify` echappe les retours a la
+    ligne, sinon une entree multi-lignes n'est plus analysable.
+  - Un `Error` est serialise en `{ message, stack }` : tel quel, il donne
+    `{}`, et c'est precisement ce pour quoi on l'a journalise.
+- Il ne reste **aucun `console.*`** dans le code de production du depot.
+- Date : 2026-09-23

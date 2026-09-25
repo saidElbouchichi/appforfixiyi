@@ -8,6 +8,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module.js";
 import { configureRealtime } from "./chat/realtime.adapter.js";
 import { ProblemDetailsFilter } from "./common/filters/problem-details.filter.js";
+import { logLevelsFor } from "./common/log-levels.js";
 
 async function bootstrap(): Promise<void> {
   // Loaded first, outside of Nest's DI graph: dotenv must populate process.env
@@ -17,6 +18,10 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule.forRoot(env), new FastifyAdapter(), {
     bufferLogs: true,
   });
+
+  // The reason `bufferLogs` is on: nothing is written until the configured
+  // level is known, so start-up lines obey LOG_LEVEL like every other line.
+  app.useLogger(logLevelsFor(env.LOG_LEVEL));
 
   app.setGlobalPrefix("api/v1", { exclude: ["health"] });
   app.useGlobalFilters(new ProblemDetailsFilter());

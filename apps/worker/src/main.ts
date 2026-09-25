@@ -1,27 +1,28 @@
 import { loadEnv } from "@fixiyi/config";
 
+import { loggerFor } from "./logger.js";
 import { createRedisConnection } from "./redis-connection.js";
 import { createSystemWorker } from "./system/ping.processor.js";
 
 async function main(): Promise<void> {
   const env = loadEnv();
+  const log = loggerFor(env);
   const connection = createRedisConnection(env);
   await connection.ping();
 
   const worker = createSystemWorker(connection);
   await worker.waitUntilReady();
-  // eslint-disable-next-line no-console -- worker process has no HTTP surface; this is its startup log
-  console.log(`[worker] ready (env=${env.NODE_ENV})`);
+  log.info("worker ready", { env: env.NODE_ENV });
 
   worker.on("failed", (job, error) => {
-    console.error(`[worker] job ${job?.id ?? "unknown"} failed:`, error);
+    log.error("job failed", { jobId: job?.id ?? "unknown", error });
   });
 
   let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {
     if (shuttingDown) return;
     shuttingDown = true;
-    console.warn(`[worker] received ${signal}, shutting down`);
+    log.warn("shutting down", { signal });
     await worker.close();
     connection.disconnect();
     process.exit(0);
