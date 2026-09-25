@@ -2,6 +2,13 @@
 
 ## Derniere mise a jour
 
+2026-09-25 - Refonte design : **phase 8 (Pages secondaires) TERMINEE** —
+`docs/design/PHASE_8_REPORT.md`. Les cinq ecrans parlaient la langue du
+moteur (`ACTIVE`, `NOTIFIED`, `score 0.78`, « vagues ») ; ils parlent
+desormais celle de leur lecteur. Une table de libelles par enum remplace
+trois copies. Cote artisan, le nom du service et le delai pour repondre
+s'affichent enfin. 51 tests web, 49 scenarios Playwright.
+
 2026-09-25 - **Renforcement ECC TERMINE** — `docs/ECC_HARDENING_PLAN.md`.
 Audit complet puis correction par priorite : lectures publiques et
 authentifiees plafonnees (Decisions 72 et 77), configuration assainie
@@ -30,9 +37,9 @@ ecrit (`docs/design/PHASE_7_PLAN.md`), **implementation en attente du GO**.
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a **7 TERMINEES** ;
-STOP, en attente de "GO PHASE 8" de la refonte (pages secondaires : creation
-de demande, matching, boite fournisseur, chat, admin).
+refonte design). Refonte Design System V2 : phases 1 a **8 TERMINEES** ;
+STOP, en attente de "GO PHASE 9" de la refonte (etats : loading / error /
+empty — passe de consolidation).
 
 ## Phases terminees
 
@@ -279,8 +286,8 @@ dedie pousse sur `origin/main`.
 
 ## Prochaine action exacte
 
-**Aucune** — STOP, attendre `GO PHASE 8` de la **refonte** (pages
-secondaires). Le renforcement ECC est termine ; ce qu'il a laisse ouvert est
+**Aucune** — STOP, attendre `GO PHASE 9` de la **refonte** (etats
+loading / error / empty, passe de consolidation). Le renforcement ECC est termine ; ce qu'il a laisse ouvert est
 dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
 (Offers), qui devra appeler `ConversationService.unlockContact` a
 l'acceptation d'une offre.
@@ -332,7 +339,8 @@ du schema ; **pas bloquant pour la phase 7** (decide par l'utilisateur le
   d'implementation le 2026-09-22) — **TERMINEE**
 - [x] vue publique de `GET /providers/:id` (Decision 70)
 - [x] route de liste d'artisans (mode DIRECT) : reportee (Decision 71)
-- [ ] phase 8 de la refonte design ("GO PHASE 8" pas encore recu)
+- [x] phase 8 de la refonte design ("GO PHASE 8" recu le 2026-09-25)
+- [ ] phase 9 de la refonte design ("GO PHASE 9" pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
 
