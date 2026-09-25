@@ -48,22 +48,41 @@ const CATALOG_WRITE_LIMIT = {
   key: "user",
 } as const;
 
+/**
+ * Decision 72 — the catalogue is reference data, not personal, and every
+ * screen reads it (home grid, search, request form, name resolution). The
+ * budget is wider than the personal-data one for that reason: it exists to
+ * bound anonymous load, not to protect a secret.
+ */
+export const CATALOG_PUBLIC_READ_LIMIT = {
+  scope: "catalog-public-read",
+  limit: 600,
+  windowSeconds: 600,
+  key: "ip",
+} as const;
+
 @ApiTags("catalog")
 @Controller("catalog")
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
 
   @Get("tree")
+  @RateLimit(CATALOG_PUBLIC_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   getTree(@Query("includeInactive") includeInactive?: string, @Query("rawDisplay") rawDisplay?: string): Promise<CatalogTreeNode[]> {
     return this.catalog.getTree(includeInactive === "true", rawDisplay === "true");
   }
 
   @Get("skills")
+  @RateLimit(CATALOG_PUBLIC_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   listSkills(@Query("includeInactive") includeInactive?: string): Promise<CatalogNode[]> {
     return this.catalog.listByLevel("SKILL", undefined, includeInactive === "true");
   }
 
   @Get("nodes")
+  @RateLimit(CATALOG_PUBLIC_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   listByLevel(
     @Query("level") level: string,
     @Query("parentId") parentId?: string,

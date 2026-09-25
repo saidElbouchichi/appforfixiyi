@@ -11,6 +11,36 @@ const booleanFlag = (defaultValue: "true" | "false") =>
     .default(defaultValue)
     .transform((value) => value === "true");
 
+/**
+ * Keys the schema accepts although nothing reads them yet, each waiting for
+ * the phase that will (Decision 73). `env-usage.test.ts` fails when a key is
+ * neither read nor listed here — and fails again when a listed key finally
+ * becomes used and is not removed from the list.
+ *
+ * Everything that did NOT earn a place here was removed instead: a
+ * credential for a provider that does not exist, or a switch that switches
+ * nothing, reads as configuration and is not. `STORAGE_PROVIDER=fake` was
+ * exactly that, and it hid a missing MinIO from CI.
+ */
+export const RESERVED_ENV_KEYS: readonly string[] = [
+  /** Phase 4 of the product spec's data plan — no separate test database is wired yet. */
+  "DATABASE_TEST_URL",
+  /**
+   * AI features — no AI service exists, and its flag gates nothing yet
+   * either. The audit of 2026-09-23 first counted both flags as "used"; they
+   * are not read anywhere outside this package, which is why this list is a
+   * test and not a note.
+   */
+  "AI_PROVIDER",
+  "AI_MODEL_DEFAULT",
+  "FF_AI_ENABLED",
+  /** Online payment, Phase 9. */
+  "PAYMENT_PROVIDER",
+  "FF_ONLINE_PAYMENT_ENABLED",
+  /** Mobile app, Phase 13 (Decision 12). */
+  "FF_MOBILE_ENABLED",
+];
+
 const SIGNING_SECRETS = ["JWT_SECRET", "JWT_REFRESH_SECRET", "OTP_SECRET"] as const;
 
 /** Markers of the public example values shipped in `.env.example` / `.env.test.example`. */
@@ -38,13 +68,10 @@ const BaseEnvSchema = z.object({
   MIN_PROVIDER_AGE: z.coerce.number().int().min(0).default(18),
 
   SMS_PROVIDER: z.string().min(1).default("dev"),
-  SMS_PROVIDER_KEY: z.string().default(""),
-  SMS_PROVIDER_SENDER: z.string().default(""),
 
   EMAIL_PROVIDER: z.string().min(1).default("dev"),
-  EMAIL_PROVIDER_KEY: z.string().default(""),
-  EMAIL_PROVIDER_FROM: z.email().default("noreply@fixiyi.local"),
 
+  /** Selects the object-storage adapter. Only `minio` exists; `StorageModule` throws on anything else (Decision 73). */
   STORAGE_PROVIDER: z.string().min(1).default("minio"),
   STORAGE_ENDPOINT: z.url(),
   /** Only needed when STORAGE_ENDPOINT is an internal/service-network hostname (e.g. Docker's `http://minio:9000`) that an external browser can't resolve — presigned URLs must be signed against a client-reachable host instead. Defaults to STORAGE_ENDPOINT (the common case: both are already the same public host). */
@@ -54,22 +81,24 @@ const BaseEnvSchema = z.object({
   STORAGE_ACCESS_KEY: z.string().min(1),
   STORAGE_SECRET: z.string().min(1),
 
+  /** Reserved — no AI service exists yet (see RESERVED_ENV_KEYS). */
   AI_PROVIDER: z.string().min(1).default("dev"),
-  AI_PROVIDER_KEY: z.string().default(""),
+  /** Reserved — see RESERVED_ENV_KEYS. */
   AI_MODEL_DEFAULT: z.string().default(""),
 
+  /** Reserved — payments are a later phase (see RESERVED_ENV_KEYS). */
   PAYMENT_PROVIDER: z.string().min(1).default("sandbox"),
-  PAYMENT_PROVIDER_KEY: z.string().default(""),
 
   MAP_PROVIDER: z.string().min(1).default("dev"),
-  MAP_PROVIDER_KEY: z.string().default(""),
 
+  /** Reserved — see RESERVED_ENV_KEYS. */
   FF_AI_ENABLED: booleanFlag("true"),
+  /** Reserved — see RESERVED_ENV_KEYS. */
   FF_ONLINE_PAYMENT_ENABLED: booleanFlag("false"),
+  /** Reserved — the mobile app is a later phase (see RESERVED_ENV_KEYS). */
   FF_MOBILE_ENABLED: booleanFlag("false"),
 
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("debug"),
-  OTEL_ENABLED: booleanFlag("false"),
 });
 
 /**

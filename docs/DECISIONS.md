@@ -2058,3 +2058,88 @@ Tous trouves par l'execution, pas par relecture :
 - Consequence : l'ecran « liste d'artisans » de la planche reste absent, et
   l'annuaire est hors perimetre de la refonte (`PHASE_7_PLAN.md` §7 et §10).
 - Date : 2026-09-22
+
+---
+
+## Decision 72 - Plafond de debit sur les lectures publiques
+
+- Contexte : audit ECC du 2026-09-23 (`docs/ECC_HARDENING_PLAN.md`). Sur 71
+  routes, les **46 ecritures** portent toutes un `@RateLimit` (Decision 63
+  tenue integralement) mais **24 des 25 lectures** n'en ont aucune. Six
+  lectures repondent **sans aucun compte** : `GET /providers/:id`,
+  `GET /companies/:id`, `GET /catalog/{tree,skills,nodes}` et
+  `GET /health`. La phase 7 avait signale la premiere sans la trancher.
+- Choix (**decide par l'utilisateur le 2026-09-23**) : plafonner les
+  lectures publiques, par IP (il n'y a pas de compte a qui imputer le
+  quota), avec deux budgets selon la nature de la donnee.
+
+| Routes | Budget | Raison |
+|---|---|---|
+| `providers/:id`, `companies/:id` | 120 / 10 min | donnee personnelle |
+| `catalog/{tree,skills,nodes}` | 600 / 10 min | reference, lue par tous les ecrans |
+| `health` | **aucun** | une sonde plafonnee signale une panne qui n'existe pas |
+
+- Ce que le plafond achete, et ce qu'il n'a pas besoin d'acheter : il borne
+  le moissonnage de profils dont l'identifiant a fuite, et la charge qu'un
+  client anonyme peut mettre sur la base. Il n'a **pas** a proteger contre
+  une enumeration aveugle : les identifiants sont des UUIDv7, soit 74 bits
+  aleatoires — parcourir l'espace des identifiants n'est pas une menace
+  reelle. Le dire evite de croire le probleme regle par le mauvais moyen.
+- Budgets volontairement larges : derriere un NAT d'operateur, un quartier
+  entier partage une adresse. Un plafond assez serre pour arreter un
+  moissonneur determine bloquerait d'abord des utilisateurs reels. C'est le
+  meme raisonnement qui avait fait choisir `key: "user"` sur les routes
+  authentifiees (constat B4).
+- **Lien avec la Decision 60 (`trustProxy`)** : derriere un reverse proxy,
+  `request.ip` est l'adresse du proxy, donc un plafond par IP agrege tous
+  les clients en un seul compteur. En developpement et en CI l'acces est
+  direct, le plafond est donc correct des maintenant ; **en production il ne
+  sera correct qu'une fois `trustProxy` regle**. Les deux doivent etre
+  livres ensemble.
+- Les 19 lectures authentifiees restantes sont traitees en MEDIUM (M5) :
+  l'abus y coute un compte, ce n'est pas la meme exposition.
+- Date : 2026-09-23
+
+---
+
+## Decision 73 - Toute variable d'environnement est lue, ou declaree reservee
+
+- Contexte : meme audit. **17 des 39 cles** du schema etaient declarees,
+  validees par zod, et lues nulle part. `STORAGE_PROVIDER` en est le cas
+  d'ecole : `STORAGE_PROVIDER=fake` dans `.env.test.example` laissait croire
+  que le stockage etait simule, alors que `StorageService` construisait un
+  client S3 reel et creait un bucket reel. C'est precisement ce qui a masque
+  l'absence de MinIO dans la CI jusqu'au 2026-09-22.
+- Constat qui a oriente le choix : trois commutateurs voisins —
+  `SMS_PROVIDER`, `EMAIL_PROVIDER`, `MAP_PROVIDER` — etaient deja **honnetes**
+  : ils acceptent `dev`/`fake` et **echouent bruyamment** sur toute autre
+  valeur. Le depot avait donc deja le bon motif ; `STORAGE_PROVIDER` etait le
+  seul a ne pas le suivre.
+- Choix (**decide par l'utilisateur le 2026-09-23**), trois traitements :
+  - **Implemente** : `STORAGE_PROVIDER` rejoint le motif de ses trois
+    voisins — `StorageModule` refuse au demarrage toute valeur autre que
+    `minio`, au lieu de l'ignorer.
+  - **Retirees du schema** (elles ne commandaient rien, et une identification
+    renseignee pour un fournisseur inexistant fait croire a une
+    configuration qui n'existe pas) : `OTEL_ENABLED`, `SMS_PROVIDER_KEY`,
+    `SMS_PROVIDER_SENDER`, `EMAIL_PROVIDER_KEY`, `EMAIL_PROVIDER_FROM`,
+    `MAP_PROVIDER_KEY`, `AI_PROVIDER_KEY`, `PAYMENT_PROVIDER_KEY`. Le jour ou
+    un fournisseur reel arrive, sa cle revient avec lui — une ligne (YAGNI,
+    regle ECC `coding-style.md`).
+  - **Gardees, declarees reservees** dans `RESERVED_ENV_KEYS` avec leur
+    phase : `DATABASE_TEST_URL`, `AI_PROVIDER`, `AI_MODEL_DEFAULT`,
+    `FF_AI_ENABLED`, `PAYMENT_PROVIDER`, `FF_ONLINE_PAYMENT_ENABLED`,
+    `FF_MOBILE_ENABLED`.
+  - `LOG_LEVEL` est gardee et **implementee** (tache M2 du plan).
+- **La regle est tenue par un test**, pas par la vigilance :
+  `packages/config/src/env-usage.test.ts` parcourt les sources des neuf
+  packages applicatifs et echoue si une cle du schema n'est ni lue ni
+  reservee — et echoue aussi quand une cle reservee devient utilisee sans
+  quitter la liste. C'est ce test qui a corrige l'audit lui-meme : il a
+  trouve `FF_AI_ENABLED` et `FF_ONLINE_PAYMENT_ENABLED`, que le comptage
+  manuel avait classees « utilisees » a tort (15 cles mortes annoncees, 17
+  reelles).
+- Risque verifie avant retrait : `EnvSchema` est un `z.object` non strict,
+  donc un deploiement qui fournit encore une cle retiree la voit ignoree,
+  sans echec au demarrage.
+- Date : 2026-09-23

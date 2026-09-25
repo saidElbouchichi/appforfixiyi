@@ -26,6 +26,14 @@ const COMPANY_WRITE_LIMIT = {
   key: "user",
 } as const;
 
+/** Decision 72 — see `PROVIDER_PUBLIC_READ_LIMIT`: same class of data, same reasoning, its own budget. */
+export const COMPANY_PUBLIC_READ_LIMIT = {
+  scope: "company-public-read",
+  limit: 120,
+  windowSeconds: 600,
+  key: "ip",
+} as const;
+
 @ApiTags("companies")
 @Controller("companies")
 export class CompanyController {
@@ -48,6 +56,8 @@ export class CompanyController {
   }
 
   @Get(":id")
+  @RateLimit(COMPANY_PUBLIC_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   getById(@Param("id") id: string): Promise<Company> {
     return this.companies.getById(id);
   }
