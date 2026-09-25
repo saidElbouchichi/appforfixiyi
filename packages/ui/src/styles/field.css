@@ -158,3 +158,50 @@
   outline: 2px solid var(--fixiyi-color-focus);
   outline-offset: 2px;
 }
+
+/* ------------------------------------------------------- file picker */
+
+/**
+ * A native `input[type=file]` is 20px tall and its clickable part is the
+ * browser's own button, which no stylesheet can resize — measured at
+ * 270x20px in design phase 10, the only control in the repo under the 24px
+ * of WCAG 2.5.8 (this repo aims at 44).
+ *
+ * The input is not hidden: it is laid over the whole area at `opacity: 0`,
+ * so the hit area IS the styled zone underneath, and the element keeps a
+ * real bounding box — which is what lets the browser-driven upload test go
+ * on using it.
+ */
+.fx-file-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--fixiyi-space-2);
+  min-block-size: var(--fixiyi-size-touch-target);
+  padding-inline: var(--fixiyi-space-4);
+  padding-block: var(--fixiyi-space-2);
+  border: 1px dashed var(--fixiyi-color-border-control);
+  border-radius: var(--fixiyi-radius-control);
+  background-color: var(--fixiyi-color-surface);
+  color: var(--fixiyi-color-action);
+  cursor: pointer;
+}
+
+.fx-file-picker:hover {
+  background-color: var(--fixiyi-color-action-subtle);
+}
+
+/* The ring follows the input's focus, since the input is what receives it. */
+.fx-file-picker:has(.fx-file-picker__input:focus-visible) {
+  outline: 2px solid var(--fixiyi-color-focus);
+  outline-offset: 2px;
+}
+
+.fx-file-picker__input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0;
+  cursor: pointer;
+}

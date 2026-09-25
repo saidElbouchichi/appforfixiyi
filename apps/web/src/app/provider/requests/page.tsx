@@ -126,7 +126,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
                 <p className="mb-1">
                   <strong data-testid="match-service-name">{names.get(match.serviceId) ?? "Service a preciser"}</strong>
                 </p>
-                <p className="mb-3">{match.description}</p>
+                <p className="fx-user-text mb-3">{match.description}</p>
 
                 <p className="fx-text-body-sm mb-3 text-[var(--fixiyi-color-text-muted)]" data-testid="match-time-left">
                   <Icon name="clock" size="sm" /> {timeLeft(match.expiresAt, now)}

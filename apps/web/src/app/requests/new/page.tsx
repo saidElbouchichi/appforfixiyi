@@ -230,7 +230,7 @@ function NewRequestForm(): React.JSX.Element | null {
           <p className="mb-3" data-testid="submitted-status">
             Statut : <Badge variant="success">{submitted.status}</Badge>
           </p>
-          <p className="mb-2">Description : {submitted.description}</p>
+          <p className="fx-user-text mb-2">Description : {submitted.description}</p>
           <p className="mb-2">
             Urgence : <Badge variant={submitted.urgency === "URGENT" ? "warning" : "info"}>{submitted.urgency}</Badge>
           </p>

@@ -34,7 +34,7 @@ export async function loginThroughUi(page: Page, phone: string): Promise<void> {
   await page.getByTestId("verify-otp-button").click();
 }
 
-export async function fillAndSubmitRequest(page: Page): Promise<void> {
+export async function fillAndSubmitRequest(page: Page, options: { description?: string } = {}): Promise<void> {
   const domainSelect = page.getByTestId("domain-select");
   await expect(domainSelect.locator("option")).not.toHaveCount(1, { timeout: 15_000 });
 
@@ -44,7 +44,7 @@ export async function fillAndSubmitRequest(page: Page): Promise<void> {
   await page.getByTestId("intervention-type-select").selectOption({ label: "Diagnostic / reparation" });
   await page.getByTestId("complexity-select").selectOption({ label: "Simple" });
 
-  await page.getByTestId("description-input").fill("Prise de courant ne fonctionne plus depuis hier.");
+  await page.getByTestId("description-input").fill(options.description ?? "Prise de courant ne fonctionne plus depuis hier.");
   await page.getByTestId("address-input").fill("12 rue des Fleurs, Casablanca");
   await page.getByTestId("use-my-location-button").click();
   await expect(page.getByTestId("coordinates-display")).toContainText("33.573", { timeout: 10_000 });

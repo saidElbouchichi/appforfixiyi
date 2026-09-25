@@ -22,7 +22,7 @@ function ConversationRow({ conversation }: { conversation: Conversation }): Reac
       <Card>
         <div className="fx-row mb-2">
           <Link href={`/conversations/${conversation.id}`} data-testid="conversation-link">
-            <strong>{conversation.counterpart.displayName}</strong>
+            <strong className="fx-user-text">{conversation.counterpart.displayName}</strong>
           </Link>
           <Badge variant="info">{ROLE_LABEL[conversation.counterpart.role]}</Badge>
           {unread > 0 ? (

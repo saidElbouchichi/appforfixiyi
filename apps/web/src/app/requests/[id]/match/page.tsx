@@ -226,7 +226,7 @@ export default function MatchPage(): React.JSX.Element | null {
                   <li key={candidate.id} className="fx-row" data-testid="candidate-row">
                     {/* The public profile of this artisan — the entry point to it (Decision 70). */}
                     <Link href={`/providers/${candidate.providerId}`} data-testid="candidate-profile-link">
-                      <strong>{candidate.providerDisplayName}</strong>
+                      <strong className="fx-user-text">{candidate.providerDisplayName}</strong>
                     </Link>
                     <Badge variant={CANDIDATE_VARIANT[candidate.status]}>{CANDIDATE_STATUS_LABEL[candidate.status]}</Badge>
                     <span className="fx-text-muted">a {candidate.distanceKm.toFixed(1)} km</span>

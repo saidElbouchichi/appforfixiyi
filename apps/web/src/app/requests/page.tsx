@@ -57,7 +57,7 @@ function RequestRow({ request, serviceName }: { request: ServiceRequest; service
           </Badge>
           {request.urgency === "URGENT" ? <Badge variant="warning">Urgent</Badge> : null}
         </div>
-        {request.description ? <p className="mb-2">{request.description}</p> : null}
+        {request.description ? <p className="fx-user-text mb-2">{request.description}</p> : null}
         <p className="fx-text-body-sm text-[var(--fixiyi-color-text-muted)]">Creee le {DATE_FORMAT.format(new Date(request.createdAt))}</p>
       </Card>
     </li>

@@ -1,7 +1,7 @@
 "use client";
 
 import { ALLOWED_MEDIA_CONTENT_TYPES } from "@fixiyi/contracts";
-import { Badge, Card, type BadgeVariant } from "@fixiyi/ui";
+import { Badge, Card, Icon, type BadgeVariant } from "@fixiyi/ui";
 
 /** The client-side lifecycle of one attachment; `rejected` is the API's verdict, not a guess. */
 export type MediaUploadStatus = "pending" | "uploading" | "ready" | "rejected" | "error";
@@ -36,20 +36,22 @@ export function MediaCard({
   return (
     <Card title="Photos, video ou audio (optionnel)" headingLevel={2}>
       <div className="fx-field">
-        <label className="fx-field__label" htmlFor="media">
+        {/* The label IS the target: the native control is 20px tall and its button cannot be resized (design phase 10). */}
+        <label className="fx-file-picker" htmlFor="media">
+          <Icon name="upload" size="sm" />
           Ajouter des fichiers
+          <input
+            id="media"
+            data-testid="media-input"
+            type="file"
+            multiple
+            accept={ALLOWED_MEDIA_CONTENT_TYPES.join(",")}
+            onChange={(event) => {
+              onFilesSelected(event.target.files);
+            }}
+            className="fx-file-picker__input"
+          />
         </label>
-        <input
-          id="media"
-          data-testid="media-input"
-          type="file"
-          multiple
-          accept={ALLOWED_MEDIA_CONTENT_TYPES.join(",")}
-          onChange={(event) => {
-            onFilesSelected(event.target.files);
-          }}
-          className="fx-text-body-sm"
-        />
       </div>
 
       {pending.length > 0 ? (

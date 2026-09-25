@@ -60,7 +60,7 @@ function ProfileBody({ profile }: { profile: PublicProviderProfile }): React.JSX
         <div className="fx-row mb-2">
           <Avatar name={profile.displayName} size="lg" />
           <div>
-            <h1 className="fx-page__title" data-testid="provider-name">
+            <h1 className="fx-user-text fx-page__title" data-testid="provider-name">
               {profile.displayName}
             </h1>
             <div className="fx-row">
@@ -76,7 +76,7 @@ function ProfileBody({ profile }: { profile: PublicProviderProfile }): React.JSX
             </div>
           </div>
         </div>
-        {profile.bio ? <p>{profile.bio}</p> : null}
+        {profile.bio ? <p className="fx-user-text">{profile.bio}</p> : null}
         {profile.experienceYears === null ? null : (
           <p className="fx-text-body-sm text-[var(--fixiyi-color-text-muted)]">
             {profile.experienceYears} an{profile.experienceYears > 1 ? "s" : ""} d&apos;experience
