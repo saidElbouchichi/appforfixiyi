@@ -2,6 +2,14 @@
 
 ## Derniere mise a jour
 
+2026-09-25 - Refonte design : **phase 10 (Responsive) TERMINEE** —
+`docs/design/PHASE_10_REPORT.md`. Audit mesure dans un vrai navigateur (44
+mesures, 11 routes x 4 largeurs) et **instrument verifie avant d'etre cru** :
+24 constats bruts, 2 defauts reels. Zero debordement de page sur les 44
+mesures, donc grille et breakpoints **non touches**. Corriges : un mot
+insecable tranche au bord d'une carte, et le champ de fichiers a 20 px.
+52 scenarios Playwright.
+
 2026-09-25 - Refonte design : **phase 9 (Etats) TERMINEE** —
 `docs/design/PHASE_9_REPORT.md`. Consolidation : le meme ternaire d'erreur
 etait ecrit 19 fois, du vocabulaire moteur avait survecu dans deux etats, et
@@ -43,9 +51,9 @@ ecrit (`docs/design/PHASE_7_PLAN.md`), **implementation en attente du GO**.
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a **9 TERMINEES** ;
-STOP, en attente de "GO PHASE 10" de la refonte (responsive 360 a 1440+,
-passe de consolidation).
+refonte design). Refonte Design System V2 : phases 1 a **10 TERMINEES** ;
+STOP, en attente de "GO PHASE 11" de la refonte (accessibilite, audit
+WCAG 2.2 AA — passe de consolidation).
 
 ## Phases terminees
 
@@ -292,8 +300,10 @@ dedie pousse sur `origin/main`.
 
 ## Prochaine action exacte
 
-**Aucune** — STOP, attendre `GO PHASE 10` de la **refonte** (responsive
-360 a 1440+, passe de consolidation). Le renforcement ECC est termine ; ce qu'il a laisse ouvert est
+**Aucune** — STOP, attendre `GO PHASE 11` de la **refonte** (accessibilite,
+audit WCAG 2.2 AA, passe de consolidation). Pour cette phase, la competence
+`design:accessibility-review` est prevue en second regard
+(`08_ECC_INTEGRATION.md`). Le renforcement ECC est termine ; ce qu'il a laisse ouvert est
 dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
 (Offers), qui devra appeler `ConversationService.unlockContact` a
 l'acceptation d'une offre.
@@ -347,7 +357,8 @@ du schema ; **pas bloquant pour la phase 7** (decide par l'utilisateur le
 - [x] route de liste d'artisans (mode DIRECT) : reportee (Decision 71)
 - [x] phase 8 de la refonte design ("GO PHASE 8" recu le 2026-09-25)
 - [x] phase 9 de la refonte design ("GO PHASE 9" recu le 2026-09-25)
-- [ ] phase 10 de la refonte design ("GO PHASE 10" pas encore recu)
+- [x] phase 10 de la refonte design ("GO PHASE 10" recu le 2026-09-25)
+- [ ] phase 11 de la refonte design ("GO PHASE 11" pas encore recu)
 
 ## Prompt de reprise pour la prochaine session
 
