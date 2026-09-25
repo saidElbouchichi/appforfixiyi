@@ -41,6 +41,7 @@ import { AuthGuard } from "../auth/guards/auth.guard.js";
 import { CurrentUser } from "../auth/guards/current-user.decorator.js";
 import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
 import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
+import { AUTHENTICATED_READ_LIMIT } from "../auth/rate-limit/read-budget.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { ConversationService } from "./conversation.service.js";
@@ -117,16 +118,22 @@ export class ChatController {
   }
 
   @Get()
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   listMine(@CurrentUser() user: AuthenticatedUser): Promise<Conversation[]> {
     return this.conversations.listMine(user.id);
   }
 
   @Get(":id")
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   get(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string): Promise<Conversation> {
     return this.conversations.getForParticipant(id, user.id);
   }
 
   @Get(":id/messages")
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   list(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,

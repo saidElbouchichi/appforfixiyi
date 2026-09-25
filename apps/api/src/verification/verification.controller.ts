@@ -21,6 +21,7 @@ import { Roles } from "../auth/guards/roles.decorator.js";
 import { RolesGuard } from "../auth/guards/roles.guard.js";
 import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
 import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
+import { AUTHENTICATED_READ_LIMIT } from "../auth/rate-limit/read-budget.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { VerificationService } from "./verification.service.js";
@@ -50,6 +51,8 @@ export class VerificationController {
   }
 
   @Get("cases/:id")
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   getCase(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
@@ -58,6 +61,8 @@ export class VerificationController {
   }
 
   @Get("cases/:id/documents")
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   listDocuments(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
@@ -97,6 +102,8 @@ export class VerificationController {
   }
 
   @Get("cases/:id/decisions")
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   listDecisions(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,

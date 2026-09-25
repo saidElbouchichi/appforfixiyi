@@ -20,6 +20,7 @@ import { Roles } from "../auth/guards/roles.decorator.js";
 import { RolesGuard } from "../auth/guards/roles.guard.js";
 import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
 import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
+import { AUTHENTICATED_READ_LIMIT } from "../auth/rate-limit/read-budget.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { MatchingService } from "./matching.service.js";
@@ -62,11 +63,15 @@ export class MatchingController {
   }
 
   @Get("requests/:id/match")
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   getByRequest(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string): Promise<Match> {
     return this.matching.getByRequest(id, user.id);
   }
 
   @Get("requests/:id/match/candidates")
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   listCandidates(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
@@ -86,7 +91,8 @@ export class MatchingController {
   }
 
   @Get("matches/mine")
-  @UseGuards(RolesGuard)
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RolesGuard, RateLimitGuard)
   @Roles("PROVIDER")
   listMine(@CurrentUser() user: AuthenticatedUser): Promise<ProviderMatch[]> {
     return this.matching.listForProvider(user.id);

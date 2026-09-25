@@ -2301,3 +2301,29 @@ les conversations d'**un** utilisateur, pas avec la base. Le vrai sujet est
 le compteur, et il est pose, pas resolu.
 
 - Date : 2026-09-25
+
+---
+
+## Decision 77 - Plafond de debit sur les lectures authentifiees
+
+- Contexte : la Decision 72 a plafonne les six lectures publiques. Restaient
+  **18 lectures authentifiees** sans budget (l'audit en annoncait 19 ; la
+  dix-neuvieme, la recherche dans les messages, en avait deja un). La regle
+  ECC `security.md` demande « rate limiting on all endpoints ».
+- Choix (**decide par l'utilisateur le 2026-09-23**, priorite MEDIUM) : un
+  budget unique partage, `AUTHENTICATED_READ_LIMIT`, applique aux 18.
+- **Compte par utilisateur, pas par IP.** C'est le point de la decision :
+  derriere un NAT d'operateur, un quota par adresse laisserait un abonne
+  epuiser celui de tout un quartier. Les budgets d'ecriture suivent deja ce
+  raisonnement (Decision 63, constat B4), et la cle est disponible ici parce
+  que `AuthGuard` s'execute avant ce garde.
+- 600 requetes par 10 minutes : large a dessein. Un ecran declenche
+  plusieurs lectures ; ce plafond existe pour arreter un client emballe ou un
+  jeton vole qui parcourrait la base, pas pour rationner l'usage ordinaire.
+- **Une seule lecture reste sans plafond : `GET /health`.** Une sonde
+  plafonnee signale une panne qui n'existe pas (Decision 72).
+- Les tests ne consomment pas les 600 requetes — ce serait long sans rien
+  prouver de plus. Ils verifient les deux choses qui comptent : le garde
+  s'execute sur une lecture authentifiee, et le compteur porte bien la cle de
+  l'**utilisateur**, verifiee directement dans Redis.
+- Date : 2026-09-23

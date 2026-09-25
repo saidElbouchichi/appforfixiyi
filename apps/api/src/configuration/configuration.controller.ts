@@ -14,6 +14,7 @@ import { Roles } from "../auth/guards/roles.decorator.js";
 import { RolesGuard } from "../auth/guards/roles.guard.js";
 import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
 import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
+import { AUTHENTICATED_READ_LIMIT } from "../auth/rate-limit/read-budget.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { ConfigurationService } from "./configuration.service.js";
@@ -40,6 +41,8 @@ export class ConfigurationController {
   constructor(private readonly configuration: ConfigurationService) {}
 
   @Get()
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(RateLimitGuard)
   get(): Promise<SystemConfiguration> {
     return this.configuration.get();
   }

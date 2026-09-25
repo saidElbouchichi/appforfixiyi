@@ -9,12 +9,14 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { AppModule } from "../src/app.module.js";
+import { AUTHENTICATED_READ_LIMIT } from "../src/auth/rate-limit/read-budget.js";
 import { CATALOG_PUBLIC_READ_LIMIT } from "../src/catalog/catalog.controller.js";
 import { ProblemDetailsFilter } from "../src/common/filters/problem-details.filter.js";
 import { COMPANY_PUBLIC_READ_LIMIT } from "../src/companies/company.controller.js";
 import { RedisService } from "../src/infrastructure/redis/redis.service.js";
 import { PROVIDER_PUBLIC_READ_LIMIT } from "../src/providers/public/public-provider.controller.js";
 
+import { login } from "./otp-test-helper.js";
 import { clearRateLimitState } from "./rate-limit-test-helper.js";
 
 /**
@@ -31,6 +33,13 @@ describe("Public read rate limits (e2e)", () => {
   let app: NestFastifyApplication;
   let server: Parameters<typeof request>[0];
   let redis: RedisService;
+
+  const runId = Date.now().toString().slice(-6);
+  let counter = 0;
+  function uniquePhone(): string {
+    counter += 1;
+    return `+2126${runId}${counter.toString().padStart(2, "0")}`;
+  }
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule.forRoot(loadEnv())] }).compile();
@@ -102,4 +111,44 @@ describe("Public read rate limits (e2e)", () => {
       expect(response.status).toBe(200);
     }
   }, 30_000);
+
+  /**
+   * Decision 77. Exhausting 600 requests would make this suite slow for no
+   * extra proof, so it checks the two things that actually matter: the guard
+   * runs on an authenticated read, and the counter is keyed by the USER. The
+   * key is the whole point — an IP-keyed budget behind a carrier-grade NAT
+   * would let one subscriber spend a neighbourhood's quota.
+   */
+  describe("authenticated reads (Decision 77)", () => {
+    it("counts a read against the reader, not their address", async () => {
+      await clearRateLimitState(redis);
+      const session = await login(server, redis, uniquePhone());
+
+      const first = await request(server).get("/api/v1/requests/mine").set("Authorization", `Bearer ${session.accessToken}`);
+      expect(first.status).toBe(200);
+
+      const key = `ratelimit:authenticated-read:user:${session.user.id}`;
+      expect(await redis.client.get(key)).toBe("1");
+
+      await request(server).get("/api/v1/requests/mine").set("Authorization", `Bearer ${session.accessToken}`);
+      expect(await redis.client.get(key)).toBe("2");
+    }, 30_000);
+
+    it("gives each user their own budget", async () => {
+      await clearRateLimitState(redis);
+      const mine = await login(server, redis, uniquePhone());
+      const theirs = await login(server, redis, uniquePhone());
+
+      await request(server).get("/api/v1/requests/mine").set("Authorization", `Bearer ${mine.accessToken}`);
+      await request(server).get("/api/v1/requests/mine").set("Authorization", `Bearer ${theirs.accessToken}`);
+
+      expect(await redis.client.get(`ratelimit:authenticated-read:user:${mine.user.id}`)).toBe("1");
+      expect(await redis.client.get(`ratelimit:authenticated-read:user:${theirs.user.id}`)).toBe("1");
+    }, 30_000);
+
+    it("leaves the budget generous enough for a screen that fires several reads", () => {
+      expect(AUTHENTICATED_READ_LIMIT.limit).toBeGreaterThanOrEqual(600);
+      expect(AUTHENTICATED_READ_LIMIT.key).toBe("user");
+    });
+  });
 });

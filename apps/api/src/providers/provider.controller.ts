@@ -26,6 +26,7 @@ import { Roles } from "../auth/guards/roles.decorator.js";
 import { RolesGuard } from "../auth/guards/roles.guard.js";
 import { RateLimit } from "../auth/rate-limit/rate-limit.decorator.js";
 import { RateLimitGuard } from "../auth/rate-limit/rate-limit.guard.js";
+import { AUTHENTICATED_READ_LIMIT } from "../auth/rate-limit/read-budget.js";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe.js";
 
 import { ProviderService } from "./provider.service.js";
@@ -43,7 +44,8 @@ export class ProviderController {
   constructor(private readonly providers: ProviderService) {}
 
   @Get("me")
-  @UseGuards(AuthGuard)
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(AuthGuard, RateLimitGuard)
   async getMine(@CurrentUser() user: AuthenticatedUser): Promise<ProviderProfile> {
     const profile = await this.providers.getByUserId(user.id);
     if (!profile) {

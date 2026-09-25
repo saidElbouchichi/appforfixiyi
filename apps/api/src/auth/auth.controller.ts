@@ -52,6 +52,7 @@ import { AuthGuard } from "./guards/auth.guard.js";
 import { CurrentUser } from "./guards/current-user.decorator.js";
 import { RateLimit } from "./rate-limit/rate-limit.decorator.js";
 import { RateLimitGuard } from "./rate-limit/rate-limit.guard.js";
+import { AUTHENTICATED_READ_LIMIT } from "./rate-limit/read-budget.js";
 import { TokenService } from "./token/token.service.js";
 
 /** Account changes of a signed-in user (audit 2026-09-21: were unlimited). */
@@ -140,7 +141,8 @@ export class AuthController {
   }
 
   @Get("sessions")
-  @UseGuards(AuthGuard)
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(AuthGuard, RateLimitGuard)
   listSessions(@CurrentUser() user: AuthenticatedUser): Promise<Session[]> {
     return this.auth.listSessions(user.id, user.sessionId);
   }
@@ -157,7 +159,8 @@ export class AuthController {
   }
 
   @Get("me")
-  @UseGuards(AuthGuard)
+  @RateLimit(AUTHENTICATED_READ_LIMIT)
+  @UseGuards(AuthGuard, RateLimitGuard)
   getMe(@CurrentUser() user: AuthenticatedUser): Promise<UserDto> {
     return this.auth.getMe(user.id);
   }
