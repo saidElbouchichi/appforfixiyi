@@ -33,8 +33,17 @@
     networks:
       - fixiyi-network
 
+  # `quay.io/minio/minio` stopped answering anonymous pulls (401) between the
+  # 2026-09-23 and the 2026-09-25, and `minio/minio` on Docker Hub is gated
+  # too: a fresh clone could no longer stand up its own stack. This build is
+  # pullable and starts the server by itself, hence no `command:`.
+  #
+  # Migrating an existing stack: it runs as uid 1001 where the previous
+  # image ran as root, so a `minio_data` volume created before the switch
+  # is unreadable to it (`Permission denied` on .root_user). Drop it —
+  # `docker volume rm fixiyi_minio_data` — the bucket is recreated at boot.
   minio:
-    image: quay.io/minio/minio:RELEASE.2024-01-16T16-07-38Z
+    image: bitnamilegacy/minio:2025.5.24
     container_name: fixiyi-minio
     restart: unless-stopped
     ports:
@@ -43,9 +52,9 @@
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
+      MINIO_CONSOLE_PORT_NUMBER: "9001"
     volumes:
-      - minio_data:/data
+      - minio_data:/bitnami/minio/data
     networks:
       - fixiyi-network
 
