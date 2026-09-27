@@ -86,9 +86,9 @@ APRÈS CHAQUE PHASE VALIDÉE :
 
 ## Rollback
 
-Commit de référence : **382a663** (fin phase 12 de la refonte design,
-2026-09-27 — animations : une entrée = une arrivée).
-En cas de problème : git reset --hard 382a663
+Commit de référence : **25c7f1b** (fin phase 13 de la refonte design,
+2026-09-27 — tests : mutation 23/23, suite indépendante de l'ordre).
+En cas de problème : git reset --hard 25c7f1b
 
 **À METTRE À JOUR À LA FIN DE CHAQUE PHASE, avant le commit de phase**
 (Décision 69). C'est une étape de la phase, pas une intention : deux fois
@@ -101,7 +101,7 @@ l'exécution aurait effacé du travail livré —
 
 Historique des références, pour retrouver un état plus ancien sans relire
 le journal : d84703e (Phase 5 produit) → d825a8a (refonte phase 6) →
-d7d1aca (refonte phase 7) → 3add35f (refonte phase 8) → d839f14 (refonte phase 9) → b551446 (refonte phase 10) → 759167b (refonte phase 11) → 382a663 (refonte phase 12).
+d7d1aca (refonte phase 7) → 3add35f (refonte phase 8) → d839f14 (refonte phase 9) → b551446 (refonte phase 10) → 759167b (refonte phase 11) → 382a663 (refonte phase 12) → 25c7f1b (refonte phase 13).
 
 `reset --hard` est destructif : jamais lancé sans accord explicite de
 l'utilisateur (03_AGENT_PROTOCOL §2, 05_DECISION_POLICY).
