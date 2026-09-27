@@ -32,6 +32,9 @@ export async function loginThroughUi(page: Page, phone: string): Promise<void> {
   }
   await page.getByTestId("otp-input").fill(code);
   await page.getByTestId("verify-otp-button").click();
+  // Signed in means the session is stored and the form has handed over to the start route.
+  // Returning at the click let a caller's next `goto` abort the verification in flight.
+  await page.waitForURL((url) => url.pathname !== "/login", { timeout: 20_000 });
 }
 
 export async function fillAndSubmitRequest(page: Page, options: { description?: string } = {}): Promise<void> {

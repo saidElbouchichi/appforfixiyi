@@ -30,7 +30,8 @@ test("a client and a provider chat live, and a phone number stays masked", async
   // ---------------------------------------------------------------- client
   await loginThroughUi(page, uniquePhone("7"));
   await expect(page).toHaveURL(/\/requests\/new$/);
-  await fillAndSubmitRequest(page);
+  const description = `Prise en panne, conversation ${providerName}.`;
+  await fillAndSubmitRequest(page, { description });
   await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
   const requestId = (await page.getByTestId("submitted-request-id").innerText()).trim();
 
@@ -54,7 +55,10 @@ test("a client and a provider chat live, and a phone number stays masked", async
   await providerContext.addInitScript(...sessionInitScript(provider.session));
   const providerPage = await providerContext.newPage();
   await providerPage.goto("/provider/requests");
-  await providerPage.getByTestId("chat-with-client-button").first().click();
+  // THIS request's row, not the first one: AUTO matches left by earlier specs keep dispatching
+  // for minutes, and can reach this AVAILABLE provider with a newer request of their own.
+  const row = providerPage.getByTestId("provider-match-row").filter({ hasText: description });
+  await row.getByTestId("chat-with-client-button").click({ timeout: 20_000 });
   // Opened from the other side, it is the SAME conversation — never a duplicate.
   await expect(providerPage).toHaveURL(conversationUrl, { timeout: 20_000 });
   await expect(providerPage.getByTestId("connection-status")).toHaveText("En ligne", { timeout: 20_000 });

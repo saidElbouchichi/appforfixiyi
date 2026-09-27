@@ -1,0 +1,676 @@
+{
+  "/": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 27,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Trouvez un artisan de confiance",
+          "h2 Domaines de services"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 0,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 27,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Trouvez un artisan de confiance",
+          "h2 Domaines de services"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 0,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 8,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/services?q=panne": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 28,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Rechercher un service"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 0,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 28,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Rechercher un service"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 0,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 7,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/login": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 25,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Connexion a Fixiyi",
+          "h2 Connexion"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 0,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 25,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Connexion a Fixiyi",
+          "h2 Connexion"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 0,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 5,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/requests/new": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 27,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Nouvelle demande",
+          "h2 Quel service vous faut-il ?",
+          "h2 Decrivez le probleme",
+          "h2 Ou se trouve l'intervention ?",
+          "h2 Photos, video ou audio (optionnel)"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 27,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Nouvelle demande",
+          "h2 Quel service vous faut-il ?",
+          "h2 Decrivez le probleme",
+          "h2 Ou se trouve l'intervention ?",
+          "h2 Photos, video ou audio (optionnel)"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 14,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/requests": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 21,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Mes demandes"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 21,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Mes demandes"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 9,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/requests/:id/match": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 23,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Recherche de fournisseurs",
+          "h2 Ou en est votre demande",
+          "h2 Fournisseurs contactes"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 23,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Recherche de fournisseurs",
+          "h2 Ou en est votre demande",
+          "h2 Fournisseurs contactes"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 9,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/conversations/:id": {
+    "360px": {
+      "axeViolations": [
+        "color-contrast (serious) x1",
+        "listitem (serious) x1"
+      ],
+      "axeIncomplete": [],
+      "axeRulesPassed": 26,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Audit Pro 1462"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 2,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [
+        "color-contrast (serious) x1",
+        "listitem (serious) x1"
+      ],
+      "axeIncomplete": [],
+      "axeRulesPassed": 26,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Audit Pro 1462"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 2,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 14,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": false,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/profile": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 23,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Profil"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 23,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Profil"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 9,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/providers/:id": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [
+        "color-contrast x1"
+      ],
+      "axeRulesPassed": 23,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Audit Pro 1462",
+          "h2 Services",
+          "h2 Competences",
+          "h2 Langues",
+          "h2 Zone d'intervention",
+          "h2 Disponibilites"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 23,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Audit Pro 1462",
+          "h2 Services",
+          "h2 Competences",
+          "h2 Langues",
+          "h2 Zone d'intervention",
+          "h2 Disponibilites"
+        ],
+        "headingJumps": [],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 7,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "modal": {
+    "tabsTried": 12,
+    "focusLeftDialog": 0,
+    "focusBackOnTrigger": "edit-button"
+  },
+  "/conversations (vide)": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 21,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Messages",
+          "h3 Aucune conversation"
+        ],
+        "headingJumps": [
+          "h1 -> h3 \"Aucune conversation\""
+        ],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 21,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Messages",
+          "h3 Aucune conversation"
+        ],
+        "headingJumps": [
+          "h1 -> h3 \"Aucune conversation\""
+        ],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 7,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "/provider/requests (vide)": {
+    "360px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 21,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Demandes recues",
+          "h3 Aucune demande pour le moment"
+        ],
+        "headingJumps": [
+          "h1 -> h3 \"Aucune demande pour le moment\""
+        ],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      }
+    },
+    "1440px": {
+      "axeViolations": [],
+      "axeIncomplete": [],
+      "axeRulesPassed": 21,
+      "structure": {
+        "title": "Fixiyi",
+        "lang": "fr",
+        "h1": 1,
+        "headings": [
+          "h1 Demandes recues",
+          "h3 Aucune demande pour le moment"
+        ],
+        "headingJumps": [
+          "h1 -> h3 \"Aucune demande pour le moment\""
+        ],
+        "landmarks": {
+          "main": 1,
+          "banner": 1,
+          "navigation": 2,
+          "contentinfo": 1
+        },
+        "smallTargets": []
+      },
+      "keyboard": {
+        "firstStop": "a \"Aller au contenu\"@8",
+        "stops": 8,
+        "withoutRing": [],
+        "obscured": [],
+        "trapped": false
+      }
+    },
+    "reflowAndSpacing": {
+      "reflow320": true,
+      "zoom200": true,
+      "spacingClipped": []
+    }
+  },
+  "announcer": {
+    "/requests": "title=\"Fixiyi\" announcer=\"\"",
+    "/conversations": "title=\"Fixiyi\" announcer=\"\"",
+    "/profile": "title=\"Fixiyi\" announcer=\"\"",
+    "/": "title=\"Fixiyi\" announcer=\"\"",
+    "tuile -> /services": "title=\"Fixiyi\" announcer=\"\" focus=body"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "emptyAxe": [],
+  "empty320": {
+    "scrollWidth": 320,
+    "vw": 320,
+    "list": []
+  },
+  "withMessageAxe": [
+    {
+      "id": "color-contrast",
+      "nodes": [
+        {
+          "target": [
+            ".fx-bubble__text"
+          ],
+          "html": "<p class=\"fx-bubble__text\" dir=\"auto\">Bonjour, message de l'audit</p>",
+          "why": "Fix any of the following:\n  Element has insufficient color contrast of 3.98 (foreground color: #fefefe, background color: #cb5f32, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            "time"
+          ],
+          "html": "<time>21:42</time>",
+          "why": "Fix any of the following:\n  Element has insufficient color contrast of 3.98 (foreground color: #fefefe, background color: #cb5f32, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ],
+  "withMessage320": {
+    "scrollWidth": 320,
+    "vw": 320,
+    "list": []
+  },
+  "withMessage360": {
+    "scrollWidth": 360,
+    "vw": 360,
+    "list": []
+  },
+  "withMessage768": {
+    "scrollWidth": 768,
+    "vw": 768,
+    "list": []
+  }
+}

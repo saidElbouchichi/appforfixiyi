@@ -1,0 +1,19 @@
+{
+  "homeTitle": "Fixiyi",
+  "announcerBefore": "",
+  "tileHref": "/services?domain=01a0bf75-023f-76aa-ba06-d8a1f1b7d3fa",
+  "afterTile": {
+    "url": "http://localhost:3000/services?domain=01a0bf75-023f-76aa-ba06-d8a1f1b7d3fa",
+    "title": "Fixiyi",
+    "active": "body \"Aller au contenuFixiyiRechercher un serv\"",
+    "announcer": ""
+  },
+  "afterTileFirstTab": "input#_r_0_-search \"\"",
+  "afterHeader": {
+    "url": "http://localhost:3000/",
+    "title": "Fixiyi",
+    "active": "a \"Fixiyi\"",
+    "announcer": ""
+  },
+  "afterHeaderFirstTab": "button \"Se connecter\""
+}

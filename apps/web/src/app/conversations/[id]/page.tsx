@@ -1,7 +1,7 @@
 "use client";
 
 import type { Conversation, Message } from "@fixiyi/contracts";
-import { Badge, Button, EmptyState, ErrorState, Icon, IconButton, Input, Skeleton, TypingIndicator } from "@fixiyi/ui";
+import { Alert, Badge, Button, EmptyState, ErrorState, Icon, IconButton, Input, Skeleton, TypingIndicator } from "@fixiyi/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
@@ -91,33 +91,36 @@ function ConversationThread({ conversation, userId }: { conversation: Conversati
       <ContactBanner policy={conversation.contactPolicy} phone={conversation.counterpart.phone} />
       {searching ? <SearchPanel id={searchPanelId} conversationId={conversation.id} /> : null}
 
-      <ol className="fx-chat-log" role="log" aria-live="polite" aria-label={`Conversation avec ${counterpartName}`} data-testid="chat-log" style={{ listStyle: "none", margin: 0 }}>
+      {/* `role="log"` sits on the container: on the <ol> it replaced the list role and left every <li> orphaned (WCAG 1.3.1). */}
+      <div className="fx-chat-log" role="log" aria-live="polite" aria-label={`Conversation avec ${counterpartName}`} data-testid="chat-log">
         {thread.hasOlder ? (
-          <li style={{ alignSelf: "center" }}>
-            <Button variant="ghost" onClick={() => void thread.loadOlder()}>
-              Messages precedents
-            </Button>
-          </li>
+          <Button variant="ghost" onClick={() => void thread.loadOlder()} style={{ alignSelf: "center" }}>
+            Messages precedents
+          </Button>
         ) : null}
         {thread.loading ? <Skeleton lines={4} label="Chargement des messages…" /> : null}
         {thread.error === null ? null : <ErrorState message={thread.error} onRetry={thread.reload} />}
         {!thread.loading && thread.messages.length === 0 ? (
-          <EmptyState icon={<Icon name="message" size="xl" />} title="Aucun message" message="Posez vos questions avant de recevoir une offre." />
+          <EmptyState icon={<Icon name="message" size="xl" />} headingLevel={2} title="Aucun message" message="Posez vos questions avant de recevoir une offre." />
         ) : null}
-        {thread.messages.map((message) => (
-          <MessageItem
-            key={message.id}
-            message={message}
-            myUserId={userId}
-            counterpartName={counterpartName}
-            canAct={conversation.canSend}
-            onReply={setReplyTo}
-            onEdit={thread.edit}
-            onDelete={thread.remove}
-            onReact={thread.react}
-          />
-        ))}
-      </ol>
+        {thread.messages.length > 0 ? (
+          <ol className="fx-chat-log__messages">
+            {thread.messages.map((message) => (
+              <MessageItem
+                key={message.id}
+                message={message}
+                myUserId={userId}
+                counterpartName={counterpartName}
+                canAct={conversation.canSend}
+                onReply={setReplyTo}
+                onEdit={thread.edit}
+                onDelete={thread.remove}
+                onReact={thread.react}
+              />
+            ))}
+          </ol>
+        ) : null}
+      </div>
 
       {thread.counterpartTyping ? <TypingIndicator label={`${counterpartName} ecrit…`} /> : null}
 
@@ -153,10 +156,11 @@ function ContactBanner({ policy, phone }: { policy: "PROTECTED" | "UNLOCKED"; ph
     );
   }
   return (
-    <p className="fx-badge fx-badge--info" role="note" style={{ alignSelf: "flex-start" }} data-testid="contact-protected-banner">
-      <Icon name="shield" size="sm" />
+    // A sentence, not a status label: as a badge (`white-space: nowrap`) it ran
+    // 594px wide and pushed the page sideways under 768px (WCAG 1.4.10).
+    <Alert variant="info" testId="contact-protected-banner">
       Pour votre securite, telephones, emails et liens sont masques jusqu&apos;a l&apos;acceptation d&apos;une offre.
-    </p>
+    </Alert>
   );
 }
 

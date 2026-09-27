@@ -5,7 +5,7 @@ l'instruction « continue la refonte avec ces placeholders ». Sources : master
 prompt parties 1 a 3B, decisions `DECISIONS.md` (D1-D7), planche
 `reference/fixiyi-design-board.png`.
 
-## Les 14 phases (ordre de l'utilisateur)
+## Les 15 phases (ordre de l'utilisateur)
 
 | # | Phase | Contenu |
 |---|---|---|
@@ -23,6 +23,7 @@ prompt parties 1 a 3B, decisions `DECISIONS.md` (D1-D7), planche
 | 12 | Animations | micro-interactions |
 | 13 | Tests | unit, e2e, captures — consolidation |
 | 14 | Nettoyage | refactoring, `09_DESIGN_SYSTEM_RULE.md`, `00_README.md` point 9 |
+| 15 | Tests visuels | `toHaveScreenshot()`, baselines, CI — ajoutee le 2026-09-27 (Decision 81) |
 
 ## Regle de fin de phase (toutes les phases)
 

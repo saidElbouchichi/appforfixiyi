@@ -7,7 +7,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Fixiyi",
+  // The home page's title; every other segment names its page (lib/segment-layout.tsx).
+  title: "Fixiyi — Trouvez un artisan de confiance",
   description: "Fixiyi — trouvez un professionnel de confiance pres de chez vous",
 };
 

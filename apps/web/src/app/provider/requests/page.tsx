@@ -185,6 +185,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
         <Card>
           <EmptyState
             icon={<Icon name="tools" size="xl" />}
+            headingLevel={2}
             title="Aucune demande pour le moment"
             message="Les demandes correspondant a vos services, vos competences et votre zone apparaitront ici. Verifiez que votre statut est 'disponible'."
           />

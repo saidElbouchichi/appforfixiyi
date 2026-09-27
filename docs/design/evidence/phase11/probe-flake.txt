@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+{"probe":"A","legacySignedIn":false,"fixedSignedIn":true}
+  ok 1 [chromium] › audit\probe-flake.spec.ts:42:1 › A - a caller's goto right after login, with a slow verification (5.1s)
+{"probe":"B","legacyPicksOurs":false,"fixedRows":1}
+  ok 2 [chromium] › audit\probe-flake.spec.ts:65:1 › B - the provider's inbox holds a newer request than the one under test (3.5s)
+
+  2 passed (10.9s)

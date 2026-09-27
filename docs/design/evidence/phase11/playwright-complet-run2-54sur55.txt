@@ -1,0 +1,96 @@
+
+Running 55 tests using 1 worker
+
+  ok  1 [chromium] › tests\accessibility.spec.ts:82:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own (2.8m)
+  ok  2 [chromium] › tests\accessibility.spec.ts:168:1 › a screen reader hears the new page's title after a client-side navigation (5.1s)
+  ok  3 [chromium] › tests\accessibility.spec.ts:191:1 › the admin back-office names its pages too (3.7s)
+Chat http://localhost:3000/conversations/01a0df49-75eb-7285-b50d-9c86f1a1aa76: live delivery, typing, masking, read receipt and reply verified in two browsers.
+  x   4 [chromium] › tests\chat.spec.ts:26:1 › a client and a provider chat live, and a phone number stays masked (44.2s)
+Created and submitted ServiceRequest id: 01a0df4a-50a4-7745-85c1-57d3d7134e07 (phone +212652582882)
+  ok  5 [chromium] › tests\create-request.spec.ts:17:1 › client logs in with OTP and creates a service request with a real photo upload (4.0s)
+  ok  6 [chromium] › tests\design-system.spec.tsx:34:3 › icons › every glyph renders inside its box (2.0s)
+  ok  7 [chromium] › tests\design-system.spec.tsx:56:3 › icons › directional glyphs mirror in RTL, others do not (2.1s)
+  ok  8 [chromium] › tests\design-system.spec.tsx:97:3 › button › renders the four heights of part 2B with a pointer (2.3s)
+  ok  9 [chromium] › tests\design-system.spec.tsx:105:3 › button › keeps every label readable: measured contrast of each variant (1.5s)
+  ok 10 [chromium] › tests\design-system.spec.tsx:117:3 › button on a touch screen › grows sm and md to the 44px touch target (3.1s)
+  ok 11 [chromium] › tests\design-system.spec.tsx:127:3 › badges, cards, fields › render the batch B gallery with readable badges (10.5s)
+  ok 12 [chromium] › tests\design-system.spec.tsx:161:3 › badges, cards, fields › an interactive card follows its primary action from anywhere (2.0s)
+  ok 13 [chromium] › tests\design-system.spec.tsx:176:3 › badges, cards, fields › an interactive card shows the focus ring of its primary action (1.8s)
+  ok 14 [chromium] › tests\design-system.spec.tsx:219:3 › form controls › render the batch C gallery, readable (978ms)
+  ok 15 [chromium] › tests\design-system.spec.tsx:230:3 › form controls › slides the switch thumb to the inline end, in LTR and in RTL (2.3s)
+  ok 16 [chromium] › tests\design-system.spec.tsx:247:3 › form controls on a touch screen › give filter chips and chip remove buttons the 44px touch target (1.4s)
+  ok 17 [chromium] › tests\design-system.spec.tsx:286:3 › feedback and identity › render the batch D gallery with readable alerts and avatars (12.0s)
+  ok 18 [chromium] › tests\design-system.spec.tsx:302:3 › feedback and identity › keeps the horizontal stepper inside a 360px phone (1.3s)
+  ok 19 [chromium] › tests\design-system.spec.tsx:309:3 › disclosure and overlays › render tabs, accordion, menu trigger and the empty/error states (1.2s)
+  ok 20 [chromium] › tests\design-system.spec.tsx:338:3 › disclosure and overlays › render the bottom sheet against the bottom edge, full width on a phone (532ms)
+  ok 21 [chromium] › tests\design-system.spec.tsx:353:3 › disclosure and overlays › render the modal and the command palette (2.2s)
+  ok 22 [chromium] › tests\design-system.spec.tsx:399:3 › layout › on a phone: 56px header, bottom bar with 44px+ targets, no navbar (3.7s)
+  ok 23 [chromium] › tests\design-system.spec.tsx:423:3 › layout › on a desktop: 64px header with the navbar, no bottom bar (2.2s)
+  ok 24 [chromium] › tests\design-system.spec.tsx:431:3 › layout › the skip link appears on the first Tab and moves focus to the content (614ms)
+  ok 25 [chromium] › tests\design-system.spec.tsx:441:3 › layout › mirrors in RTL: logo at the inline start, on the right (649ms)
+Provider Playwright Pro 5435 (01a0df4b-3f1c-7390-8164-6ca2b748a9e7) was dispatched to and declined through the UI.
+  ok 26 [chromium] › tests\matching.spec.ts:18:1 › a dispatched provider sees the client's request, approximated, and can decline it (17.6s)
+  ok 27 [chromium] › tests\matching.spec.ts:87:1 › the client's waiting screen speaks to the client, not the engine (10.1s)
+  ok 28 [chromium] › tests\navigation.spec.ts:43:1 › a signed-out visitor landing on / gets the home, and every link on it resolves (3.4s)
+  ok 29 [chromium] › tests\navigation.spec.ts:50:1 › a signed-in client who clicks the logo comes home, still signed in (7.9s)
+  ok 30 [chromium] › tests\navigation.spec.ts:62:1 › a provider reaches their inbox from the home, and it is their start screen at login (6.8s)
+  ok 31 [chromium] › tests\navigation.spec.ts:79:1 › a client reaches their requests from the navigation, and the list opens the right screen (12.3s)
+  ok 32 [chromium] › tests\navigation.spec.ts:103:1 › the navigation holds at tablet width and in Arabic reading order (2.9s)
+  ok 33 [chromium] › tests\navigation.spec.ts:123:1 › a provider on a phone gets the bottom bar, and every entry of it answers (8.4s)
+  ok 34 [chromium] › tests\navigation.spec.ts:159:1 › the profile signs the user out for good: the session is dead on the server too (10.3s)
+  ok 35 [chromium] › tests\navigation.spec.ts:186:1 › the unread badge follows real messages, and clears once they are read (27.6s)
+  ok 36 [chromium] › tests\navigation.spec.ts:233:1 › the admin back-office sends a signed-out visitor to its own login (1.9s)
+  ok 37 [chromium] › tests\responsive.spec.ts:82:1 › the public screens hold from a phone to a wide desktop (14.1s)
+  ok 38 [chromium] › tests\responsive.spec.ts:100:1 › a word with no space in it wraps instead of being cut off (11.6s)
+  ok 39 [chromium] › tests\responsive.spec.ts:112:1 › the file picker is a real target, not a 20px native control (5.1s)
+  ok 40 [chromium] › tests\services.spec.ts:15:1 › a signed-out visitor lands on the catalogue, not on a login wall (5.1s)
+  ok 41 [chromium] › tests\services.spec.ts:28:1 › a domain tile opens the search already narrowed to it (2.7s)
+  ok 42 [chromium] › tests\services.spec.ts:36:1 › a search result carries its ancestry, and sends a signed-out visitor to login (2.3s)
+  ok 43 [chromium] › tests\services.spec.ts:50:1 › a signed-in client reaches the form with the searched service already filled in (8.2s)
+  ok 44 [chromium] › tests\services.spec.ts:66:1 › the search finds a service typed with accents the catalogue does not use (2.8s)
+  ok 45 [chromium] › tests\services.spec.ts:72:1 › an unknown word says so instead of showing an empty page (3.2s)
+  ok 46 [chromium] › tests\services.spec.ts:83:1 › an artisan's public profile shows the trade, and none of the private data (2.5s)
+  ok 47 [chromium] › tests\services.spec.ts:106:1 › the API itself refuses to hand out the private fields (1.6s)
+  ok 48 [chromium] › tests\services.spec.ts:117:1 › a client opens the profile of an artisan from their matching screen (5.0s)
+  ok 49 [chromium] › tests\services.spec.ts:126:1 › an unknown provider id says so rather than failing silently (2.6s)
+  ok 50 [chromium] › tests\session-refresh.spec.ts:60:1 › an expired access token is refreshed transparently and the screen still works (5.1s)
+  ok 51 [chromium] › tests\session-refresh.spec.ts:92:1 › a session whose refresh token is dead too is cleared and sent back to login (10.0s)
+  ok 52 [chromium] › tests\typography.spec.ts:23:5 › web — typography › renders the body in Inter, self-hosted by the app (2.7s)
+  ok 53 [chromium] › tests\typography.spec.ts:45:5 › web — typography › switches Arabic content to Noto Sans Arabic, loaded on demand (1.5s)
+  ok 54 [chromium] › tests\typography.spec.ts:23:5 › admin — typography › renders the body in Inter, self-hosted by the app (954ms)
+  ok 55 [chromium] › tests\typography.spec.ts:45:5 › admin — typography › switches Arabic content to Noto Sans Arabic, loaded on demand (3.5s)
+
+
+  1) [chromium] › tests\chat.spec.ts:26:1 › a client and a provider chat live, and a phone number stays masked 
+
+    Test timeout of 30000ms exceeded.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\chat-a-client-and-a-provid-08aad-a-phone-number-stays-masked-chromium\test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\chat-a-client-and-a-provid-08aad-a-phone-number-stays-masked-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\chat-a-client-and-a-provid-08aad-a-phone-number-stays-masked-chromium\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\chat-a-client-and-a-provid-08aad-a-phone-number-stays-masked-chromium\test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: screenshots\chat-a-client-and-a-provid-08aad-a-phone-number-stays-masked-chromium\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    screenshots\chat-a-client-and-a-provid-08aad-a-phone-number-stays-masked-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace screenshots\chat-a-client-and-a-provid-08aad-a-phone-number-stays-masked-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\chat.spec.ts:26:1 › a client and a provider chat live, and a phone number stays masked 
+  54 passed (9.6m)

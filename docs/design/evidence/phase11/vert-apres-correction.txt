@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ok 1 [chromium] › tests\accessibility.spec.ts:82:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own (2.6m)
+  ok 2 [chromium] › tests\accessibility.spec.ts:168:1 › a screen reader hears the new page's title after a client-side navigation (2.4s)
+  ok 3 [chromium] › tests\accessibility.spec.ts:191:1 › the admin back-office names its pages too (2.0s)
+
+  3 passed (2.8m)

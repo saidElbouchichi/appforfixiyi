@@ -1,0 +1,379 @@
+
+Running 3 tests using 1 worker
+
+  x  1 [chromium] › tests\accessibility.spec.ts:75:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own (2.2m)
+  x  2 [chromium] › tests\accessibility.spec.ts:151:1 › a screen reader hears the new page's title after a client-side navigation (10.0s)
+  x  3 [chromium] › tests\accessibility.spec.ts:174:1 › the admin back-office names its pages too (2.3s)
+
+
+  1) [chromium] › tests\accessibility.spec.ts:75:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own 
+
+    Error: /conversations/01a0dec8-5118-7647-92cb-fa891679dff2 @ 320px: heading levels skipped (1.3.1)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "h1 -> h3 \"Aucun message\"",
+    + ]
+
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+      57 |     expect.soft(found.h1, `${where}: exactly one h1`).toBe(1);
+    > 58 |     expect.soft(found.jumps, `${where}: heading levels skipped (1.3.1)`).toEqual([]);
+         |                                                                          ^
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:58:74)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:105:36
+
+    Error: /conversations/01a0dec8-5118-7647-92cb-fa891679dff2 @ 320px: the page scrolls sideways (1.4.10)
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    298
+
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    > 61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+         |                                                                           ^
+      62 |     title = found.title;
+      63 |   }
+      64 |   return title;
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:61:75)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:105:36
+
+    Error: /conversations/01a0dec8-5118-7647-92cb-fa891679dff2 @ 1440px: heading levels skipped (1.3.1)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "h1 -> h3 \"Aucun message\"",
+    + ]
+
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+      57 |     expect.soft(found.h1, `${where}: exactly one h1`).toBe(1);
+    > 58 |     expect.soft(found.jumps, `${where}: heading levels skipped (1.3.1)`).toEqual([]);
+         |                                                                          ^
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:58:74)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:105:36
+
+    Error: /conversations/01a0dec8-5118-7647-92cb-fa891679dff2 @ 320px: axe WCAG 2.2 AA
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "color-contrast: time",
+    +   "listitem: .fx-animate-slide-in-bottom",
+    + ]
+
+      51 |     const axe = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+      52 |     const violations = axe.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
+    > 53 |     expect.soft(violations, `${where}: axe WCAG 2.2 AA`).toEqual([]);
+         |                                                          ^
+      54 |
+      55 |     const found = await outline(page);
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:53:58)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:112:3
+
+    Error: /conversations/01a0dec8-5118-7647-92cb-fa891679dff2 @ 320px: the page scrolls sideways (1.4.10)
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    298
+
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    > 61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+         |                                                                           ^
+      62 |     title = found.title;
+      63 |   }
+      64 |   return title;
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:61:75)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:112:3
+
+    Error: /conversations/01a0dec8-5118-7647-92cb-fa891679dff2 @ 1440px: axe WCAG 2.2 AA
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "color-contrast: time",
+    +   "listitem: .fx-animate-slide-in-bottom",
+    + ]
+
+      51 |     const axe = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+      52 |     const violations = axe.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
+    > 53 |     expect.soft(violations, `${where}: axe WCAG 2.2 AA`).toEqual([]);
+         |                                                          ^
+      54 |
+      55 |     const found = await outline(page);
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:53:58)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:112:3
+
+    Error: /conversations @ 320px: heading levels skipped (1.3.1)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "h1 -> h3 \"Aucune conversation\"",
+    + ]
+
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+      57 |     expect.soft(found.h1, `${where}: exactly one h1`).toBe(1);
+    > 58 |     expect.soft(found.jumps, `${where}: heading levels skipped (1.3.1)`).toEqual([]);
+         |                                                                          ^
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:58:74)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:124:32
+
+    Error: /conversations @ 1440px: heading levels skipped (1.3.1)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "h1 -> h3 \"Aucune conversation\"",
+    + ]
+
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+      57 |     expect.soft(found.h1, `${where}: exactly one h1`).toBe(1);
+    > 58 |     expect.soft(found.jumps, `${where}: heading levels skipped (1.3.1)`).toEqual([]);
+         |                                                                          ^
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:58:74)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:124:32
+
+    Error: /provider/requests @ 320px: heading levels skipped (1.3.1)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "h1 -> h3 \"Aucune demande pour le moment\"",
+    + ]
+
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+      57 |     expect.soft(found.h1, `${where}: exactly one h1`).toBe(1);
+    > 58 |     expect.soft(found.jumps, `${where}: heading levels skipped (1.3.1)`).toEqual([]);
+         |                                                                          ^
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:58:74)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:131:36
+
+    Error: /provider/requests @ 1440px: heading levels skipped (1.3.1)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "h1 -> h3 \"Aucune demande pour le moment\"",
+    + ]
+
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+      57 |     expect.soft(found.h1, `${where}: exactly one h1`).toBe(1);
+    > 58 |     expect.soft(found.jumps, `${where}: heading levels skipped (1.3.1)`).toEqual([]);
+         |                                                                          ^
+      59 |
+      60 |     const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      61 |     expect.soft(sideways, `${where}: the page scrolls sideways (1.4.10)`).toBeLessThanOrEqual(1);
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:58:74)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:131:36
+
+    Error: routes sharing a title (2.4.2)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 46
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "/",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/services",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/login",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/conversations/:id",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/requests/new",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/requests",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/requests/:id/match",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/profile",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/providers/:id",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/conversations",
+    +     "Fixiyi",
+    +   ],
+    +   Array [
+    +     "/provider/requests",
+    +     "Fixiyi",
+    +   ],
+    + ]
+
+      135 |   // WCAG 2.4.2: a title describes its page, so no two routes share one.
+      136 |   const shared = [...titles].filter(([, title], _, all) => all.filter(([, other]) => other === title).length > 1);
+    > 137 |   expect(shared, "routes sharing a title (2.4.2)").toEqual([]);
+          |                                                    ^
+      138 |
+      139 |   // Other specs compete for the bounded dispatch batch: leave nothing dispatchable behind.
+      140 |   await request.patch(`${API_URL}/api/v1/providers/me/availability`, {
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:137:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\accessibility.spec.ts:151:1 › a screen reader hears the new page's title after a client-side navigation 
+
+    Error: a title of its own for /requests
+
+    a title of its own for /requests
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "Fixiyi"
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      165 |     await page.waitForURL((url) => url.pathname === href);
+      166 |     await expect(page.locator("h1")).toHaveCount(1);
+    > 167 |     await expect.poll(() => page.title(), { message: `a title of its own for ${href}` }).not.toBe(previous);
+          |                                                                                              ^
+      168 |     const title = await page.title();
+      169 |     await expect.poll(heard, { message: `announcer after navigating to ${href}` }).toBe(title);
+      170 |     previous = title;
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:167:94
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-a-screen-rea-853df-er-a-client-side-navigation-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: screenshots\accessibility-a-screen-rea-853df-er-a-client-side-navigation-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    screenshots\accessibility-a-screen-rea-853df-er-a-client-side-navigation-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace screenshots\accessibility-a-screen-rea-853df-er-a-client-side-navigation-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\accessibility.spec.ts:174:1 › the admin back-office names its pages too ────
+
+    Error: admin login title
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "Fixiyi Admin"
+
+      175 |   await page.goto(`${ADMIN_URL}/login`, { waitUntil: "networkidle" });
+      176 |   const loginTitle = await page.title();
+    > 177 |   expect(loginTitle, "admin login title").not.toBe("Fixiyi Admin");
+          |                                               ^
+      178 |   expect(loginTitle).toContain("Fixiyi Admin");
+      179 | });
+      180 |
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:177:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-the-admin-back-office-names-its-pages-too-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: screenshots\accessibility-the-admin-back-office-names-its-pages-too-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    screenshots\accessibility-the-admin-back-office-names-its-pages-too-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace screenshots\accessibility-the-admin-back-office-names-its-pages-too-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests\accessibility.spec.ts:75:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own 
+    [chromium] › tests\accessibility.spec.ts:151:1 › a screen reader hears the new page's title after a client-side navigation 
+    [chromium] › tests\accessibility.spec.ts:174:1 › the admin back-office names its pages too ─────

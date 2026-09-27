@@ -98,6 +98,7 @@ export default function ConversationsPage(): React.JSX.Element | null {
         <Card>
           <EmptyState
             icon={<Icon name="message" size="xl" />}
+            headingLevel={2}
             title="Aucune conversation"
             message="Une conversation s'ouvre quand vous contactez un artisan depuis une demande, ou quand un client vous ecrit."
           />

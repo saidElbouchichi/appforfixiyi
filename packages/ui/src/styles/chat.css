@@ -16,6 +16,17 @@
   overscroll-behavior: contain;
 }
 
+/* The messages themselves, a real list inside the log: `role="log"` belongs to
+   the container, since on the list it would replace the list role. */
+.fx-chat-log__messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fixiyi-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 /* flex-start / flex-end follow the writing direction, so "own" messages sit
    at the inline end in LTR and RTL alike — no mirror stylesheet. */
 .fx-bubble-row {
@@ -86,7 +97,9 @@
   gap: var(--fixiyi-space-1);
   margin-block-start: var(--fixiyi-space-1);
   font-size: var(--fixiyi-font-size-xs);
-  opacity: 0.85;
+  /* No opacity: at 0.85 the time stamp in the sender's own bubble fell to
+     4.17:1 on the action colour (WCAG 1.4.3 asks 4.5). The smaller size is
+     what sets it apart. */
 }
 
 .fx-bubble__actions {
@@ -133,7 +146,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: 0.85;
+}
+
+/* In the sender's own bubble the light tint above lifted the orange: the quote
+   fell to 4.42:1 (author) and, with the excerpt dimmed, 3.62:1 (WCAG 1.4.3
+   asks 4.5). The darker action role sets it apart and raises the contrast.
+   Not on a deleted bubble: its text turns muted grey, which would sit at
+   about 1:1 on this background. */
+.fx-bubble--own:not(.fx-bubble--deleted) .fx-reply-quote {
+  background-color: var(--fixiyi-color-action-hover);
 }
 
 .fx-reactions {

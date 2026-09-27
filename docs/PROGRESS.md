@@ -2,6 +2,27 @@
 
 ## Derniere mise a jour
 
+2026-09-27 - Reprise : **phase 11 verifiee avant commit, et un chiffre
+corrige**. Le rapport annoncait « 55/55 » ; la preuve qu'il citait disait
+**54/55**, et aucune des trois passes gardees n'etait verte. Deux scenarios
+instables, par des defauts **des tests** (mesures, `PHASE_11_DIAGNOSTIC.md`) :
+des vagues AUTO laissees par une passe precedente atteignaient l'artisan du
+chat, et `loginThroughUi` rendait la main avant la fin de la connexion.
+Corriges, reproduits expres (l'ancien code echoue, le nouveau non), puis
+**55/55 sur deux passes enchainees**. Enchainement des phases 12 a 15 sans
+arret, et phase 15 (tests visuels) ajoutee : Decision 81.
+
+2026-09-26 - Refonte design : **phase 11 (Accessibilite) TERMINEE** —
+`docs/design/PHASE_11_REPORT.md`. Le plan annoncait 2 defauts ; la mesure,
+refaite avec de vraies donnees, en trouve **7**. Parmi eux : les 11 routes
+portaient le meme titre (2.4.2, niveau A), si bien que l'annonceur de Next
+restait **muet** apres chaque navigation ; le bandeau du chat faisait
+defiler la page en largeur a 360 px ; et l'heure et la citation d'un
+message envoye tombaient sous 4,5:1. **Une seule voix** apres navigation :
+le titre, lu par Next, sans focus programme (Decision 80, choix de
+l'utilisateur). Le test axe a ete vu rouge, puis vert, puis casse expres.
+55 scenarios Playwright, 842 tests unitaires.
+
 2026-09-25 - Refonte design : **phase 10 (Responsive) TERMINEE** —
 `docs/design/PHASE_10_REPORT.md`. Audit mesure dans un vrai navigateur (44
 mesures, 11 routes x 4 largeurs) et **instrument verifie avant d'etre cru** :
@@ -51,9 +72,9 @@ ecrit (`docs/design/PHASE_7_PLAN.md`), **implementation en attente du GO**.
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a **10 TERMINEES** ;
-STOP, en attente de "GO PHASE 11" de la refonte (accessibilite, audit
-WCAG 2.2 AA — passe de consolidation).
+refonte design). Refonte Design System V2 : phases 1 a **11 TERMINEES** ;
+phases 12 a 15 **enchainees sans arret** (Decision 81) : 12 animations,
+13 tests, 14 nettoyage, 15 tests visuels.
 
 ## Phases terminees
 
@@ -300,11 +321,10 @@ dedie pousse sur `origin/main`.
 
 ## Prochaine action exacte
 
-**Aucune** — STOP, attendre `GO PHASE 11` de la **refonte** (accessibilite,
-audit WCAG 2.2 AA, passe de consolidation). Pour cette phase, la competence
-`design:accessibility-review` est prevue en second regard
-(`08_ECC_INTEGRATION.md`). Le renforcement ECC est termine ; ce qu'il a laisse ouvert est
-dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
+Phase 12 de la refonte (animations), enchainee sans GO intermediaire
+(Decision 81). Deux points de la phase 11 attendent une decision de
+l'utilisateur (voir « Blocages »). Le renforcement ECC est termine ; ce
+qu'il a laisse ouvert est dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
 (Offers), qui devra appeler `ConversationService.unlockContact` a
 l'acceptation d'une offre.
 
@@ -313,6 +333,14 @@ l'acceptation d'une offre.
 Aucun blocage technique. Decisions attendues de l'utilisateur : stockage des
 jetons de `apps/web` (Decision 66), conservation des messages supprimes
 (Decision 59), couleur de Domotique, URL des comptes sociaux, logo.
+
+Laisse ouvert par la phase 11 de la refonte (2026-09-26) :
+
+- **Focus apres navigation** : il tombe sur `body` quand la navigation part
+  d'un lien du contenu (limite acceptee, Decision 80). Le lien d'evitement
+  existe deja, mais ne resout pas cela.
+- **Texte indicatif du chat coupe a 320 px** (« Ecrire un message ») : vu
+  dans les captures, pre-existant, non traite — a decider.
 
 Laisse ouvert par le renforcement ECC du 2026-09-25 :
 
@@ -358,7 +386,11 @@ du schema ; **pas bloquant pour la phase 7** (decide par l'utilisateur le
 - [x] phase 8 de la refonte design ("GO PHASE 8" recu le 2026-09-25)
 - [x] phase 9 de la refonte design ("GO PHASE 9" recu le 2026-09-25)
 - [x] phase 10 de la refonte design ("GO PHASE 10" recu le 2026-09-25)
-- [ ] phase 11 de la refonte design ("GO PHASE 11" pas encore recu)
+- [x] phase 11 de la refonte design ("GO PHASE 11" recu le 2026-09-26) —
+  **TERMINEE**
+- [x] une seule voix apres navigation : titres + annonceur Next (Decision 80)
+- [x] phases 12 a 15 de la refonte design, enchainees sans arret (GO recu
+  le 2026-09-27, Decision 81)
 
 ## Prompt de reprise pour la prochaine session
 
@@ -367,21 +399,21 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (70 et 71 = choix du dernier tour)
-3. docs/design/PHASE_7_REPORT.md et docs/design/PLAN.md
+2. docs/DECISIONS.md (80 = choix du dernier tour)
+3. docs/design/PHASE_11_REPORT.md et docs/design/PLAN.md
 
 Contexte : deux numerotations coexistent. Produit : phases 0 a 6 terminees,
 la Phase 7 (Offers) attend la FIN de la refonte ; elle devra appeler
 ConversationService.unlockContact a l'acceptation d'une offre. Refonte
-design : phases 1 a 7 terminees (la 6 = navigation par role ; la 7 = accueil
-sur le vrai catalogue, recherche de services, profil artisan en vue publique
-restreinte, Decisions 70 et 71). 782 tests, 48 scenarios Playwright, gates
-verts, depot pousse sur origin/main, CI GitHub Actions verte.
+design : phases 1 a 11 terminees (la 11 = accessibilite : un titre par
+route lu par l'annonceur de Next, sans focus programme - Decision 80 ;
+contrastes, liste et reflow du chat). 842 tests unitaires, 55 scenarios
+Playwright, gates verts.
 
-La suite est la phase 8 de la REFONTE (pages secondaires : creation de
-demande, matching, boite fournisseur, chat, admin). N'attends que
-"GO PHASE 8" de l'utilisateur, et fais-lui preciser refonte ou produit ;
-sans ce signal explicite, ne commence rien - redemande confirmation.
+Les phases 12 a 15 de la REFONTE s'enchainent sans GO intermediaire
+(Decision 81) : reprends a la premiere phase dont le rapport n'existe pas
+dans docs/design/. Chaque phase garde son cycle complet, et une decision
+reservee a l'utilisateur reste un arret.
 
 Verifie d'abord que Docker tourne toujours (`docker compose -f
 docker-compose.yml -f docker-compose.dev.yml ps` depuis la racine).

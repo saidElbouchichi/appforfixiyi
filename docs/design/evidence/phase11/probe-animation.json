@@ -1,0 +1,10 @@
+{
+  "during": {
+    "runningAnimations": 1,
+    "violations": []
+  },
+  "after": {
+    "runningAnimations": 0,
+    "violations": []
+  }
+}

@@ -2386,3 +2386,52 @@ le compteur, et il est pose, pas resolu.
   et la raison de s'arreter. Un audit qui se trompe et le reconnait vaut
   mieux qu'un audit qu'on applique a la lettre.
 - Date : 2026-09-25
+
+## Decision 80 - Une seule voix apres une navigation : le titre, lu par Next
+
+- Contexte : la phase 11 de la refonte (accessibilite) prevoyait de
+  deplacer le focus sur le `h1` apres chaque navigation cote client. La
+  mesure a montre deux choses. D'abord, les 11 routes de `apps/web`
+  s'appelaient toutes « Fixiyi » (WCAG 2.4.2, niveau A). Ensuite,
+  l'annonceur de route de Next (`app-router-announcer.js`) ne parle **que
+  si `document.title` change** : il etait donc muet, et un lecteur d'ecran
+  n'entendait rien quand la page changeait.
+- Contrainte : deplacer le focus fait lire la cible, et donner un titre a
+  chaque page fait parler l'annonceur. Faire les deux, c'est annoncer la
+  page deux fois.
+- **Choix (fait par l'utilisateur le 2026-09-26)** : un titre par route, et
+  l'annonceur natif de Next comme **seule voix**. **Pas de focus programme**
+  dans `app-chrome.tsx`.
+  - 2.4.2 est de niveau A, donc obligatoire, et un focus programme ne le
+    corrige pas.
+  - La double annonce serait une regression pour les lecteurs d'ecran.
+  - Pas de code maison quand une solution native existe.
+- Mise en oeuvre : `pageTitle(nom)` -> `{ absolute: "nom — Fixiyi" }` dans un
+  `layout.tsx` serveur par segment. **Absolu** parce qu'avec
+  `title.template`, un parent dont le titre est une simple chaine prive ses
+  enfants du modele (constate sur trois routes imbriquees).
+- **Limite acceptee** : apres une navigation declenchee par un lien du
+  contenu, le focus tombe sur `body`, et la tabulation suivante reprend la
+  ou etait le lien. Le lien d'evitement existe deja (phase 5), mais cette
+  tabulation ne passe pas par lui.
+- Reversible : il suffirait de deplacer le focus et d'accepter la double
+  annonce, ou de desactiver l'annonceur si Next le permet un jour.
+- Date : 2026-09-26
+
+## Decision 81 - Fin de la refonte : phases enchainees, phase 15, diagnostic par phase
+
+- Contexte : le 2026-09-27, l'utilisateur demande d'enchainer les phases 11
+  a 15 de la refonte **sans validation entre chaque phase**. Or
+  `03_AGENT_PROTOCOL.md` prevoit « STOP + attendre GO PHASE X+1 », et
+  `08_ECC_INTEGRATION.md` place les regles Fixiyi au-dessus des commandes.
+- Choix (**decide par l'utilisateur le 2026-09-27**, signale avant le GO) :
+  - les phases 12 a 15 s'enchainent ; chacune garde **tout** son cycle
+    (plan, mesure, tests qui mordent, gates sans cache, Playwright complet,
+    captures, rapport, commit, CI verte). Seul l'arret entre deux phases est
+    leve. Une decision reservee a l'utilisateur (05_DECISION_POLICY) reste un
+    arret ;
+  - une **phase 15, tests visuels** (`toHaveScreenshot`), s'ajoute aux 14 de
+    `PLAN.md` ;
+  - chaque phase ecrit aussi `PHASE_X_DIAGNOSTIC.md` (audit mesure, defauts
+    reels et faux, corrections, reste ouvert, verification ECC).
+- Date : 2026-09-27

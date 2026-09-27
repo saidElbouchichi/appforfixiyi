@@ -27,7 +27,8 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   await loginThroughUi(page, clientPhone);
   await expect(page).toHaveURL(/\/requests\/new$/);
 
-  await fillAndSubmitRequest(page);
+  const description = `Prise de courant ne fonctionne plus, demande de ${providerName}.`;
+  await fillAndSubmitRequest(page, { description });
   await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
   await page.screenshot({ path: "screenshots/10-request-submitted.png", animations: "disabled" });
 
@@ -60,19 +61,21 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   const providerPage = await providerContext.newPage();
   await providerPage.goto("/provider/requests");
 
-  const row = providerPage.getByTestId("provider-match-row").first();
+  // THIS request's row: AUTO matches left by earlier runs keep dispatching for minutes and can
+  // reach this AVAILABLE provider too, so neither "the first row" nor "no row left" is ours to assume.
+  const row = providerPage.getByTestId("provider-match-row").filter({ hasText: description });
   await expect(row).toBeVisible({ timeout: 20_000 });
   await expect(row).toContainText("Prise de courant");
 
   // 01_SPEC_PRODUCT.md #17 — rounded to ~1km, and the exact address is withheld.
-  const approximate = await providerPage.getByTestId("approximate-location").first().innerText();
+  const approximate = await row.getByTestId("approximate-location").innerText();
   expect(approximate).toContain("33.57");
   expect(approximate).not.toContain("33.5731");
   await expect(row).toContainText("l'adresse exacte vous sera communiquee si le client accepte");
   await providerPage.screenshot({ path: "screenshots/12-provider-inbox.png", animations: "disabled" });
 
-  await providerPage.getByTestId("decline-button").first().click();
-  await expect(providerPage.getByTestId("provider-match-row")).toHaveCount(0, { timeout: 20_000 });
+  await row.getByTestId("decline-button").click();
+  await expect(row).toHaveCount(0, { timeout: 20_000 });
   await providerPage.screenshot({ path: "screenshots/13-provider-declined.png", animations: "disabled" });
 
   console.log(`Provider ${providerName} (${provider.profileId}) was dispatched to and declined through the UI.`);

@@ -7,6 +7,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
+  // Every segment names its page (lib/segment-layout.tsx); this covers the redirecting root.
   title: "Fixiyi Admin",
   description: "Fixiyi Admin — socle technique (Phase 1, Foundation)",
 };

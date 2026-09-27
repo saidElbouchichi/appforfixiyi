@@ -1,0 +1,76 @@
+
+Running 1 test using 1 worker
+
+  x  1 [chromium] › tests\accessibility.spec.ts:75:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own (1.1m)
+
+
+  1) [chromium] › tests\accessibility.spec.ts:75:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own 
+
+    Error: /conversations/01a0def9-3adc-7188-8a09-0b06cca53c8f @ 320px: axe WCAG 2.2 AA
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast: .fx-reply-quote__author, .fx-reply-quote__excerpt",
+    + ]
+
+      51 |     const axe = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+      52 |     const violations = axe.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
+    > 53 |     expect.soft(violations, `${where}: axe WCAG 2.2 AA`).toEqual([]);
+         |                                                          ^
+      54 |
+      55 |     const found = await outline(page);
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:53:58)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:117:3
+
+    Error: /conversations/01a0def9-3adc-7188-8a09-0b06cca53c8f @ 1440px: axe WCAG 2.2 AA
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast: .fx-reply-quote__author, .fx-reply-quote__excerpt",
+    + ]
+
+      51 |     const axe = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+      52 |     const violations = axe.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
+    > 53 |     expect.soft(violations, `${where}: axe WCAG 2.2 AA`).toEqual([]);
+         |                                                          ^
+      54 |
+      55 |     const found = await outline(page);
+      56 |     expect.soft(found.lang, `${where}: page language`).toBe("fr");
+        at expectAccessible (C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:53:58)
+        at C:\Users\saide\fixiyi\tests\browser\tests\accessibility.spec.ts:117:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace screenshots\accessibility-every-screen-eea8d--and-has-a-title-of-its-own-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\accessibility.spec.ts:75:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own 
