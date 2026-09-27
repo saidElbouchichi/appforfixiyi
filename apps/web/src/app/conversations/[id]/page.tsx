@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
+import { isArrival, settleBaseline } from "../../../lib/arrivals";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 import { getConversation, searchMessages } from "../../../lib/chat-api";
 import { errorMessage } from "../../../lib/errors";
@@ -65,6 +66,10 @@ export default function ConversationPage(): React.JSX.Element | null {
 function ConversationThread({ conversation, userId }: { conversation: Conversation; userId: string }): React.JSX.Element {
   const thread = useChatThread(conversation, userId);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
+  // Adjusted during render, not in an effect: the first painted frame must already know what is history.
+  const [baseline, setBaseline] = useState<number | null>(null);
+  const settled = settleBaseline(baseline, thread.loading, thread.messages.map((message) => message.seq));
+  if (settled !== baseline) setBaseline(settled);
   const [searching, setSearching] = useState(false);
   const searchPanelId = useId();
   const counterpartName = conversation.counterpart.displayName;
@@ -112,6 +117,7 @@ function ConversationThread({ conversation, userId }: { conversation: Conversati
                 myUserId={userId}
                 counterpartName={counterpartName}
                 canAct={conversation.canSend}
+                arriving={isArrival(message.seq, settled)}
                 onReply={setReplyTo}
                 onEdit={thread.edit}
                 onDelete={thread.remove}

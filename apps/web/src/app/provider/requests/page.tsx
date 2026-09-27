@@ -13,6 +13,7 @@ import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../../lib/c
 import { openConversation } from "../../../lib/chat-api";
 import { errorMessage } from "../../../lib/errors";
 import { attachmentCount, CANDIDATE_STATUS_LABEL, URGENCY_LABEL } from "../../../lib/labels";
+import { useEntrance } from "../../../lib/use-entrance";
 
 const ProviderMatchListSchema = z.array(ProviderMatchSchema);
 const PROVIDER_MATCHES_KEY = ["provider-matches"];
@@ -59,6 +60,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
     enabled: hydrated && user !== null,
   });
   const treeQuery = useQuery({ queryKey: CATALOG_TREE_KEY, queryFn: fetchCatalogTree, enabled: hydrated && user !== null });
+  const entering = useEntrance(matchesQuery.isPending);
   const names = treeQuery.data ? catalogNames(treeQuery.data) : new Map<string, string>();
   // Every row counts down from the same instant, and it stays true while the
   // artisan reads: a deadline frozen at page load says "reste 3 h" an hour later.
@@ -110,7 +112,7 @@ export default function ProviderRequestsPage(): React.JSX.Element | null {
           }}
         />
       ) : matchesQuery.data.length > 0 ? (
-        <ul className="fx-animate-stagger flex flex-col gap-4" data-testid="provider-match-list">
+        <ul className={entering ? "fx-animate-stagger flex flex-col gap-4" : "flex flex-col gap-4"} data-testid="provider-match-list">
           {matchesQuery.data.map((match) => (
             <li key={match.candidateId} data-testid="provider-match-row">
               <Card>

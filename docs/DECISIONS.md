@@ -2435,3 +2435,38 @@ le compteur, et il est pose, pas resolu.
   - chaque phase ecrit aussi `PHASE_X_DIAGNOSTIC.md` (audit mesure, defauts
     reels et faux, corrections, reste ouvert, verification ECC).
 - Date : 2026-09-27
+
+## Decision 82 - Une animation d'entree n'est jouee que pour un contenu qui arrive
+
+- Contexte : phase 12 de la refonte, mouvement mesure dans le navigateur.
+  L'historique du chat rejouait son entree a chaque ouverture (4 messages,
+  4 entrees), les listes a chaque retour avec des donnees en cache, et la
+  carte de connexion a chaque visite.
+- Choix : une entree dit « ceci arrive » ; elle n'est jouee que si c'est
+  vrai.
+  - Chat : ligne de base = plus haut `seq` quand le premier chargement se
+    termine (`lib/arrivals.ts`). Au-dessus : arrivee. En dessous, y compris
+    les pages plus anciennes : historique, immobile.
+  - Listes : entree seulement si l'ecran a d'abord montre son chargement
+    (`lib/use-entrance.ts`, lu au montage).
+  - Carte de connexion : entree retiree (web et admin), elle ne signalait
+    rien.
+- Hors de cette regle, rien ne change : surcouches, erreurs, attentes,
+  urgence, survol.
+- Tenue par `tests/browser/tests/motion.spec.ts` et `arrivals.test.ts`.
+- Date : 2026-09-27
+
+## Decision 83 - La suite navigateur remet les quotas de l'API a zero avant chaque test
+
+- Contexte : les routes d'authentification ont un plafond par IP et par
+  heure (`otp-verify` 30). Toute la suite parle depuis une seule IP, et les
+  compteurs n'etaient remis a zero qu'une fois par passe. Mesure dans Redis
+  apres une passe : 32 verifications. Les derniers specs a se connecter
+  (`session-refresh`) etaient refuses, quel que soit leur contenu.
+- Choix : une fixture automatique (`tests/browser/support/test.ts`) vide
+  `ratelimit:*` avant chaque test, comme le fait deja l'e2e de l'API
+  (Decision 32). Les specs importent `test` de ce fichier.
+- **Les plafonds du produit ne changent pas** ; ils restent appliques dans
+  chaque test. Seule change l'unite de mesure du harnais : un test, et non
+  une passe entiere, represente un utilisateur.
+- Date : 2026-09-27

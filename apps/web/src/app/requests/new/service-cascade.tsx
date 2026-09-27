@@ -3,6 +3,8 @@
 import type { CatalogTreeNode } from "@fixiyi/contracts";
 import { Card, Select, Skeleton } from "@fixiyi/ui";
 
+import { useEntrance } from "../../../lib/use-entrance";
+
 /** The five levels the request form asks for, outermost first. */
 export interface CascadeSelection {
   domainId: string;
@@ -47,6 +49,7 @@ export function ServiceCascade({
   onChange: (next: CascadeSelection) => void;
   loading: boolean;
 }): React.JSX.Element {
+  const entering = useEntrance(loading);
   const categories = childrenOf(domains, selection.domainId);
   const services = childrenOf(categories, selection.categoryId);
   const interventionTypes = childrenOf(services, selection.serviceId);
@@ -61,7 +64,7 @@ export function ServiceCascade({
       {loading ? (
         <Skeleton lines={5} label="Chargement du catalogue…" />
       ) : (
-        <div className="fx-animate-fade-in grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className={entering ? "fx-animate-fade-in grid grid-cols-1 gap-3 sm:grid-cols-2" : "grid grid-cols-1 gap-3 sm:grid-cols-2"}>
           <Select testId="domain-select" label="Domaine" value={selection.domainId} options={toOptions(domains)} onChange={pick("domainId")} />
           <Select
             testId="category-select"

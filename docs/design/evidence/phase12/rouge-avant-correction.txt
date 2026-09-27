@@ -1,0 +1,109 @@
+
+Running 3 tests using 1 worker
+
+  x  1 [chromium] › tests\motion.spec.ts:77:1 › a chat thread animates the messages that arrive, never the history it opens on (4.1s)
+  x  2 [chromium] › tests\motion.spec.ts:97:1 › a list enters when it arrives, and stays still when it is already there (839ms)
+  ok 3 [chromium] › tests\motion.spec.ts:116:1 › with reduced motion nothing moves; without it, only a wait may move for long (7.0s)
+
+
+  1) [chromium] › tests\motion.spec.ts:77:1 › a chat thread animates the messages that arrive, never the history it opens on 
+
+    Error: history replayed as arrivals
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 12
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "activeDuration": 200,
+    +     "target": "li.fx-animate-slide-in-bottom",
+    +     "waiting": false,
+    +   },
+    +   Object {
+    +     "activeDuration": 200,
+    +     "target": "li.fx-animate-slide-in-bottom",
+    +     "waiting": false,
+    +   },
+    + ]
+
+      82 |   await page.goto(conversation);
+      83 |   await expect(page.getByTestId("message-item")).toHaveCount(2, { timeout: 20_000 });
+    > 84 |   expect(await running(page, "[data-testid=message-item]"), "history replayed as arrivals").toEqual([]);
+         |                                                                                             ^
+      85 |
+      86 |   await send(page, "Troisieme");
+      87 |   const entering = await page.evaluate(() =>
+        at C:\Users\saide\fixiyi\tests\browser\tests\motion.spec.ts:84:93
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\motion-a-chat-thread-anima-b67cf-ver-the-history-it-opens-on-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: screenshots\motion-a-chat-thread-anima-b67cf-ver-the-history-it-opens-on-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    screenshots\motion-a-chat-thread-anima-b67cf-ver-the-history-it-opens-on-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace screenshots\motion-a-chat-thread-anima-b67cf-ver-the-history-it-opens-on-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\motion.spec.ts:97:1 › a list enters when it arrives, and stays still when it is already there 
+
+    Error: a cached list replayed its entry
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 17
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "activeDuration": 200,
+    +     "target": "li.",
+    +     "waiting": false,
+    +   },
+    +   Object {
+    +     "activeDuration": 200,
+    +     "target": "li.",
+    +     "waiting": false,
+    +   },
+    +   Object {
+    +     "activeDuration": 200,
+    +     "target": "li.",
+    +     "waiting": false,
+    +   },
+    + ]
+
+      106 |   await page.waitForURL((url) => url.pathname === "/");
+      107 |   await expect(page.getByTestId("domain-grid")).toBeVisible();
+    > 108 |   expect(await running(page, "[data-testid=domain-grid]"), "a cached list replayed its entry").toEqual([]);
+          |                                                                                                ^
+      109 |
+      110 |   // The login page is a destination, not an arrival: its card does not slide in.
+      111 |   await page.goto("/login");
+        at C:\Users\saide\fixiyi\tests\browser\tests\motion.spec.ts:108:96
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    screenshots\motion-a-list-enters-when--9c863-ll-when-it-is-already-there-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: screenshots\motion-a-list-enters-when--9c863-ll-when-it-is-already-there-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    screenshots\motion-a-list-enters-when--9c863-ll-when-it-is-already-there-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace screenshots\motion-a-list-enters-when--9c863-ll-when-it-is-already-there-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\motion.spec.ts:77:1 › a chat thread animates the messages that arrive, never the history it opens on 
+    [chromium] › tests\motion.spec.ts:97:1 › a list enters when it arrives, and stays still when it is already there 
+  1 passed (16.0s)

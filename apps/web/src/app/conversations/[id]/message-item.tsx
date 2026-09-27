@@ -32,13 +32,15 @@ export interface MessageItemProps {
   myUserId: string;
   counterpartName: string;
   canAct: boolean;
+  /** Sent or received while the thread is open: it enters; history does not (lib/arrivals). */
+  arriving: boolean;
   onReply: (message: Message) => void;
   onEdit: (messageId: string, body: string) => Promise<void>;
   onDelete: (messageId: string) => Promise<void>;
   onReact: (messageId: string, emoji: ReactionEmoji | null) => Promise<void>;
 }
 
-export function MessageItem({ message, myUserId, counterpartName, canAct, onReply, onEdit, onDelete, onReact }: MessageItemProps): React.JSX.Element {
+export function MessageItem({ message, myUserId, counterpartName, canAct, arriving, onReply, onEdit, onDelete, onReact }: MessageItemProps): React.JSX.Element {
   const own = message.senderUserId === myUserId;
   const deleted = message.deletedAt !== null;
   const [editing, setEditing] = useState(false);
@@ -76,7 +78,7 @@ export function MessageItem({ message, myUserId, counterpartName, canAct, onRepl
     );
 
   return (
-    <li className="fx-animate-slide-in-bottom" data-testid="message-item" data-seq={message.seq}>
+    <li className={arriving ? "fx-animate-slide-in-bottom" : undefined} data-testid="message-item" data-seq={message.seq}>
       <MessageBubble
         own={own}
         body={message.body}

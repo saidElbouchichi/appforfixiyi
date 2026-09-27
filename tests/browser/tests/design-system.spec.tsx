@@ -1,8 +1,9 @@
 /** @jsxImportSource react */
-import { expect, test, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 import { Accordion, AppShell, BottomNavigation, Footer, Header, Logo, Navbar, Page as UiPage, Alert, Avatar, BottomSheet, CommandPalette, EmptyState, ErrorState, Menu, Modal, Tabs, Badge, Button, Card, Checkbox, ProgressBar, ProgressCircle, Rating, RatingInput, Stepper, Tooltip, IconButton, Chip, FilterBar, Icon, ICON_NAMES, Input, SearchBar, Select, Skeleton, Slider, Switch, Textarea } from "@fixiyi/ui";
 
 import { contrastRatio, renderUi } from "../support/ui-harness";
+import { expect, test } from "../support/test";
 
 /**
  * @fixiyi/ui primitives in a real browser (design phase 4), through the

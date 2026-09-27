@@ -12,6 +12,7 @@ import { useAuthHydrated, useAuthStore } from "../../lib/auth-store";
 import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../lib/catalog";
 import { errorMessage } from "../../lib/errors";
 import { NAV_HREFS, requestHref } from "../../lib/navigation";
+import { useEntrance } from "../../lib/use-entrance";
 
 const REQUESTS_KEY = ["my-requests"];
 
@@ -92,6 +93,7 @@ export default function MyRequestsPage(): React.JSX.Element | null {
     enabled,
   });
   const requests = requestsQuery.data?.pages.flatMap((page) => page.requests) ?? [];
+  const entering = useEntrance(requestsQuery.isPending);
   const treeQuery = useQuery({ queryKey: CATALOG_TREE_KEY, queryFn: fetchCatalogTree, enabled });
 
   if (!hydrated || !user) {
@@ -118,7 +120,7 @@ export default function MyRequestsPage(): React.JSX.Element | null {
           }}
         />
       ) : requests.length > 0 ? (
-        <ul className="fx-animate-stagger flex flex-col gap-4" data-testid="request-list">
+        <ul className={entering ? "fx-animate-stagger flex flex-col gap-4" : "flex flex-col gap-4"} data-testid="request-list">
           {requests.map((request) => (
             <RequestRow key={request.id} request={request} serviceName={serviceNameOf(request)} />
           ))}

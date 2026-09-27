@@ -72,7 +72,6 @@ export default function LoginPage(): React.JSX.Element {
         <h1 className="fx-visually-hidden">Connexion a Fixiyi</h1>
 
         <Card
-          className="fx-animate-slide-in-bottom"
           title={step === "phone" ? "Connexion" : "Verification"}
           headingLevel={2}
         >

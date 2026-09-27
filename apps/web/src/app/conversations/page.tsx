@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useAuthHydrated, useAuthStore } from "../../lib/auth-store";
 import { CONVERSATIONS_KEY, listConversations } from "../../lib/chat-api";
 import { errorMessage } from "../../lib/errors";
+import { useEntrance } from "../../lib/use-entrance";
 
 const DATE_FORMAT = new Intl.DateTimeFormat("fr-MA", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
@@ -68,6 +69,7 @@ export default function ConversationsPage(): React.JSX.Element | null {
     queryFn: listConversations,
     enabled: hydrated && user !== null,
   });
+  const entering = useEntrance(conversationsQuery.isPending);
 
   if (!hydrated || !user) {
     return null;
@@ -89,7 +91,7 @@ export default function ConversationsPage(): React.JSX.Element | null {
           }}
         />
       ) : conversationsQuery.data.length > 0 ? (
-        <ul className="fx-animate-stagger flex flex-col gap-4" data-testid="conversation-list">
+        <ul className={entering ? "fx-animate-stagger flex flex-col gap-4" : "flex flex-col gap-4"} data-testid="conversation-list">
           {conversationsQuery.data.map((conversation) => (
             <ConversationRow key={conversation.id} conversation={conversation} />
           ))}

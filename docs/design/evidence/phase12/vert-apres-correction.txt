@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ok 1 [chromium] › tests\motion.spec.ts:77:1 › a chat thread animates the messages that arrive, never the history it opens on (5.0s)
+  ok 2 [chromium] › tests\motion.spec.ts:97:1 › a list enters when it arrives, and stays still when it is already there (935ms)
+  ok 3 [chromium] › tests\motion.spec.ts:116:1 › with reduced motion nothing moves; without it, only a wait may move for long (5.7s)
+
+  3 passed (13.3s)

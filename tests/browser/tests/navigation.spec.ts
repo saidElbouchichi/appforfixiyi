@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 
 import {
   API_URL,
@@ -10,6 +10,7 @@ import {
   setUpProvider,
   uniquePhone,
 } from "../support/journeys";
+import { expect, test } from "../support/test";
 
 /**
  * Audit 2026-09-21 — navigation between the screens that exist, through the

@@ -1,4 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
+
+import { expect, test } from "../support/test";
 
 /**
  * Design phase 2 (docs/design/PHASE_2_REPORT.md): the fonts are really

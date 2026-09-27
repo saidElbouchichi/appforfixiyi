@@ -10,6 +10,7 @@ import { CATALOG_TREE_KEY, fetchCatalogTree } from "../lib/catalog";
 import { errorMessage } from "../lib/errors";
 import { NAV_HREFS } from "../lib/navigation";
 import { startRouteFor } from "../lib/start-route";
+import { useEntrance } from "../lib/use-entrance";
 
 import { ServiceTile } from "./service-tile";
 
@@ -33,6 +34,7 @@ export default function HomePage(): React.JSX.Element {
   const [query, setQuery] = useState("");
 
   const treeQuery = useQuery({ queryKey: CATALOG_TREE_KEY, queryFn: fetchCatalogTree });
+  const entering = useEntrance(treeQuery.isPending);
 
   function goToSearch(value: string): void {
     const trimmed = value.trim();
@@ -81,7 +83,7 @@ export default function HomePage(): React.JSX.Element {
             }}
           />
         ) : treeQuery.data.length > 0 ? (
-          <ul className="fx-tile-grid fx-animate-stagger" data-testid="domain-grid">
+          <ul className={entering ? "fx-tile-grid fx-animate-stagger" : "fx-tile-grid"} data-testid="domain-grid">
             {treeQuery.data.map((domain) => (
               <ServiceTile key={domain.id} node={domain} href={`/services?domain=${domain.id}`} testId="domain-tile" />
             ))}

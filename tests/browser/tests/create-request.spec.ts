@@ -1,7 +1,8 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { expect, test } from "@playwright/test";
+
+import { expect, test } from "../support/test";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_PHOTO = path.join(__dirname, "..", "fixtures", "photo.png");

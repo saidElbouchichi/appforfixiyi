@@ -1,0 +1,17 @@
+{
+  "sentWhileOpen": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "messagesOnReopen": 4,
+  "animatedOnReopen": 4,
+  "animatedAfterSendingOneMore": [
+    "Un15:36Envoy",
+    "Deux15:36Env",
+    "Trois15:36En",
+    "Quatre15:36E",
+    "Cinq15:36Env"
+  ]
+}

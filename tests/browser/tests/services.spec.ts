@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
 
 import { API_URL, CASABLANCA, loginThroughUi, setUpProvider, sessionInitScript, uniquePhone } from "../support/journeys";
+import { expect, test } from "../support/test";
 
 /**
  * Design rework, phase 7 — the main screens: the home grid on the real

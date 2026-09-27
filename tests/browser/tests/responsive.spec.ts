@@ -1,6 +1,7 @@
-import { expect, test, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 
 import { CASABLANCA, fillAndSubmitRequest, loginThroughUi, uniquePhone } from "../support/journeys";
+import { expect, test } from "../support/test";
 
 /**
  * Design phase 10 — responsive, measured rather than looked at.

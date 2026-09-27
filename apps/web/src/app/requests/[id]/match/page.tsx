@@ -14,6 +14,7 @@ import { CATALOG_TREE_KEY, catalogNames, fetchCatalogTree } from "../../../../li
 import { openConversation } from "../../../../lib/chat-api";
 import { errorMessage } from "../../../../lib/errors";
 import { CANDIDATE_STATUS_LABEL, MATCH_STATUS_LABEL, searchProgress } from "../../../../lib/labels";
+import { useEntrance } from "../../../../lib/use-entrance";
 
 const CandidateListSchema = z.array(MatchCandidateSchema);
 
@@ -92,6 +93,7 @@ export default function MatchPage(): React.JSX.Element | null {
       CandidateListSchema.parse(await apiFetch(`/api/v1/requests/${requestId}/match/candidates`, { auth: true })),
     enabled: hydrated && user !== null && matchQuery.data != null,
   });
+  const entering = useEntrance(candidatesQuery.isPending);
 
   const invalidate = async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: ["match", requestId] });
@@ -221,7 +223,7 @@ export default function MatchPage(): React.JSX.Element | null {
             {candidatesQuery.isPending ? (
               <Skeleton lines={3} label="Chargement des fournisseurs…" />
             ) : candidatesQuery.data && candidatesQuery.data.length > 0 ? (
-              <ul className="fx-animate-stagger flex flex-col gap-3" data-testid="candidate-list">
+              <ul className={entering ? "fx-animate-stagger flex flex-col gap-3" : "flex flex-col gap-3"} data-testid="candidate-list">
                 {candidatesQuery.data.map((candidate) => (
                   <li key={candidate.id} className="fx-row" data-testid="candidate-row">
                     {/* The public profile of this artisan — the entry point to it (Decision 70). */}

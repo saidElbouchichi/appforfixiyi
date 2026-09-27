@@ -1,7 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { type Browser, type Page } from "@playwright/test";
 
 import { API_URL, CASABLANCA, fillAndSubmitRequest, loginThroughUi, readBrowserSession, sessionInitScript, setUpProvider, uniquePhone } from "../support/journeys";
+import { expect, test } from "../support/test";
 
 /**
  * Design phase 11 — accessibility, measured on every screen with real data.

@@ -1,4 +1,3 @@
-import { expect, test } from "@playwright/test";
 
 import {
   API_URL,
@@ -10,6 +9,7 @@ import {
   setUpProvider,
   uniquePhone,
 } from "../support/journeys";
+import { expect, test } from "../support/test";
 
 test.use({ permissions: ["geolocation"], geolocation: CASABLANCA });
 

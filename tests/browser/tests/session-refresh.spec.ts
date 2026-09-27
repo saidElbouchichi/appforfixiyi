@@ -1,4 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
+
+import { expect, test } from "../support/test";
 
 /**
  * Regression cover for the bug found by the Phase 0-5 inspection: the client

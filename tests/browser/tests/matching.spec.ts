@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
 
 import { CASABLANCA, fillAndSubmitRequest, loginThroughUi, sessionInitScript, setUpProvider } from "../support/journeys";
+import { expect, test } from "../support/test";
 
 test.use({ permissions: ["geolocation"], geolocation: CASABLANCA });
 

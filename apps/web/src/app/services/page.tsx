@@ -9,6 +9,7 @@ import { Suspense, useMemo, useState } from "react";
 
 import { CATALOG_TREE_KEY, fetchCatalogTree, searchCatalog } from "../../lib/catalog";
 import { errorMessage } from "../../lib/errors";
+import { useEntrance } from "../../lib/use-entrance";
 
 /** Only a SERVICE can start a request: that is the level the form asks for. */
 const REQUESTABLE_LEVEL = "SERVICE";
@@ -29,6 +30,7 @@ function SearchResults(): React.JSX.Element {
   const [domainId, setDomainId] = useState(params.get("domain") ?? "");
 
   const treeQuery = useQuery({ queryKey: CATALOG_TREE_KEY, queryFn: fetchCatalogTree });
+  const entering = useEntrance(treeQuery.isPending);
   const tree = useMemo(() => treeQuery.data ?? [], [treeQuery.data]);
   const results = useMemo(
     () => searchCatalog(tree, query, domainId ? { domainId } : {}),
@@ -80,7 +82,7 @@ function SearchResults(): React.JSX.Element {
           />
         </Card>
       ) : results.length > 0 ? (
-        <ul className="fx-animate-stagger flex flex-col gap-3" data-testid="services-results">
+        <ul className={entering ? "fx-animate-stagger flex flex-col gap-3" : "flex flex-col gap-3"} data-testid="services-results">
           {results.map(({ node, path }) => (
             <li key={node.id} data-testid="services-result">
               <Card>

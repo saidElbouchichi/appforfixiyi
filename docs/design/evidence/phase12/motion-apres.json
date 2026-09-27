@@ -1,0 +1,684 @@
+{
+  "bench": {
+    "modal": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-scale-in",
+          "target": "div.fx-modal.fx-modal--md",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-scale-in",
+          "target": "div.fx-modal.fx-modal--md",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ]
+    },
+    "sheet": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-sheet-in",
+          "target": "div.fx-sheet",
+          "duration": 300,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 300,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-sheet-in",
+          "target": "div.fx-sheet",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        }
+      ]
+    },
+    "palette": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-scale-in",
+          "target": "div.fx-palette",
+          "duration": 150,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 150,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-scale-in",
+          "target": "div.fx-palette",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ]
+    },
+    "menuList": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-scale-in",
+          "target": "ul.fx-menu__list",
+          "duration": 150,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 150,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-scale-in",
+          "target": "ul.fx-menu__list",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ]
+    },
+    "toast": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "div.fx-toast.fx-toast--info",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "div.fx-toast.fx-toast--info",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ]
+    },
+    "loading": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-spin",
+          "target": "span.fx-spinner",
+          "duration": 300,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-shimmer",
+          "target": "span.fx-skeleton.fx-skeleton--line",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "backgroundPositionX",
+            "backgroundPositionY"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-shimmer",
+          "target": "span.fx-skeleton.fx-skeleton--line.fx-skeleton--last",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "backgroundPositionX",
+            "backgroundPositionY"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-indeterminate",
+          "target": "span.fx-progress__bar",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-spin",
+          "target": "span.fx-spinner",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-shimmer",
+          "target": "span.fx-skeleton.fx-skeleton--line",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "backgroundPositionX",
+            "backgroundPositionY"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-shimmer",
+          "target": "span.fx-skeleton.fx-skeleton--line.fx-skeleton--last",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "backgroundPositionX",
+            "backgroundPositionY"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-indeterminate",
+          "target": "span.fx-progress__bar",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        }
+      ]
+    },
+    "urgent": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-pulse-ring",
+          "target": "span.fx-badge__dot.fx-badge__dot--pulse::after",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": 3,
+          "activeDuration": 4500,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-pulse-ring",
+          "target": "button.fx-button.fx-button--pulse.fx-button--md::after",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": 3,
+          "activeDuration": 4500,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-pulse-ring",
+          "target": "span.fx-badge__dot.fx-badge__dot--pulse::after",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ]
+    },
+    "control": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-spin",
+          "target": "div",
+          "duration": 2000,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-spin",
+          "target": "div",
+          "duration": 2000,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "transform"
+          ]
+        }
+      ]
+    }
+  },
+  "routes": {
+    "/": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li",
+          "duration": 200,
+          "delay": 20,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li",
+          "duration": 200,
+          "delay": 40,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": []
+    },
+    "/services": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li[services-result]",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li[services-result]",
+          "duration": 200,
+          "delay": 20,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": []
+    },
+    "/requests/new": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-fade-in",
+          "target": "div.fx-animate-fade-in.grid.grid-cols-1",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity"
+          ]
+        }
+      ],
+      "reduce": []
+    },
+    "/requests": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li[request-row]",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li[request-row]",
+          "duration": 200,
+          "delay": 20,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": []
+    },
+    "/requests/:id/match": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-shimmer",
+          "target": "span.fx-skeleton.fx-skeleton--line",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "backgroundPositionX",
+            "backgroundPositionY"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-shimmer",
+          "target": "span.fx-skeleton.fx-skeleton--line",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "backgroundPositionX",
+            "backgroundPositionY"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-shimmer",
+          "target": "span.fx-skeleton.fx-skeleton--line.fx-skeleton--last",
+          "duration": 1500,
+          "delay": 0,
+          "iterations": null,
+          "activeDuration": null,
+          "easing": "linear",
+          "properties": [
+            "backgroundPositionX",
+            "backgroundPositionY"
+          ]
+        }
+      ],
+      "reduce": []
+    },
+    "/conversations": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li[conversation-row]",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": []
+    },
+    "/conversations/:id": {
+      "normal": [],
+      "reduce": []
+    },
+    "/profile": {
+      "normal": [],
+      "reduce": []
+    },
+    "/providers/:id": {
+      "normal": [],
+      "reduce": []
+    },
+    "hover: bouton primaire": {
+      "normal": [
+        {
+          "kind": "CSSTransition",
+          "name": "background-color",
+          "target": "button.fx-button.fx-button--primary.fx-button--md[submit-request-button]",
+          "duration": 150,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 150,
+          "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+          "properties": [
+            "backgroundColor"
+          ]
+        },
+        {
+          "kind": "CSSTransition",
+          "name": "box-shadow",
+          "target": "button.fx-button.fx-button--primary.fx-button--md[submit-request-button]",
+          "duration": 150,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 150,
+          "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+          "properties": [
+            "boxShadow"
+          ]
+        },
+        {
+          "kind": "CSSTransition",
+          "name": "transform",
+          "target": "button.fx-button.fx-button--primary.fx-button--md[submit-request-button]",
+          "duration": 150,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 150,
+          "easing": "cubic-bezier(0, 0, 0.2, 1)",
+          "properties": [
+            "transform"
+          ]
+        },
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-fade-in",
+          "target": "div.fx-animate-fade-in.grid.grid-cols-1",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity"
+          ]
+        }
+      ],
+      "reduce": [
+        {
+          "kind": "CSSTransition",
+          "name": "background-color",
+          "target": "button.fx-button.fx-button--primary.fx-button--md[submit-request-button]",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+          "properties": [
+            "backgroundColor"
+          ]
+        },
+        {
+          "kind": "CSSTransition",
+          "name": "box-shadow",
+          "target": "button.fx-button.fx-button--primary.fx-button--md[submit-request-button]",
+          "duration": 0.01,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 0.01,
+          "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+          "properties": [
+            "boxShadow"
+          ]
+        }
+      ]
+    },
+    "/provider/requests": {
+      "normal": [
+        {
+          "kind": "CSSAnimation",
+          "name": "fx-slide-in-from-bottom",
+          "target": "li[provider-match-row]",
+          "duration": 200,
+          "delay": 0,
+          "iterations": 1,
+          "activeDuration": 200,
+          "easing": "linear",
+          "properties": [
+            "opacity",
+            "transform"
+          ]
+        }
+      ],
+      "reduce": []
+    },
+    "/login": {
+      "normal": [],
+      "reduce": []
+    }
+  }
+}
