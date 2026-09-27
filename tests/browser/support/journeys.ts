@@ -146,11 +146,26 @@ export async function setUpProvider(
 
   // Re-read the user so an injected session carries the PROVIDER role the provider screen checks for.
   const me = await request.get(`${API_URL}/api/v1/auth/me`, { headers: auth(tokens.accessToken) });
-  return {
+  const onboarded = {
     profileId: profile.id,
     availabilityStatus: finalProfile.availabilityStatus,
     session: { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, user: await me.json() },
   };
+  createdThisTest.push(onboarded);
+  return onboarded;
+}
+
+/**
+ * Providers onboarded by the running test. The suite's `test` (./test.ts)
+ * takes them OFFLINE when the test ends: a provider left AVAILABLE competes
+ * for the next test's bounded dispatch batch (design phase 13, measured: the
+ * matching spec's own provider pushed out of its batch of 3 by the three
+ * fresh providers the navigation spec had left behind).
+ */
+const createdThisTest: OnboardedProvider[] = [];
+
+export function takeProvidersCreatedThisTest(): OnboardedProvider[] {
+  return createdThisTest.splice(0);
 }
 
 /** The web app's persisted session, as the browser holds it. */

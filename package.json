@@ -17,7 +17,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
     "clean": "turbo run clean && rimraf node_modules",
-    "test:coverage": "turbo run test:coverage --concurrency=1"
+    "test:coverage": "turbo run test:coverage --concurrency=1",
+    "test:mutation": "node scripts/mutation/run.mjs"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^5.0.1",

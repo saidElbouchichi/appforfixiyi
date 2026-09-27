@@ -30,7 +30,8 @@ export default defineConfig({
         // Process entry point: started by Docker, never imported by a unit test.
         "src/main.ts",
       ],
-      thresholds: { lines: 16, statements: 17, functions: 14, branches: 19 },
+      // Raised in design phase 13 (session client, chat reducers, start route): 20.6 % -> 38 %.
+      thresholds: { lines: 37, statements: 36, functions: 29, branches: 46 },
     },
     environment: "node",
     globals: false,

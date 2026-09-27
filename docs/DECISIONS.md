@@ -2470,3 +2470,36 @@ le compteur, et il est pose, pas resolu.
   chaque test. Seule change l'unite de mesure du harnais : un test, et non
   une passe entiere, represente un utilisateur.
 - Date : 2026-09-27
+
+## Decision 84 - Chaque test Playwright passe hors ligne les artisans qu'il a crees
+
+- Contexte : phase 13 de la refonte, suite rejouee en ordre inverse.
+  `matching.spec.ts` echouait : son lot AUTO de 3 etait parti a trois artisans
+  neufs laisses disponibles par `navigation.spec.ts` (lu dans Mongo). La base
+  de dev en comptait **282**, accumules passe apres passe. Seul
+  `accessibility.spec.ts` y pensait, a la main.
+- Choix : `setUpProvider` enregistre chaque artisan cree ; la fixture
+  automatique de `tests/browser/support/test.ts` les passe `OFFLINE` a la fin
+  de chaque test. Aucune spec n'a plus a s'en souvenir.
+- Les 282 artisans de test restants ont ete passes hors ligne une fois
+  (base de dev uniquement ; identifiants gardes dans
+  `docs/design/evidence/phase13/artisans-test-remis-offline.json`).
+- Le moteur n'est pas en cause : des artisans neufs et proches gagnent
+  legitimement la place d'exploration.
+- Date : 2026-09-27
+
+## Decision 85 - Mutation : un harnais cible plutot que Stryker
+
+- Contexte : « verifier que les tests mordent ». Stryker 10 (runner vitest),
+  lance hors du depot, a rapporte 0 tue sur `arrivals.ts`, dont les tests
+  tuent le meme mutant quand on l'applique a la main. Un instrument qui ne
+  voit pas un kill connu n'est pas un instrument.
+- Choix : `scripts/mutation/` — une liste de mutants, **un par regle nommee**
+  (session, chat, depart, titres, arrivees), appliques un a un au vrai
+  fichier, suite du paquet lancee, fichier restaure. `pnpm test:mutation`
+  sort en erreur si un mutant survit. Un mutant equivalent est marque avec sa
+  raison, sans etre compte.
+- Limite assumee : c'est une mesure ciblee, pas un score global. Elle repond a
+  la question posee — cette regle est-elle gardee par un test ? — la ou un
+  score global aurait noye les regles dans 767 mutants.
+- Date : 2026-09-27

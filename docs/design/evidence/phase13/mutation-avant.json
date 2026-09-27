@@ -1,0 +1,174 @@
+{
+  "killed": 2,
+  "valid": 24,
+  "results": [
+    {
+      "id": "api-single-flight",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "a single refresh in flight (B1, Decision 51)",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-flight-reset",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "a later expiry refreshes again",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-refresh-only-authed",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "an unauthenticated 401 (a wrong OTP) never touches the session",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-retry-after-refresh",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "a refreshed call is replayed",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-clear-on-dead",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "a dead session is cleared",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-keep-user",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "a refresh keeps the signed-in user",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-json-only-with-body",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "no JSON content type without a body (Fastify rejects it)",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-problem-code",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "a Problem Details code reaches the caller",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "api-upload-fails-loudly",
+      "pkg": "apps/web",
+      "file": "src/lib/api-client.ts",
+      "rule": "a refused upload is an error",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "admin-single-flight",
+      "pkg": "apps/admin",
+      "file": "src/lib/api-client.ts",
+      "rule": "a single refresh in flight (admin copy)",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "admin-flight-reset",
+      "pkg": "apps/admin",
+      "file": "src/lib/api-client.ts",
+      "rule": "a later expiry refreshes again (admin copy)",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "admin-clear-on-dead",
+      "pkg": "apps/admin",
+      "file": "src/lib/api-client.ts",
+      "rule": "a dead session is cleared (admin copy)",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "admin-title-suffix",
+      "pkg": "apps/admin",
+      "file": "src/lib/segment-layout.tsx",
+      "rule": "an admin page is named with the site (2.4.2)",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "chat-upsert-adds",
+      "pkg": "apps/web",
+      "file": "src/lib/use-chat-thread.ts",
+      "rule": "a new message is added",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "chat-upsert-no-revert",
+      "pkg": "apps/web",
+      "file": "src/lib/use-chat-thread.ts",
+      "rule": "an older version never reverts a newer one",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "chat-receipts-not-mine",
+      "pkg": "apps/web",
+      "file": "src/lib/use-chat-thread.ts",
+      "rule": "my own receipts do not tick my messages",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "chat-receipts-my-messages",
+      "pkg": "apps/web",
+      "file": "src/lib/use-chat-thread.ts",
+      "rule": "ticks only on my messages",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "chat-receipts-deleted",
+      "pkg": "apps/web",
+      "file": "src/lib/use-chat-thread.ts",
+      "rule": "a message without a status is left alone",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "chat-receipts-no-downgrade",
+      "pkg": "apps/web",
+      "file": "src/lib/use-chat-thread.ts",
+      "rule": "a late receipt never downgrades a tick",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "chat-receipts-read-boundary",
+      "pkg": "apps/web",
+      "file": "src/lib/use-chat-thread.ts",
+      "rule": "the watermark message itself is read",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "arrivals-settle-once",
+      "pkg": "apps/web",
+      "file": "src/lib/arrivals.ts",
+      "rule": "the baseline never moves once settled",
+      "status": "KILLED"
+    },
+    {
+      "id": "arrivals-strict",
+      "pkg": "apps/web",
+      "file": "src/lib/arrivals.ts",
+      "rule": "the last history message is not an arrival",
+      "status": "KILLED"
+    },
+    {
+      "id": "start-route-provider",
+      "pkg": "apps/web",
+      "file": "src/lib/start-route.ts",
+      "rule": "a provider starts on their inbox (Decision 65)",
+      "status": "SURVIVED"
+    },
+    {
+      "id": "start-route-anonymous",
+      "pkg": "apps/web",
+      "file": "src/lib/start-route.ts",
+      "rule": "no user starts on login",
+      "status": "SURVIVED"
+    }
+  ]
+}

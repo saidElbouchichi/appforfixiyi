@@ -3,13 +3,6 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     /**
-     * `apps/admin` has no unit tests at all: the back-office is exercised by
-     * Playwright, against the real image. Without this, vitest exits 1 on
-     * "no test files found" and the coverage gate fails for the wrong reason
-     * — the honest figure is the 0 % reported below, not an error.
-     */
-    passWithNoTests: true,
-    /**
      * Decision 74. `include` is the part that matters: it defines the universe
      * of files the percentage is computed over, so a file no test imports
      * still counts as uncovered instead of vanishing. (Vitest 5 dropped the
@@ -31,7 +24,8 @@ export default defineConfig({
         // Process entry point: started by Docker, never imported by a unit test.
         "src/main.ts",
       ],
-      thresholds: { lines: 0, statements: 0, functions: 0, branches: 0 },
+      // Design phase 13: the session client and page titles got their first unit tests (0 % -> 64.6 %).
+      thresholds: { lines: 64, statements: 63, functions: 50, branches: 53 },
     },
   },
 });

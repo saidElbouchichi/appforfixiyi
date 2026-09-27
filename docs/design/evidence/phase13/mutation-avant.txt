@@ -1,0 +1,26 @@
+SURVIVED  api-single-flight — a single refresh in flight (B1, Decision 51)
+SURVIVED  api-flight-reset — a later expiry refreshes again
+SURVIVED  api-refresh-only-authed — an unauthenticated 401 (a wrong OTP) never touches the session
+SURVIVED  api-retry-after-refresh — a refreshed call is replayed
+SURVIVED  api-clear-on-dead — a dead session is cleared
+SURVIVED  api-keep-user — a refresh keeps the signed-in user
+SURVIVED  api-json-only-with-body — no JSON content type without a body (Fastify rejects it)
+SURVIVED  api-problem-code — a Problem Details code reaches the caller
+SURVIVED  api-upload-fails-loudly — a refused upload is an error
+SURVIVED  admin-single-flight — a single refresh in flight (admin copy)
+SURVIVED  admin-flight-reset — a later expiry refreshes again (admin copy)
+SURVIVED  admin-clear-on-dead — a dead session is cleared (admin copy)
+SURVIVED  admin-title-suffix — an admin page is named with the site (2.4.2)
+SURVIVED  chat-upsert-adds — a new message is added
+SURVIVED  chat-upsert-no-revert — an older version never reverts a newer one
+SURVIVED  chat-receipts-not-mine — my own receipts do not tick my messages
+SURVIVED  chat-receipts-my-messages — ticks only on my messages
+SURVIVED  chat-receipts-deleted — a message without a status is left alone
+SURVIVED  chat-receipts-no-downgrade — a late receipt never downgrades a tick
+SURVIVED  chat-receipts-read-boundary — the watermark message itself is read
+KILLED    arrivals-settle-once — the baseline never moves once settled
+KILLED    arrivals-strict — the last history message is not an arrival
+SURVIVED  start-route-provider — a provider starts on their inbox (Decision 65)
+SURVIVED  start-route-anonymous — no user starts on login
+
+2/24 killed

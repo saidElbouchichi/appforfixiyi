@@ -2,6 +2,17 @@
 
 ## Derniere mise a jour
 
+2026-09-27 - Refonte design : **phase 13 (Tests) TERMINEE** —
+`docs/design/PHASE_13_REPORT.md`. La couverture par fichier a trouve la
+logique critique sans test : le rafraichissement a un seul vol (B1) dans
+`web` et `admin`, les regles pures du chat. **Les tests mordent, mesure** :
+2/24 mutants tues avant, 23/23 apres (harnais cible, `pnpm test:mutation` ;
+Stryker rejete, il ne voyait pas un kill connu). En ordre inverse, la suite
+navigateur echouait : des artisans laisses disponibles (282 en base de dev)
+volaient le lot AUTO du test de matching ; chaque test les passe maintenant
+hors ligne (Decision 84). 871 tests unitaires, 58/58, couverture `web` 38 %,
+`admin` 64,6 %.
+
 2026-09-27 - Refonte design : **phase 12 (Animations) TERMINEE** —
 `docs/design/PHASE_12_REPORT.md`. Le mouvement, mesure pour la premiere fois
 dans le navigateur (`document.getAnimations()`, instrument verifie par une
@@ -83,9 +94,9 @@ ecrit (`docs/design/PHASE_7_PLAN.md`), **implementation en attente du GO**.
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a **12 TERMINEES** ;
-phases 13 a 15 **enchainees sans arret** (Decision 81) : 13 tests,
-14 nettoyage, 15 tests visuels.
+refonte design). Refonte Design System V2 : phases 1 a **13 TERMINEES** ;
+phases 14 et 15 **enchainees sans arret** (Decision 81) : 14 nettoyage,
+15 tests visuels.
 
 ## Phases terminees
 
@@ -332,7 +343,7 @@ dedie pousse sur `origin/main`.
 
 ## Prochaine action exacte
 
-Phase 13 de la refonte (tests), enchainee sans GO intermediaire
+Phase 14 de la refonte (nettoyage), enchainee sans GO intermediaire
 (Decision 81). Deux points de la phase 11 attendent une decision de
 l'utilisateur (voir « Blocages »). Le renforcement ECC est termine ; ce
 qu'il a laisse ouvert est dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
@@ -416,10 +427,11 @@ Lis dans l'ordre :
 Contexte : deux numerotations coexistent. Produit : phases 0 a 6 terminees,
 la Phase 7 (Offers) attend la FIN de la refonte ; elle devra appeler
 ConversationService.unlockContact a l'acceptation d'une offre. Refonte
-design : phases 1 a 12 terminees (la 12 = animations : une entree = une
+design : phases 1 a 13 terminees (la 13 = tests : mutation 23/23,
+ordre inverse ; la 12 = animations : une entree = une
 arrivee, Decision 82 ; la 11 = accessibilite : un titre par
 route lu par l'annonceur de Next, sans focus programme - Decision 80 ;
-contrastes, liste et reflow du chat). 849 tests unitaires, 58 scenarios
+contrastes, liste et reflow du chat). 871 tests unitaires, 58 scenarios
 Playwright, gates verts.
 
 Les phases 12 a 15 de la REFONTE s'enchainent sans GO intermediaire

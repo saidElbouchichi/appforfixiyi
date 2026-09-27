@@ -1,0 +1,195 @@
+[
+  {
+    "id": "api-single-flight",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "refreshInFlight ??= performRefresh()",
+    "replace": "refreshInFlight = performRefresh()",
+    "rule": "a single refresh in flight (B1, Decision 51)"
+  },
+  {
+    "id": "api-flight-reset",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "    refreshInFlight = null;",
+    "replace": "    refreshInFlight = refreshInFlight;",
+    "rule": "a later expiry refreshes again"
+  },
+  {
+    "id": "api-refresh-only-authed",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "response.status === 401 && options.auth === true",
+    "replace": "response.status === 401",
+    "rule": "an unauthenticated 401 (a wrong OTP) never touches the session"
+  },
+  {
+    "id": "api-retry-after-refresh",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "if (await refreshSession()) {",
+    "replace": "if (!(await refreshSession())) {",
+    "rule": "a refreshed call is replayed"
+  },
+  {
+    "id": "api-clear-on-dead",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "      useAuthStore.getState().clearSession();\n    }\n  }",
+    "replace": "    }\n  }",
+    "rule": "a dead session is cleared"
+  },
+  {
+    "id": "api-keep-user",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "setTokens({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });",
+    "replace": "useAuthStore.getState().clearSession(); setTokens({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });",
+    "rule": "a refresh keeps the signed-in user"
+  },
+  {
+    "id": "api-json-only-with-body",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "if (options.body !== undefined) {\n    headers[\"Content-Type\"]",
+    "replace": "if (true) {\n    headers[\"Content-Type\"]",
+    "rule": "no JSON content type without a body (Fastify rejects it)"
+  },
+  {
+    "id": "api-problem-code",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "problem?.code ?? \"UNKNOWN\"",
+    "replace": "\"UNKNOWN\"",
+    "rule": "a Problem Details code reaches the caller"
+  },
+  {
+    "id": "api-upload-fails-loudly",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "  if (!response.ok) {\n    throw new ApiError(`Upload failed",
+    "replace": "  if (false) {\n    throw new ApiError(`Upload failed",
+    "rule": "a refused upload is an error"
+  },
+  {
+    "id": "admin-single-flight",
+    "pkg": "apps/admin",
+    "file": "src/lib/api-client.ts",
+    "find": "refreshInFlight ??= performRefresh()",
+    "replace": "refreshInFlight = performRefresh()",
+    "rule": "a single refresh in flight (admin copy)"
+  },
+  {
+    "id": "admin-flight-reset",
+    "pkg": "apps/admin",
+    "file": "src/lib/api-client.ts",
+    "find": "    refreshInFlight = null;",
+    "replace": "    refreshInFlight = refreshInFlight;",
+    "rule": "a later expiry refreshes again (admin copy)"
+  },
+  {
+    "id": "admin-clear-on-dead",
+    "pkg": "apps/admin",
+    "file": "src/lib/api-client.ts",
+    "find": "      useAuthStore.getState().clearSession();\n    }\n  }",
+    "replace": "    }\n  }",
+    "rule": "a dead session is cleared (admin copy)"
+  },
+  {
+    "id": "admin-title-suffix",
+    "pkg": "apps/admin",
+    "file": "src/lib/segment-layout.tsx",
+    "find": "`${name} — ${SITE_NAME}`",
+    "replace": "name",
+    "rule": "an admin page is named with the site (2.4.2)"
+  },
+  {
+    "id": "chat-upsert-adds",
+    "pkg": "apps/web",
+    "file": "src/lib/use-chat-thread.ts",
+    "find": "if (!existing || message.version >= existing.version)",
+    "replace": "if (existing && message.version >= existing.version)",
+    "rule": "a new message is added"
+  },
+  {
+    "id": "chat-upsert-no-revert",
+    "pkg": "apps/web",
+    "file": "src/lib/use-chat-thread.ts",
+    "find": "message.version >= existing.version",
+    "replace": "message.version <= existing.version",
+    "rule": "an older version never reverts a newer one"
+  },
+  {
+    "id": "chat-receipts-not-mine",
+    "pkg": "apps/web",
+    "file": "src/lib/use-chat-thread.ts",
+    "find": "if (event.userId === myUserId) {",
+    "replace": "if (false) {",
+    "rule": "my own receipts do not tick my messages"
+  },
+  {
+    "id": "chat-receipts-my-messages",
+    "pkg": "apps/web",
+    "file": "src/lib/use-chat-thread.ts",
+    "find": "if (message.senderUserId !== myUserId || message.deliveryStatus === null) continue;",
+    "replace": "if (message.deliveryStatus === null) continue;",
+    "rule": "ticks only on my messages"
+  },
+  {
+    "id": "chat-receipts-deleted",
+    "pkg": "apps/web",
+    "file": "src/lib/use-chat-thread.ts",
+    "find": "if (message.senderUserId !== myUserId || message.deliveryStatus === null) continue;",
+    "replace": "if (message.senderUserId !== myUserId) continue;",
+    "rule": "a message without a status is left alone",
+    "equivalent": "at runtime STATUS_RANK[null] is undefined and 2 > undefined is false: same behaviour. The typecheck gate kills it (TS2538)."
+  },
+  {
+    "id": "chat-receipts-no-downgrade",
+    "pkg": "apps/web",
+    "file": "src/lib/use-chat-thread.ts",
+    "find": "STATUS_RANK[reached] > STATUS_RANK[message.deliveryStatus]",
+    "replace": "STATUS_RANK[reached] !== STATUS_RANK[message.deliveryStatus]",
+    "rule": "a late receipt never downgrades a tick"
+  },
+  {
+    "id": "chat-receipts-read-boundary",
+    "pkg": "apps/web",
+    "file": "src/lib/use-chat-thread.ts",
+    "find": "message.seq <= event.readSeq ?",
+    "replace": "message.seq < event.readSeq ?",
+    "rule": "the watermark message itself is read"
+  },
+  {
+    "id": "arrivals-settle-once",
+    "pkg": "apps/web",
+    "file": "src/lib/arrivals.ts",
+    "find": "if (current !== null || loading) return current;",
+    "replace": "if (loading) return current;",
+    "rule": "the baseline never moves once settled"
+  },
+  {
+    "id": "arrivals-strict",
+    "pkg": "apps/web",
+    "file": "src/lib/arrivals.ts",
+    "find": "seq > baseline",
+    "replace": "seq >= baseline",
+    "rule": "the last history message is not an arrival"
+  },
+  {
+    "id": "start-route-provider",
+    "pkg": "apps/web",
+    "file": "src/lib/start-route.ts",
+    "find": "user.roles.includes(\"PROVIDER\") ? \"/provider/requests\" : \"/requests/new\"",
+    "replace": "\"/requests/new\"",
+    "rule": "a provider starts on their inbox (Decision 65)"
+  },
+  {
+    "id": "start-route-anonymous",
+    "pkg": "apps/web",
+    "file": "src/lib/start-route.ts",
+    "find": "if (!user) return \"/login\";",
+    "replace": "if (!user) return \"/requests/new\";",
+    "rule": "no user starts on login"
+  }
+]
