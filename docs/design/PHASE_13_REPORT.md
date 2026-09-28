@@ -17,7 +17,9 @@ Diagnostic : `PHASE_13_DIAGNOSTIC.md`. Preuves : `evidence/phase13/`.
 - **O3** — la suite navigateur ne depend plus de son ordre : en ordre
   inverse, `matching` echouait ; cause lue dans Mongo, corrigee, **58/58**.
 - **O4** — planchers de couverture releves : `web` 20,6 -> **38,0 %**,
-  `admin` 0 -> **64,6 %**.
+  `admin` 0 -> **64,6 %**. *Corrige en phase 14 (Decision 86) : ces
+  chiffres excluaient les pages (`PARSE_ERROR`) ; mesure honnete `web`
+  16,4 %, `admin` 22,3 %.*
 
 Aucune source livree n'a change : seulement des tests, deux configurations
 et le support des tests. Les images n'avaient donc pas a etre reconstruites.

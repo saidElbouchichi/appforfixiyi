@@ -19,6 +19,8 @@ export default defineConfig({
     screenshot: "on",
     trace: "retain-on-failure",
   },
-  outputDir: "./screenshots",
+  // NOT ./screenshots: Playwright empties its outputDir before each run, which deleted the committed
+  // step captures whenever a single spec was run (design phase 14). Per-run artifacts live apart.
+  outputDir: "./test-results",
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

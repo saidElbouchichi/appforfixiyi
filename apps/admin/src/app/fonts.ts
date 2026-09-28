@@ -10,14 +10,14 @@ import { Inter, Noto_Sans_Arabic } from "next/font/google";
  * declares and the font stacks of tokens.css read; the browser test
  * tests/browser/tests/typography.spec.ts fails if the two drift apart.
  */
-export const inter = Inter({
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--fixiyi-font-inter",
 });
 
 /** Only Arabic and darija text needs it: loaded on demand, not preloaded on every page. */
-export const notoSansArabic = Noto_Sans_Arabic({
+const notoSansArabic = Noto_Sans_Arabic({
   subsets: ["arabic"],
   display: "swap",
   variable: "--fixiyi-font-noto-arabic",

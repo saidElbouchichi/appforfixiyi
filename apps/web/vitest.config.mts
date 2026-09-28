@@ -7,6 +7,14 @@ import { defineConfig } from "vitest/config";
  * components — rendering is covered by `@fixiyi/ui` and by Playwright.
  */
 export default defineConfig({
+  /**
+   * Next compiles JSX itself, so the shared tsconfig says `"jsx": "preserve"`,
+   * and Vitest (oxc) follows it. The coverage of a file no test imports is then
+   * remapped from untransformed JSX, which fails to parse: every page silently
+   * dropped out of the denominator (design phase 14, 19 files). Tests transform
+   * JSX themselves; what Next builds is unchanged.
+   */
+  oxc: { jsx: { runtime: "automatic" } },
   test: {
     /**
      * Decision 74. `include` is the part that matters: it defines the universe
@@ -30,8 +38,9 @@ export default defineConfig({
         // Process entry point: started by Docker, never imported by a unit test.
         "src/main.ts",
       ],
-      // Raised in design phase 13 (session client, chat reducers, start route): 20.6 % -> 38 %.
-      thresholds: { lines: 37, statements: 36, functions: 29, branches: 46 },
+      // Re-based in design phase 14 on the honest denominator (pages included, Decision 86):
+      // 16.4 % of 878 lines. The 38 % of phase 13 counted 379 lines, without the pages.
+      thresholds: { lines: 16, statements: 16, functions: 11, branches: 14 },
     },
     environment: "node",
     globals: false,

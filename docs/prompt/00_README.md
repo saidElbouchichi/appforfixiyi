@@ -9,6 +9,7 @@
 6. 02_SPEC_ENGINEERING.md
 7. 07_EXAMPLES.md
 8. 08_ECC_INTEGRATION.md
+9. 09_DESIGN_SYSTEM_RULE.md (tout travail qui touche une interface)
 
 ## Regle d''or
 Ne JAMAIS coder sans avoir :

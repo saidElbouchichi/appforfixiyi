@@ -82,7 +82,7 @@ export class SessionService {
           ...(context.userAgent === null ? {} : { userAgent: context.userAgent }),
         },
       },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (rotated) {
       return { status: "success", session: rotated };

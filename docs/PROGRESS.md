@@ -2,6 +2,17 @@
 
 ## Derniere mise a jour
 
+2026-09-28 - Refonte design : **phase 14 (Nettoyage) TERMINEE** —
+`docs/design/PHASE_14_REPORT.md`. Deux dependances mortes retirees
+(`react-hook-form`, `source-map-support`). **La couverture mentait** : 24
+`PARSE_ERROR` sortaient toutes les pages du denominateur ; mesure honnete
+`web` 16,4 % (et non 38 %), `admin` 22,3 % (et non 64,6 %), planchers
+rebases (Decision 86). Lancer un seul spec Playwright ne vide plus les
+captures nommees ; `new: true` de Mongoose remplace. Licences documentees
+(`docs/LICENSES.md`, aucun copyleft) et regle du design system ecrite
+(`docs/prompt/09_DESIGN_SYSTEM_RULE.md`). 871 tests unitaires, mutation
+23/23, 58/58.
+
 2026-09-27 - Refonte design : **phase 13 (Tests) TERMINEE** —
 `docs/design/PHASE_13_REPORT.md`. La couverture par fichier a trouve la
 logique critique sans test : le rafraichissement a un seul vol (B1) dans
@@ -11,7 +22,8 @@ Stryker rejete, il ne voyait pas un kill connu). En ordre inverse, la suite
 navigateur echouait : des artisans laisses disponibles (282 en base de dev)
 volaient le lot AUTO du test de matching ; chaque test les passe maintenant
 hors ligne (Decision 84). 871 tests unitaires, 58/58, couverture `web` 38 %,
-`admin` 64,6 %.
+`admin` 64,6 % (chiffres faux, pages exclues : corriges en phase 14,
+Decision 86).
 
 2026-09-27 - Refonte design : **phase 12 (Animations) TERMINEE** —
 `docs/design/PHASE_12_REPORT.md`. Le mouvement, mesure pour la premiere fois
@@ -94,9 +106,8 @@ ecrit (`docs/design/PHASE_7_PLAN.md`), **implementation en attente du GO**.
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a **13 TERMINEES** ;
-phases 14 et 15 **enchainees sans arret** (Decision 81) : 14 nettoyage,
-15 tests visuels.
+refonte design). Refonte Design System V2 : phases 1 a **14 TERMINEES** ;
+reste la phase 15 (tests visuels), enchainee sans arret (Decision 81).
 
 ## Phases terminees
 
@@ -335,15 +346,14 @@ d'abord ou une mutation.
 
 ## Derniere action effectuee
 
-Phase 6 de la refonte design (Navigation) : navigation par role, ecrans
-`/requests`, `/conversations`, `/profile`, deconnexion (web et admin),
-compteur de non-lus en temps reel, 4 defauts corriges, Decisions 67 a 69,
-`docs/design/PHASE_6_REPORT.md`, gates et Playwright 100 % verts, commit
-dedie pousse sur `origin/main`.
+Phase 14 de la refonte design (Nettoyage) : dependances mortes retirees,
+denominateur de couverture corrige (Decision 86), captures Playwright
+protegees, `LICENSES.md`, `09_DESIGN_SYSTEM_RULE.md`,
+`docs/design/PHASE_14_REPORT.md`, gates sans cache et Playwright 58/58.
 
 ## Prochaine action exacte
 
-Phase 14 de la refonte (nettoyage), enchainee sans GO intermediaire
+Phase 15 de la refonte (tests visuels), enchainee sans GO intermediaire
 (Decision 81). Deux points de la phase 11 attendent une decision de
 l'utilisateur (voir « Blocages »). Le renforcement ECC est termine ; ce
 qu'il a laisse ouvert est dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
@@ -372,10 +382,10 @@ Laisse ouvert par le renforcement ECC du 2026-09-25 :
 - **Compteur de non-lus denormalise** : sans lui, `GET /conversations` ne
   peut pas etre pagine sans rendre la pastille fausse (Decision 76). C'est
   une modification du modele de donnees, donc soumise a validation.
-- **`apps/web` 16,6 % et `apps/admin` 0 %** de couverture unitaire. Les deux
-  sont exerces par 48 scenarios Playwright, que la couverture vitest ne voit
-  pas ; les planchers sont verrouilles a ce niveau et ne montent que vers le
-  haut (Decision 74).
+- **`apps/web` 16,4 % et `apps/admin` 22,3 %** de couverture unitaire
+  (denominateur honnete depuis la phase 14, Decision 86). Le rendu des pages
+  est exerce par 58 scenarios Playwright, que la couverture vitest ne voit
+  pas ; les planchers ne montent que vers le haut (Decision 74).
 
 A traiter avant la production : pagination de `GET /requests/mine` et
 `GET /conversations` (non bornees), `trustProxy` (Decision 60),
@@ -396,8 +406,8 @@ du schema ; **pas bloquant pour la phase 7** (decide par l'utilisateur le
 - [x] pour demarrer Phase 4 ("GO PHASE 4" recu)
 - [x] pour demarrer Phase 5 ("GO PHASE 5" recu)
 - [x] pour demarrer Phase 6 ("GO PHASE 6" recu)
-- [ ] pour demarrer Phase 7 (en attente — Phase 6 terminee, "GO PHASE 7"
-  pas encore recu)
+- [ ] pour demarrer la Phase 7 **produit** (Offers) — apres la fin de la
+  refonte design
 - [ ] conservation des messages supprimes (Decision 59 — choix juridique)
 - [ ] stockage des jetons de `apps/web` (Decision 66 — architecture d'auth)
 - [x] phase 6 de la refonte design ("GO PHASE 6" recu le 2026-09-22)
@@ -421,13 +431,14 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (80 = choix du dernier tour)
-3. docs/design/PHASE_11_REPORT.md et docs/design/PLAN.md
+2. docs/DECISIONS.md (86 = derniere)
+3. docs/design/PHASE_14_REPORT.md et docs/design/PLAN.md
 
 Contexte : deux numerotations coexistent. Produit : phases 0 a 6 terminees,
 la Phase 7 (Offers) attend la FIN de la refonte ; elle devra appeler
 ConversationService.unlockContact a l'acceptation d'une offre. Refonte
-design : phases 1 a 13 terminees (la 13 = tests : mutation 23/23,
+design : phases 1 a 14 terminees (la 14 = nettoyage : couverture honnete,
+Decision 86, `09_DESIGN_SYSTEM_RULE.md` ; la 13 = tests : mutation 23/23,
 ordre inverse ; la 12 = animations : une entree = une
 arrivee, Decision 82 ; la 11 = accessibilite : un titre par
 route lu par l'annonceur de Next, sans focus programme - Decision 80 ;

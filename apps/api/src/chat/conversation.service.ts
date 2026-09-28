@@ -151,7 +151,7 @@ export class ConversationService {
     const unlocked = await this.model.findOneAndUpdate(
       { _id: conversation._id, contactPolicy: "PROTECTED" },
       { $set: { contactPolicy: "UNLOCKED", contactUnlockedAt: new Date() } },
-      { new: true },
+      { returnDocument: "after" },
     );
     return unlocked ?? conversation;
   }
@@ -164,7 +164,7 @@ export class ConversationService {
     const updated = await this.model.findOneAndUpdate(
       { _id: conversationId },
       { $inc: { lastMessageSeq: 1 }, $set: { lastMessageAt: at } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!updated) {
       throw new NotFoundException("Conversation not found");
@@ -191,7 +191,7 @@ export class ConversationService {
     if (read !== undefined) {
       update[`${prefix}ReadSeq`] = read;
     }
-    const updated = await this.model.findOneAndUpdate({ _id: conversation._id }, { $max: update }, { new: true });
+    const updated = await this.model.findOneAndUpdate({ _id: conversation._id }, { $max: update }, { returnDocument: "after" });
     if (!updated) {
       throw new NotFoundException("Conversation not found");
     }

@@ -5,8 +5,9 @@ Marketplace de services et interventions a domicile.
 ## Statut
 
 En construction - phases produit 0 a 6 livrees (fondation, auth, marketplace,
-demandes, matching, chat) ; refonte Design System V2 en cours (phases 1 a 5
-sur 14 livrees). Audit complet du 2026-09-21 : `docs/AUDIT_PHASES_0_5.md`.
+demandes, matching, chat) ; refonte Design System V2 : phases 1 a 14 sur 15
+livrees (`docs/design/`), regle du design system dans
+`docs/prompt/09_DESIGN_SYSTEM_RULE.md`. Licences : `docs/LICENSES.md`.
 Detail : `docs/PROGRESS.md`.
 
 ## Stack
@@ -16,8 +17,8 @@ Detail : `docs/PROGRESS.md`.
 - Database : MongoDB (Mongoose)
 - Cache/Queue : Redis + BullMQ
 - Frontend Web / Admin : Next.js (App Router) + React + TypeScript +
-  Tailwind CSS v4 (config CSS-first, `@theme`) + TanStack Query + Zustand
-  + React Hook Form
+  Tailwind CSS v4 (config CSS-first, `@theme`) + TanStack Query + Zustand,
+  design system partage `packages/ui`
 - Mobile : Expo + React Native (prevu Phase 13, pas encore scaffolde)
 - Realtime : Socket.IO (chat : HTTP ecrit, la socket notifie ; adaptateur Redis)
 - Storage : S3-compatible (MinIO en dev)
@@ -72,6 +73,8 @@ en local, desactiver soi-meme si souhaite :
     pnpm typecheck
     pnpm test
     pnpm build
+    pnpm test:coverage   # planchers par paquet (Decision 74)
+    pnpm test:mutation   # les tests mordent-ils ? (scripts/mutation, Decision 85)
 
 ## Tests
 
@@ -99,8 +102,12 @@ Contre la pile Docker demarree (voir plus haut) :
     npx playwright test
 
 Parcours reels (connexion OTP, demande avec upload, matching, chat,
-rafraichissement de session, navigation) et banc d'essai des composants de
-`@fixiyi/ui` rendus avec les vraies feuilles de style.
+rafraichissement de session, navigation), accessibilite (axe WCAG 2.2 AA),
+responsive, mouvement, et banc d'essai des composants de `@fixiyi/ui` rendus
+avec les vraies feuilles de style. Chaque test repart de quotas d'API vides et
+remet hors ligne les artisans qu'il a crees (Decisions 83, 84) : la suite ne
+depend pas de son ordre. Les captures nommees sont dans `screenshots/`, les
+artefacts d'une passe dans `test-results/`.
 
 ## Production
 

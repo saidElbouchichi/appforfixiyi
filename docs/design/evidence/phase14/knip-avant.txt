@@ -1,0 +1,63 @@
+.../mujxzq96-asc                         | Progress: resolved 0, reused 1, downloaded 0, added 0
+.../mujxzq96-asc                         | Progress: resolved 0, reused 9, downloaded 21, added 0
+Packages are hard linked from the content-addressable store to the virtual store.
+  Content-addressable store is at: C:\Users\saide\AppData\Local\pnpm\store\v11
+  Virtual store is at:             ../AppData/Local/pnpm-cache/dlx/91a15f940cdff569fb91a593eace199f/mujxzq96-asc/node_modules/.pacquet
+.../mujxzq96-asc                         | Progress: resolved 0, reused 14, downloaded 27, added 0
+.../mujxzq96-asc                         | Progress: resolved 1, reused 14, downloaded 28, added 0
+.../mujxzq96-asc                         | Progress: resolved 36, reused 14, downloaded 28, added 36, done
+
+dependencies:
++ knip 5.88.1
+
+[93m[4mUnused files[24m[39m (1)
+tests/browser/audit/playwright.config.ts
+[93m[4mUnused dependencies[24m[39m (2)
+apps/admin/package.json: react-hook-form
+apps/web/package.json: react-hook-form
+[93m[4mUnused devDependencies[24m[39m (1)
+apps/api/package.json: source-map-support
+[93m[4mUnlisted dependencies[24m[39m (2)
+apps/admin/postcss.config.mjs: postcss
+apps/web/postcss.config.mjs: postcss
+[93m[4mUnresolved imports[24m[39m (1)
+packages/tsconfig/nextjs.json: next
+[93m[4mUnused exports[24m[39m (12)
+apps/admin/src/app/fonts.ts: inter, notoSansArabic
+apps/api/src/auth/guards/resource-owner.guard.ts: RESOURCE_OWNER_PARAM_KEY, OwnedBy
+apps/api/src/chat/contact-detection/number-words.ts: foldWord
+apps/api/src/chat/realtime.adapter.ts: RealtimeAdapter
+apps/api/src/chat/schemas/message.schema.ts: MessageReactionSubdocument, MessageRedactionSubdocument
+apps/api/src/geo/transport-pricing.service.ts: estimateTravelMinutes, buildQuote
+apps/api/src/infrastructure/storage/storage.service.ts: PRESIGNED_DOWNLOAD_TTL_SECONDS
+apps/api/src/providers/schemas/provider-profile.schema.ts: AvailabilitySlotSubdocument, AvailabilitySlotMongooseSchema, GeoPointSubdocument, GeoPointMongooseSchema, ServiceAreaSubdocument, ServiceAreaMongooseSchema
+apps/api/src/requests/schemas/service-request.schema.ts: RequestGeoPointSubdocument, RequestGeoPointMongooseSchema, RequestLocationSubdocument, RequestLocationMongooseSchema
+apps/api/test/otp-test-helper.ts: requestOtp
+apps/web/src/app/fonts.ts: inter, notoSansArabic
+tests/browser/support/journeys.ts: SERVICE_NAME
+[93m[4mUnused exported types[24m[39m (25)
+apps/api/src/auth/otp/otp.service.ts: IssueCodeOptions, IssueCodeResult, VerifyCodeResult
+apps/api/src/auth/rate-limit/rate-limit.service.ts: RateLimitResult
+apps/api/src/auth/session/session.service.ts: CreatedSession, RotateResult
+apps/api/src/auth/token/token.service.ts: SignedToken
+apps/api/src/chat/chat.gateway.ts: ChatSocketData
+apps/api/src/chat/contact-detection/contact-detection.ts: Detection
+apps/api/src/chat/contact-detection/number-words.ts: ParsedNumber
+apps/api/src/chat/message-view.ts: MessageViewContext
+apps/api/src/common/http/cookie.util.ts: CookieOptions
+apps/api/src/common/seed/seed-lock.schema.ts: SeedLockDocument
+apps/api/src/configuration/schemas/system-configuration.schema.ts: SystemConfigurationDocument
+apps/api/src/health/health.service.ts: DependencyHealth, HealthCheckResult
+apps/api/src/infrastructure/storage/storage.service.ts: PresignedUpload
+apps/api/src/matching/eligibility.service.ts: EligibilityQuery, EligibleProvider
+apps/api/src/matching/ranking.ts: RankingContext
+apps/api/src/matching/schemas/dispatch-batch.schema.ts: DispatchBatchDocument
+apps/api/src/providers/provider.service.ts: ProviderDispatchSearch
+apps/web/src/app/conversations/[id]/composer.tsx: ComposerProps
+apps/web/src/app/conversations/[id]/message-item.tsx: MessageItemProps
+apps/web/src/app/requests/new/location-card.tsx: Coordinates
+apps/web/src/lib/catalog.ts: CatalogSearchResult
+apps/web/src/lib/use-chat-thread.ts: ChatThread
+apps/worker/src/logger.ts: LogLevel, Logger
+tests/browser/support/journeys.ts: ProviderSession, OnboardedProvider
+tests/browser/support/ui-harness.ts: HarnessOptions

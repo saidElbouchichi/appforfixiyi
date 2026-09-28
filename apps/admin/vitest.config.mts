@@ -1,6 +1,8 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  /** Same as apps/web: the Next tsconfig preserves JSX, so tests transform it themselves, or uncovered pages drop out of the coverage denominator. */
+  oxc: { jsx: { runtime: "automatic" } },
   test: {
     /**
      * Decision 74. `include` is the part that matters: it defines the universe
@@ -24,8 +26,9 @@ export default defineConfig({
         // Process entry point: started by Docker, never imported by a unit test.
         "src/main.ts",
       ],
-      // Design phase 13: the session client and page titles got their first unit tests (0 % -> 64.6 %).
-      thresholds: { lines: 64, statements: 63, functions: 50, branches: 53 },
+      // Re-based in design phase 14 on the honest denominator (pages included, Decision 86):
+      // 22.3 % of 188 lines. The 64.6 % of phase 13 counted 65 lines, without the pages.
+      thresholds: { lines: 22, statements: 21, functions: 16, branches: 17 },
     },
   },
 });

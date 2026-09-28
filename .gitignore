@@ -34,10 +34,13 @@ coverage/
 .nyc_output/
 *.lcov
 
-# Playwright (tests/browser) — keep the named step screenshots (01-*.png etc.),
-# ignore only Playwright's own per-run artifacts (traces, failure screenshots, report state)
+# Playwright (tests/browser) — the named step screenshots (screenshots/01-*.png etc.) are kept;
+# Playwright's own per-run artifacts (traces, failure screenshots, report state) live in
+# test-results/ since design phase 14, apart from them.
 tests/browser/test-results/
 tests/browser/playwright-report/
+tests/browser/audit/out/
+# Per-run leftovers from before phase 14, when the outputDir was screenshots/.
 tests/browser/screenshots/*/
 tests/browser/screenshots/.last-run.json
 

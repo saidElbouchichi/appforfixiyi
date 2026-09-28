@@ -13,7 +13,7 @@ export const API_URL = process.env.API_URL ?? "http://localhost:4000";
 export const CASABLANCA = { latitude: 33.573109, longitude: -7.589843 };
 
 /** The seeded chain used by the client form (`CatalogSeedService`). */
-export const SERVICE_NAME = "Panne electrique";
+const SERVICE_NAME = "Panne electrique";
 
 /** A fresh, valid Moroccan mobile per call. */
 export function uniquePhone(prefix: "6" | "7"): string {

@@ -2503,3 +2503,23 @@ le compteur, et il est pose, pas resolu.
   la question posee — cette regle est-elle gardee par un test ? — la ou un
   score global aurait noye les regles dans 767 mutants.
 - Date : 2026-09-27
+
+## Decision 86 - Les planchers de couverture sont rebases sur le vrai denominateur
+
+- Contexte : phase 14 de la refonte. Depuis au moins la phase 11, la
+  couverture signalait 24 `PARSE_ERROR`. Cause : le `tsconfig` partage dit
+  `"jsx": "preserve"` (exige par Next) ; Vitest le suit, et la couverture
+  d'un fichier qu'aucun test n'importe est calculee sur du JSX non
+  transforme, qui ne se parse pas. **Toutes les pages sortaient du
+  denominateur** sans erreur bloquante.
+- Mesure honnete : `web` 16,4 % de 878 lignes (et non 38 % de 379),
+  `admin` 22,3 % de 188 lignes (et non 64,6 % de 65).
+- Choix : `oxc: { jsx: { runtime: "automatic" } }` dans les deux
+  `vitest.config.mts` (les tests transforment le JSX eux-memes ; ce que Next
+  construit ne change pas), et planchers **rebases** sur la mesure honnete.
+- Cela contredit la lettre de la Decision 74 (un plancher ne baisse pas).
+  C'est la mesure qui etait fausse, pas le code qui a recule : aucune ligne
+  testee n'a disparu. Les anciens chiffres sont corriges la ou ils sont cites.
+- Le rendu des pages reste couvert par Playwright, pas par Vitest
+  (commentaire de `apps/web/vitest.config.mts`).
+- Date : 2026-09-27
