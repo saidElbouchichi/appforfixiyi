@@ -55,6 +55,12 @@ Date : 2026-09-28. Plan : `PHASE_15_PLAN.md`. Preuves :
   `support/visual.css`, applique aux seules comparaisons.
 - **Un masque trop large** : masquer la ligne meta d'un message cachait aussi
   l'accuse de lecture. Seule l'heure est masquee ; l'accuse reste compare.
+- **Premiere CI : 57/58**, l'accueil a 360 px different (780 px de haut
+  contre 907). La faute etait **dans ma reference** : ma base de dev contient
+  un domaine « Test Manuel » cree a la main ; la CI, sur base neuve, montre
+  le catalogue du seed. Les references ont ete regenerees sur une pile neuve
+  (projet Compose separe, volumes de dev intacts : 26 noeuds, 965 demandes
+  avant et apres) : seules les 2 de l'accueil changent ; controle 58/58.
 - **`@fixiyi/ui` : « Timeout waiting for worker to respond »** pendant des
   gates lancees en parallele de Docker : aucun test en echec, 235/235 seul.
   Contention de la machine (voir §5).

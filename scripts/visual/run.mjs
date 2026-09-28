@@ -13,6 +13,15 @@
  *   pnpm test:visual tests/chat.spec.ts              one spec
  *   pnpm test:visual --update-snapshots=changed      after a WANTED visual change:
  *                                                    commit the new references with their reason
+ * References depend on the seeded catalogue only. A dev database that holds
+ * hand-made data (a test domain on the home) will differ from them, so they
+ * are (re)generated against a fresh stack, as CI runs — without touching the
+ * dev volumes:
+ *   docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+ *   docker compose -f docker-compose.yml -f docker-compose.dev.yml -p fixiyi-clean up -d --wait
+ *   pnpm test:visual --update-snapshots=changed
+ *   docker compose -f docker-compose.yml -f docker-compose.dev.yml -p fixiyi-clean down -v
+ *   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
  * The container shares the host network: the browser reaches the stack on
  * localhost, as it does outside the container.
  */

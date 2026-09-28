@@ -90,6 +90,9 @@ La regle de methode de la refonte, apprise a ses depens :
 - Une donnee generee (code, identifiant, nom, heure, liste qui depend de la
   base) est **masquee**, pas toleree ; si sa largeur deplace la suite, elle
   est fixee dans `support/visual.css`, qui ne s'applique qu'aux comparaisons.
+- Les references supposent le **catalogue du seed seul** : elles se
+  generent sur une pile neuve (procedure en tete de `scripts/visual/run.mjs`),
+  comme en CI. Une base de dev enrichie a la main differe sur l'accueil.
 - Une difference est soit une regression, soit une evolution voulue — et
   alors la reference est regeneree (`pnpm test:visual
   --update-snapshots=changed`) **dans le meme commit**, avec sa raison.

@@ -47,6 +47,8 @@ Date : 2026-09-28. Plan : `PHASE_15_PLAN.md`, diagnostic :
   correctif.
 - Suite navigateur complete : **58/58 sous Linux avec comparaison**, 58/58
   sous Windows. `session-refresh` 10/10 repete sous Linux apres correctif.
+- Premiere CI : 57/58, reference de l'accueil faite sur ma base de dev
+  (domaine de test) ; regeneree sur pile neuve, controle 58/58.
 - Stabilite des references : chaque spec a masques rejoue 2 a 3 fois de
   suite, identique au pixel.
 
@@ -75,6 +77,9 @@ perdu, timeouts de workers Vitest sous charge.
 
 - Les references ne se comparent que sous Linux ; la suite Windows ecrit ses
   captures sans les comparer.
+- Les references supposent le catalogue du seed : contre une base de dev
+  enrichie a la main, l'accueil differe. Procedure de regeneration sur pile
+  neuve : tete de `scripts/visual/run.mjs`.
 - Les listes des captures 11 a 13 sont masquees (contenu dependant de la
   base).
 - Un echec `motion` de la premiere passe reste non explique (§5 du
