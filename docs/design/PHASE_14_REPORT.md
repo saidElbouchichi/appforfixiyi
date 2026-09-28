@@ -1,7 +1,7 @@
 # PHASE 14 (REFONTE) — NETTOYAGE — RAPPORT
 
 Date : 2026-09-27 (verification finale le 2026-09-28). Enchainee sans GO
-intermediaire (Decision 81). Plan : `PHASE_14_PLAN.md`.
+intermediaire (Decision 81). Plan : `PHASE_14_PLAN.md`, diagnostic : `PHASE_14_DIAGNOSTIC.md`.
 
 ## 1. Objectif et resultat
 
