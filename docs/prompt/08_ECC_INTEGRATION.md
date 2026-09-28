@@ -86,9 +86,9 @@ APRÈS CHAQUE PHASE VALIDÉE :
 
 ## Rollback
 
-Commit de référence : **f36323b** (fin phase 15 de la refonte design,
+Commit de référence : **cdba111** (fin phase 15 de la refonte design,
 2026-09-28 — tests visuels : références Linux, en local et en CI).
-En cas de problème : git reset --hard f36323b
+En cas de problème : git reset --hard cdba111
 
 **À METTRE À JOUR À LA FIN DE CHAQUE PHASE, avant le commit de phase**
 (Décision 69). C'est une étape de la phase, pas une intention : deux fois
@@ -101,7 +101,7 @@ l'exécution aurait effacé du travail livré —
 
 Historique des références, pour retrouver un état plus ancien sans relire
 le journal : d84703e (Phase 5 produit) → d825a8a (refonte phase 6) →
-d7d1aca (refonte phase 7) → 3add35f (refonte phase 8) → d839f14 (refonte phase 9) → b551446 (refonte phase 10) → 759167b (refonte phase 11) → 382a663 (refonte phase 12) → 25c7f1b (refonte phase 13) → 6594aa8 (refonte phase 14) → f36323b (refonte phase 15).
+d7d1aca (refonte phase 7) → 3add35f (refonte phase 8) → d839f14 (refonte phase 9) → b551446 (refonte phase 10) → 759167b (refonte phase 11) → 382a663 (refonte phase 12) → 25c7f1b (refonte phase 13) → 6594aa8 (refonte phase 14) → cdba111 (refonte phase 15).
 
 `reset --hard` est destructif : jamais lancé sans accord explicite de
 l'utilisateur (03_AGENT_PROTOCOL §2, 05_DECISION_POLICY).
