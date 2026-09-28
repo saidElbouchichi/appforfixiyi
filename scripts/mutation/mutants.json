@@ -16,6 +16,14 @@
     "rule": "a later expiry refreshes again"
   },
   {
+    "id": "api-late-401-replays",
+    "pkg": "apps/web",
+    "file": "src/lib/api-client.ts",
+    "find": "const alreadyRefreshed = current !== null && current !== sentWith;",
+    "replace": "const alreadyRefreshed = false;",
+    "rule": "a late 401 replays after another call's refresh, no second refresh (design phase 15)"
+  },
+  {
     "id": "api-refresh-only-authed",
     "pkg": "apps/web",
     "file": "src/lib/api-client.ts",
@@ -27,8 +35,8 @@
     "id": "api-retry-after-refresh",
     "pkg": "apps/web",
     "file": "src/lib/api-client.ts",
-    "find": "if (await refreshSession()) {",
-    "replace": "if (!(await refreshSession())) {",
+    "find": "if (alreadyRefreshed || (await refreshSession())) {",
+    "replace": "if (!(alreadyRefreshed || (await refreshSession()))) {",
     "rule": "a refreshed call is replayed"
   },
   {
@@ -86,6 +94,14 @@
     "find": "    refreshInFlight = null;",
     "replace": "    refreshInFlight = refreshInFlight;",
     "rule": "a later expiry refreshes again (admin copy)"
+  },
+  {
+    "id": "admin-late-401-replays",
+    "pkg": "apps/admin",
+    "file": "src/lib/api-client.ts",
+    "find": "const alreadyRefreshed = current !== null && current !== sentWith;",
+    "replace": "const alreadyRefreshed = false;",
+    "rule": "a late 401 replays, no second refresh (admin copy)"
   },
   {
     "id": "admin-clear-on-dead",

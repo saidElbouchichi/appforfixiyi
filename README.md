@@ -5,8 +5,8 @@ Marketplace de services et interventions a domicile.
 ## Statut
 
 En construction - phases produit 0 a 6 livrees (fondation, auth, marketplace,
-demandes, matching, chat) ; refonte Design System V2 : phases 1 a 14 sur 15
-livrees (`docs/design/`), regle du design system dans
+demandes, matching, chat) ; refonte Design System V2 **terminee** (15
+phases, `docs/design/`), regle du design system dans
 `docs/prompt/09_DESIGN_SYSTEM_RULE.md`. Licences : `docs/LICENSES.md`.
 Detail : `docs/PROGRESS.md`.
 
@@ -108,6 +108,12 @@ avec les vraies feuilles de style. Chaque test repart de quotas d'API vides et
 remet hors ligne les artisans qu'il a crees (Decisions 83, 84) : la suite ne
 depend pas de son ordre. Les captures nommees sont dans `screenshots/`, les
 artefacts d'une passe dans `test-results/`.
+
+Tests visuels (Decision 87) : 34 references Linux dans `tests/browser/visual/`,
+comparees seulement dans l'image Linux de la suite, en local comme en CI :
+
+    pnpm test:visual                               # toute la suite, comparee
+    pnpm test:visual --update-snapshots=changed    # apres un changement voulu
 
 ## Production
 

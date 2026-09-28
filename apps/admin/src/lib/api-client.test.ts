@@ -33,7 +33,8 @@ function json(status: number, body?: unknown): Response {
   return new Response(body === undefined ? null : JSON.stringify(body), { status });
 }
 
-function fakeApi(options: { refreshOk?: boolean } = {}): string[] {
+/** `lateFor`: that path answers only after a refresh has had time to finish (see apps/web). */
+function fakeApi(options: { refreshOk?: boolean; lateFor?: string } = {}): string[] {
   const urls: string[] = [];
   vi.stubGlobal("fetch", async (url: string, init: RequestInit = {}) => {
     urls.push(url);
@@ -42,6 +43,7 @@ function fakeApi(options: { refreshOk?: boolean } = {}): string[] {
       return options.refreshOk === false ? json(401, { code: "INVALID_REFRESH" }) : json(200, { accessToken: "fresh", refreshToken: "rotated", expiresIn: 900 });
     }
     const auth = (init.headers as Record<string, string> | undefined)?.Authorization;
+    if (options.lateFor !== undefined && url.endsWith(options.lateFor)) await new Promise((resolve) => setTimeout(resolve, 20));
     return auth === "Bearer fresh" ? json(200, { ok: true }) : json(401, { code: "UNAUTHORIZED", title: "Invalid or expired access token" });
   });
   return urls;
@@ -64,6 +66,13 @@ describe("admin apiFetch — an expired session", () => {
     expect(results).toEqual([{ ok: true }, { ok: true }, { ok: true }]);
     expect(refreshes(urls)).toBe(1);
     expect(useAuthStore.getState().user).toEqual(USER);
+  });
+
+  it("replays without a second refresh when a 401 arrives after another call's refresh (design phase 15)", async () => {
+    const urls = fakeApi({ lateFor: "/api/v1/admin/catalog" });
+    const results = await Promise.all([apiFetch("/api/v1/auth/me", { auth: true }), apiFetch("/api/v1/admin/catalog", { auth: true })]);
+    expect(results).toEqual([{ ok: true }, { ok: true }]);
+    expect(refreshes(urls)).toBe(1);
   });
 
   it("refreshes again on a later expiry", async () => {

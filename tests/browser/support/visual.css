@@ -1,0 +1,17 @@
+/*
+ * Applied to visual comparisons only, never to the app nor to the kept
+ * captures (support/visual.ts). A generated name is masked, but its width
+ * still moves what follows it: a fixed box makes the mask, and the layout
+ * after it, the same on every run.
+ */
+[data-testid="conversation-title"] {
+  inline-size: 12rem;
+  overflow: hidden;
+}
+
+/* Same for the time of a message ("9:05" / "19:05"), so the read receipt next to it stays compared. */
+.fx-bubble__meta time {
+  display: inline-block;
+  inline-size: 3rem;
+  text-align: end;
+}

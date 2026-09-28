@@ -1,0 +1,194 @@
+$ node scripts/visual/run.mjs
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.38kB 0.1s done
+#1 DONE 0.2s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 1.8s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+#3 resolve docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+#3 resolve docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32 0.2s done
+#3 DONE 0.2s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+#3 CACHED
+
+#4 [internal] load metadata for mcr.microsoft.com/playwright:v1.63.0-noble
+#4 DONE 0.6s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [base 1/2] FROM mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+#6 resolve mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+#6 resolve mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27 0.2s done
+#6 DONE 0.2s
+
+#5 [internal] load build context
+#5 transferring context: 24.04kB 0.1s
+#5 transferring context: 33.95kB 0.1s done
+#5 DONE 0.2s
+
+#7 [base 2/2] RUN npm install -g pnpm@12.4.2 turbo@2.11.2
+#7 CACHED
+
+#8 [pruner 1/3] WORKDIR /app
+#8 CACHED
+
+#9 [pruner 2/3] COPY . .
+#9 DONE 0.5s
+
+#10 [pruner 3/3] RUN turbo prune @fixiyi/browser-tests --docker
+#10 1.262 • turbo 2.11.2
+#10 1.362 Generating pruned monorepo for @fixiyi/browser-tests in /app/out
+#10 1.396  - Added @fixiyi/browser-tests
+#10 1.410  - Added @fixiyi/design-tokens
+#10 1.413  - Added @fixiyi/eslint-config
+#10 1.419  - Added @fixiyi/tsconfig
+#10 1.479  - Added @fixiyi/ui
+#10 DONE 1.7s
+
+#11 [runner 2/6] COPY --from=pruner /app/out/json/ .
+#11 CACHED
+
+#12 [runner 3/6] RUN pnpm install --frozen-lockfile
+#12 CACHED
+
+#13 [runner 4/6] COPY --from=pruner /app/out/full/ .
+#13 DONE 0.4s
+
+#14 [runner 5/6] RUN pnpm turbo run build --filter=@fixiyi/browser-tests^...
+#14 1.411 • turbo 2.11.2
+#14 1.560 
+#14 1.560    • Packages in scope: @fixiyi/design-tokens, @fixiyi/eslint-config, @fixiyi/tsconfig, @fixiyi/ui
+#14 1.560    • Running build in 4 packages
+#14 1.560    • Remote caching disabled
+#14 1.560 
+#14 1.590 @fixiyi/design-tokens:build: cache miss, executing 5443621a339e6f91
+#14 1.633 @fixiyi/design-tokens:build: $ tsup src/index.ts --format esm,cjs --dts --clean
+#14 2.454 @fixiyi/design-tokens:build: CLI Building entry: src/index.ts
+#14 2.458 @fixiyi/design-tokens:build: CLI Using tsconfig: tsconfig.json
+#14 2.459 @fixiyi/design-tokens:build: CLI tsup v8.5.1
+#14 2.471 @fixiyi/design-tokens:build: CLI Target: es2022
+#14 2.478 @fixiyi/design-tokens:build: CLI Cleaning output folder
+#14 2.482 @fixiyi/design-tokens:build: ESM Build start
+#14 2.482 @fixiyi/design-tokens:build: CJS Build start
+#14 2.567 @fixiyi/design-tokens:build: ESM dist/index.js 12.34 KB
+#14 2.567 @fixiyi/design-tokens:build: ESM ⚡️ Build success in 85ms
+#14 2.571 @fixiyi/design-tokens:build: CJS dist/index.cjs 14.14 KB
+#14 2.571 @fixiyi/design-tokens:build: CJS ⚡️ Build success in 89ms
+#14 3.254 @fixiyi/design-tokens:build: DTS Build start
+#14 5.596 @fixiyi/design-tokens:build: DTS ⚡️ Build success in 2343ms
+#14 5.596 @fixiyi/design-tokens:build: DTS dist/index.d.ts  20.07 KB
+#14 5.596 @fixiyi/design-tokens:build: DTS dist/index.d.cts 20.07 KB
+#14 5.648 @fixiyi/ui:build: cache miss, executing 75b314376c9a35bc
+#14 5.676 @fixiyi/ui:build: $ tsup
+#14 6.287 @fixiyi/ui:build: CLI Building entry: src/index.ts
+#14 6.288 @fixiyi/ui:build: CLI Using tsconfig: tsconfig.json
+#14 6.289 @fixiyi/ui:build: CLI tsup v8.5.1
+#14 6.289 @fixiyi/ui:build: CLI Using tsup config: /app/packages/ui/tsup.config.ts
+#14 6.304 @fixiyi/ui:build: CLI Target: es2022
+#14 6.305 @fixiyi/ui:build: CLI Cleaning output folder
+#14 6.308 @fixiyi/ui:build: ESM Build start
+#14 6.310 @fixiyi/ui:build: CJS Build start
+#14 6.467 @fixiyi/ui:build: CJS dist/index.cjs 80.83 KB
+#14 6.467 @fixiyi/ui:build: CJS ⚡️ Build success in 158ms
+#14 6.468 @fixiyi/ui:build: ESM dist/index.js 71.32 KB
+#14 6.468 @fixiyi/ui:build: ESM ⚡️ Build success in 160ms
+#14 6.817 @fixiyi/ui:build: DTS Build start
+#14 10.37 @fixiyi/ui:build: DTS ⚡️ Build success in 3554ms
+#14 10.37 @fixiyi/ui:build: DTS dist/index.d.ts  45.94 KB
+#14 10.37 @fixiyi/ui:build: DTS dist/index.d.cts 45.94 KB
+#14 10.45 
+#14 10.45  Tasks:    2 successful, 2 total
+#14 10.45 Cached:    0 cached, 2 total
+#14 10.45   Time:    9.032s 
+#14 10.45 
+#14 DONE 10.7s
+
+#15 [runner 6/6] WORKDIR /app/tests/browser
+#15 DONE 0.3s
+
+#16 exporting to image
+#16 exporting layers
+#16 exporting layers 1.3s done
+#16 exporting manifest sha256:30432748ebbfe959e5417e0da41fb42acd158c827fa865500f5d045550d004ca 0.1s done
+#16 exporting config sha256:57d052b96528b6fd923e36202847aecf08341453399cda15bf75fd865cf659f8
+#16 exporting config sha256:57d052b96528b6fd923e36202847aecf08341453399cda15bf75fd865cf659f8 0.2s done
+#16 exporting attestation manifest sha256:9a4d78502c099e929bc784969f364a59cd869c820d19524cc4150b92677e19e1
+#16 exporting attestation manifest sha256:9a4d78502c099e929bc784969f364a59cd869c820d19524cc4150b92677e19e1 0.3s done
+#16 exporting manifest list sha256:ff58d038c14047d7da7bf8e8ed2ea5816f427b04a01627beaeaefdbac5948f41
+#16 exporting manifest list sha256:ff58d038c14047d7da7bf8e8ed2ea5816f427b04a01627beaeaefdbac5948f41 0.1s done
+#16 naming to docker.io/library/fixiyi-browser-tests:latest 0.0s done
+#16 unpacking to docker.io/library/fixiyi-browser-tests:latest
+#16 unpacking to docker.io/library/fixiyi-browser-tests:latest 0.6s done
+#16 DONE 2.8s
+
+Running 58 tests using 1 worker
+
+  ✓   1 [chromium] › tests/accessibility.spec.ts:83:1 › every screen passes axe, keeps its outline, reflows at 320px and has a title of its own (52.1s)
+  ✓   2 [chromium] › tests/accessibility.spec.ts:169:1 › a screen reader hears the new page's title after a client-side navigation (3.4s)
+  ✓   3 [chromium] › tests/accessibility.spec.ts:192:1 › the admin back-office names its pages too (1.3s)
+Chat http://localhost:3000/conversations/01a0e99f-6274-74c1-b515-c17f3d64024a: live delivery, typing, masking, read receipt and reply verified in two browsers.
+  ✓   4 [chromium] › tests/chat.spec.ts:33:1 › a client and a provider chat live, and a phone number stays masked (10.2s)
+Created and submitted ServiceRequest id: 01a0e99f-8779-7399-8ecf-712104dfac78 (phone +212625939938)
+  ✓   5 [chromium] › tests/create-request.spec.ts:19:1 › client logs in with OTP and creates a service request with a real photo upload (5.6s)
+  ✓   6 [chromium] › tests/design-system.spec.tsx:36:3 › icons › every glyph renders inside its box (908ms)
+  ✓   7 [chromium] › tests/design-system.spec.tsx:58:3 › icons › directional glyphs mirror in RTL, others do not (961ms)
+  ✓   8 [chromium] › tests/design-system.spec.tsx:99:3 › button › renders the four heights of part 2B with a pointer (1.8s)
+  ✓   9 [chromium] › tests/design-system.spec.tsx:107:3 › button › keeps every label readable: measured contrast of each variant (2.1s)
+  ✓  10 [chromium] › tests/design-system.spec.tsx:119:3 › button on a touch screen › grows sm and md to the 44px touch target (1.3s)
+  ✓  11 [chromium] › tests/design-system.spec.tsx:129:3 › badges, cards, fields › render the batch B gallery with readable badges (2.2s)
+  ✓  12 [chromium] › tests/design-system.spec.tsx:163:3 › badges, cards, fields › an interactive card follows its primary action from anywhere (1.3s)
+  ✓  13 [chromium] › tests/design-system.spec.tsx:178:3 › badges, cards, fields › an interactive card shows the focus ring of its primary action (823ms)
+  ✓  14 [chromium] › tests/design-system.spec.tsx:221:3 › form controls › render the batch C gallery, readable (1.1s)
+  ✓  15 [chromium] › tests/design-system.spec.tsx:232:3 › form controls › slides the switch thumb to the inline end, in LTR and in RTL (1.3s)
+  ✓  16 [chromium] › tests/design-system.spec.tsx:249:3 › form controls on a touch screen › give filter chips and chip remove buttons the 44px touch target (746ms)
+  ✓  17 [chromium] › tests/design-system.spec.tsx:288:3 › feedback and identity › render the batch D gallery with readable alerts and avatars (3.5s)
+  ✓  18 [chromium] › tests/design-system.spec.tsx:304:3 › feedback and identity › keeps the horizontal stepper inside a 360px phone (888ms)
+  ✓  19 [chromium] › tests/design-system.spec.tsx:311:3 › disclosure and overlays › render tabs, accordion, menu trigger and the empty/error states (1.2s)
+  ✓  20 [chromium] › tests/design-system.spec.tsx:340:3 › disclosure and overlays › render the bottom sheet against the bottom edge, full width on a phone (1.2s)
+  ✓  21 [chromium] › tests/design-system.spec.tsx:355:3 › disclosure and overlays › render the modal and the command palette (1.1s)
+  ✓  22 [chromium] › tests/design-system.spec.tsx:401:3 › layout › on a phone: 56px header, bottom bar with 44px+ targets, no navbar (937ms)
+  ✓  23 [chromium] › tests/design-system.spec.tsx:425:3 › layout › on a desktop: 64px header with the navbar, no bottom bar (981ms)
+  ✓  24 [chromium] › tests/design-system.spec.tsx:433:3 › layout › the skip link appears on the first Tab and moves focus to the content (478ms)
+  ✓  25 [chromium] › tests/design-system.spec.tsx:443:3 › layout › mirrors in RTL: logo at the inline start, on the right (1.0s)
+Provider Playwright Pro 2961 (01a0e9a0-033b-73e5-a194-ee151572572a) was dispatched to and declined through the UI.
+  ✓  26 [chromium] › tests/matching.spec.ts:19:1 › a dispatched provider sees the client's request, approximated, and can decline it (6.4s)
+  ✓  27 [chromium] › tests/matching.spec.ts:94:1 › the client's waiting screen speaks to the client, not the engine (5.4s)
+  ✓  28 [chromium] › tests/motion.spec.ts:78:1 › a chat thread animates the messages that arrive, never the history it opens on (7.4s)
+  ✓  29 [chromium] › tests/motion.spec.ts:98:1 › a list enters when it arrives, and stays still when it is already there (2.8s)
+  ✓  30 [chromium] › tests/motion.spec.ts:117:1 › with reduced motion nothing moves; without it, only a wait may move for long (11.9s)
+  ✓  31 [chromium] › tests/navigation.spec.ts:45:1 › a signed-out visitor landing on / gets the home, and every link on it resolves (1.9s)
+  ✓  32 [chromium] › tests/navigation.spec.ts:52:1 › a signed-in client who clicks the logo comes home, still signed in (3.0s)
+  ✓  33 [chromium] › tests/navigation.spec.ts:64:1 › a provider reaches their inbox from the home, and it is their start screen at login (2.4s)
+  ✓  34 [chromium] › tests/navigation.spec.ts:81:1 › a client reaches their requests from the navigation, and the list opens the right screen (5.2s)
+  ✓  35 [chromium] › tests/navigation.spec.ts:105:1 › the navigation holds at tablet width and in Arabic reading order (3.5s)
+  ✓  36 [chromium] › tests/navigation.spec.ts:125:1 › a provider on a phone gets the bottom bar, and every entry of it answers (3.2s)
+  ✓  37 [chromium] › tests/navigation.spec.ts:161:1 › the profile signs the user out for good: the session is dead on the server too (3.5s)
+  ✓  38 [chromium] › tests/navigation.spec.ts:188:1 › the unread badge follows real messages, and clears once they are read (8.4s)
+  ✓  39 [chromium] › tests/navigation.spec.ts:235:1 › the admin back-office sends a signed-out visitor to its own login (897ms)
+  ✓  40 [chromium] › tests/responsive.spec.ts:85:1 › the public screens hold from a phone to a wide desktop (9.7s)
+  ✓  41 [chromium] › tests/responsive.spec.ts:108:1 › a word with no space in it wraps instead of being cut off (4.7s)
+  ✓  42 [chromium] › tests/responsive.spec.ts:120:1 › the file picker is a real target, not a 20px native control (3.1s)
+  ✓  43 [chromium] › tests/services.spec.ts:15:1 › a signed-out visitor lands on the catalogue, not on a login wall (1.6s)
+  ✓  44 [chromium] › tests/services.spec.ts:28:1 › a domain tile opens the search already narrowed to it (1.7s)
+  ✓  45 [chromium] › tests/services.spec.ts:36:1 › a search result carries its ancestry, and sends a signed-out visitor to login (2.9s)
+  ✓  46 [chromium] › tests/services.spec.ts:50:1 › a signed-in client reaches the form with the searched service already filled in (3.4s)
+  ✓  47 [chromium] › tests/services.spec.ts:66:1 › the search finds a service typed with accents the catalogue does not use (1.1s)
+  ✓  48 [chromium] › tests/services.spec.ts:72:1 › an unknown word says so instead of showing an empty page (1.1s)
+  ✓  49 [chromium] › tests/services.spec.ts:83:1 › an artisan's public profile shows the trade, and none of the private data (2.3s)
+  ✓  50 [chromium] › tests/services.spec.ts:106:1 › the API itself refuses to hand out the private fields (1.4s)
+  ✓  51 [chromium] › tests/services.spec.ts:117:1 › a client opens the profile of an artisan from their matching screen (2.3s)
+  ✓  52 [chromium] › tests/services.spec.ts:126:1 › an unknown provider id says so rather than failing silently (1.3s)
+  ✓  53 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (3.3s)
+  ✓  54 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (3.6s)
+  ✓  55 [chromium] › tests/typography.spec.ts:25:5 › web — typography › renders the body in Inter, self-hosted by the app (673ms)
+  ✓  56 [chromium] › tests/typography.spec.ts:47:5 › web — typography › switches Arabic content to Noto Sans Arabic, loaded on demand (1.1s)
+  ✓  57 [chromium] › tests/typography.spec.ts:25:5 › admin — typography › renders the body in Inter, self-hosted by the app (774ms)
+  ✓  58 [chromium] › tests/typography.spec.ts:47:5 › admin — typography › switches Arabic content to Noto Sans Arabic, loaded on demand (897ms)
+
+  58 passed (3.9m)

@@ -1,6 +1,7 @@
 
 import { CASABLANCA, fillAndSubmitRequest, loginThroughUi, sessionInitScript, setUpProvider } from "../support/journeys";
 import { expect, test } from "../support/test";
+import { capture } from "../support/visual";
 
 test.use({ permissions: ["geolocation"], geolocation: CASABLANCA });
 
@@ -29,8 +30,9 @@ test("a dispatched provider sees the client's request, approximated, and can dec
 
   const description = `Prise de courant ne fonctionne plus, demande de ${providerName}.`;
   await fillAndSubmitRequest(page, { description });
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
-  await page.screenshot({ path: "screenshots/10-request-submitted.png", animations: "disabled" });
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
+  // Generated per run: the id, and the provider name inside the description.
+  await capture(page, "10-request-submitted", { mask: [page.getByTestId("submitted-request-id"), page.getByText(/^Description :/)] });
 
   await page.getByTestId("go-to-match-button").click();
   await expect(page).toHaveURL(/\/match$/);
@@ -39,7 +41,8 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   // Design phase 8: the status is the client's word for it, not the engine's.
   await expect(page.getByTestId("match-status")).toContainText("Recherche en cours", { timeout: 20_000 });
   await expect(page.getByTestId("candidate-list")).toContainText(providerName, { timeout: 20_000 });
-  await page.screenshot({ path: "screenshots/11-match-candidates.png", animations: "disabled" });
+  // Who is in the batch depends on every provider available in the database, not on this test.
+  await capture(page, "11-match-candidates", { mask: [page.getByTestId("candidate-list")] });
 
   // A batch is a batch: the client sees a bounded number of providers, not everyone.
   const contacted = await page.getByTestId("candidate-row").count();
@@ -72,11 +75,12 @@ test("a dispatched provider sees the client's request, approximated, and can dec
   expect(approximate).toContain("33.57");
   expect(approximate).not.toContain("33.5731");
   await expect(row).toContainText("l'adresse exacte vous sera communiquee si le client accepte");
-  await providerPage.screenshot({ path: "screenshots/12-provider-inbox.png", animations: "disabled" });
+  // Rows from earlier runs can share the inbox (see above): the rows are masked, the screen is not.
+  await capture(providerPage, "12-provider-inbox", { mask: [providerPage.getByTestId("provider-match-row")] });
 
   await row.getByTestId("decline-button").click();
   await expect(row).toHaveCount(0, { timeout: 20_000 });
-  await providerPage.screenshot({ path: "screenshots/13-provider-declined.png", animations: "disabled" });
+  await capture(providerPage, "13-provider-declined", { mask: [providerPage.getByTestId("provider-match-row")] });
 
   console.log(`Provider ${providerName} (${provider.profileId}) was dispatched to and declined through the UI.`);
   await providerContext.close();
@@ -93,7 +97,7 @@ test("the client's waiting screen speaks to the client, not the engine", async (
 
   await loginThroughUi(page, `+2127${Date.now().toString().slice(-8)}`);
   await fillAndSubmitRequest(page);
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
 
   await page.getByTestId("go-to-match-button").click();
   await page.getByTestId("start-match-button").click();

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 
 import { expect, test } from "../support/test";
+import { capture } from "../support/visual";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_PHOTO = path.join(__dirname, "..", "fixtures", "photo.png");
@@ -25,7 +26,7 @@ test("client logs in with OTP and creates a service request with a real photo up
   // `/` is the catalogue home since design phase 7; the login screen is its own route.
   await page.goto("/login");
   await expect(page).toHaveURL(/\/login$/);
-  await page.screenshot({ path: "screenshots/01-login-phone.png", animations: "disabled" });
+  await capture(page, "01-login-phone");
 
   await page.getByTestId("phone-input").fill(phone);
   await page.getByTestId("request-otp-button").click();
@@ -35,7 +36,8 @@ test("client logs in with OTP and creates a service request with a real photo up
   if (!code) {
     throw new Error(`Could not read a 6-digit dev OTP code from: "${devCodeText}"`);
   }
-  await page.screenshot({ path: "screenshots/02-login-otp.png", animations: "disabled" });
+  // The dev OTP differs on every run.
+  await capture(page, "02-login-otp", { mask: [page.getByTestId("dev-code")] });
 
   await page.getByTestId("otp-input").fill(code);
   await page.getByTestId("verify-otp-button").click();
@@ -57,13 +59,14 @@ test("client logs in with OTP and creates a service request with a real photo up
   await expect(page.getByTestId("coordinates-display")).toContainText("33.573", { timeout: 10_000 });
 
   await page.getByTestId("media-input").setInputFiles(FIXTURE_PHOTO);
-  await page.screenshot({ path: "screenshots/03-form-filled.png", animations: "disabled" });
+  await capture(page, "03-form-filled");
 
   await page.getByTestId("submit-request-button").click();
 
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+  // Design phase 15: the reader's word (REQUEST_STATUS_LABEL), not the enum the capture showed.
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
   await expect(page.getByTestId("submitted-media-count")).toContainText("1");
-  await page.screenshot({ path: "screenshots/04-request-submitted.png", animations: "disabled" });
+  await capture(page, "04-request-submitted", { mask: [page.getByTestId("submitted-request-id")] });
 
   const requestId = await page.getByTestId("submitted-request-id").innerText();
   console.log(`Created and submitted ServiceRequest id: ${requestId} (phone ${phone})`);

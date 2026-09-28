@@ -2,11 +2,13 @@ import { type Page } from "@playwright/test";
 
 import { CASABLANCA, fillAndSubmitRequest, loginThroughUi, uniquePhone } from "../support/journeys";
 import { expect, test } from "../support/test";
+import { capture } from "../support/visual";
 
 /**
  * Design phase 10 — responsive, measured rather than looked at.
  *
- * Not a visual test: nothing here compares images (those come after phase 14).
+ * Not a visual test at heart: the measurements below are the assertions. The
+ * captures of the public screens are compared only in the Linux image (phase 15).
  * It reads numbers out of the DOM — the same four criteria the phase's audit
  * used, which is what makes this a regression test for that audit.
  *
@@ -84,9 +86,14 @@ test("the public screens hold from a phone to a wide desktop", async ({ browser 
   for (const width of [PHONE_WIDTH, DESKTOP_WIDTH]) {
     const context = await browser.newContext({ viewport: { width, height: width < 500 ? 780 : 900 } });
     const page = await context.newPage();
-    for (const path of ["/", "/services?q=panne", "/login"]) {
+    for (const [path, name] of [
+      ["/", "home"],
+      ["/services?q=panne", "services-search"],
+      ["/login", "login"],
+    ] as const) {
       await page.goto(path, { waitUntil: "networkidle" });
       expectClean(await measure(page), `${path} @ ${width.toString()}px`);
+      await capture(page, `40-public-${name}-${width.toString()}`, { fullPage: true });
     }
     await context.close();
   }
@@ -101,7 +108,7 @@ test("the public screens hold from a phone to a wide desktop", async ({ browser 
 test("a word with no space in it wraps instead of being cut off", async ({ page }) => {
   await loginThroughUi(page, uniquePhone("6"));
   await fillAndSubmitRequest(page, { description: `Reparation${"X".repeat(60)}Urgente, prise qui fait des etincelles.` });
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
 
   await page.setViewportSize({ width: PHONE_WIDTH, height: 780 });
   await page.goto("/requests", { waitUntil: "networkidle" });

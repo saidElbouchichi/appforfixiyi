@@ -22,5 +22,7 @@ export default defineConfig({
   // NOT ./screenshots: Playwright empties its outputDir before each run, which deleted the committed
   // step captures whenever a single spec was run (design phase 14). Per-run artifacts live apart.
   outputDir: "./test-results",
+  // Visual references (design phase 15, Decision 87): Linux renders, compared only inside the Linux image (support/visual.ts).
+  snapshotPathTemplate: "{testDir}/../visual/{arg}{ext}",
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

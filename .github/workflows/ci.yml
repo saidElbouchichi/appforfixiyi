@@ -87,3 +87,45 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  # Design phase 15 (Decision 87): the browser suite against the real dev
+  # stack, in the same Linux image as `pnpm test:visual` locally — the only
+  # renderer the visual references in tests/browser/visual are compared with.
+  browser:
+    name: browser suite + visual references (Linux)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+
+      # The example file with fresh signing secrets: nothing public signs a token, even in CI.
+      - name: Environment of the dev stack
+        run: |
+          cp .env.example .env
+          for key in JWT_SECRET JWT_REFRESH_SECRET OTP_SECRET; do
+            sed -i "s|^${key}=.*|${key}=$(openssl rand -hex 32)|" .env
+          done
+
+      - name: Start the dev stack
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build --wait
+
+      - name: Browser suite, visual references compared
+        run: node scripts/visual/run.mjs
+
+      - name: Playwright diffs and traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-test-results
+          path: tests/browser/test-results
+          retention-days: 7
+
+      - name: Stack logs
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml logs --no-color --tail 200

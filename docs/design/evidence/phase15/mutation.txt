@@ -1,0 +1,29 @@
+$ node scripts/mutation/run.mjs
+KILLED    api-single-flight — a single refresh in flight (B1, Decision 51)
+KILLED    api-flight-reset — a later expiry refreshes again
+KILLED    api-late-401-replays — a late 401 replays after another call's refresh, no second refresh (design phase 15)
+KILLED    api-refresh-only-authed — an unauthenticated 401 (a wrong OTP) never touches the session
+KILLED    api-retry-after-refresh — a refreshed call is replayed
+KILLED    api-clear-on-dead — a dead session is cleared
+KILLED    api-keep-user — a refresh keeps the signed-in user
+KILLED    api-json-only-with-body — no JSON content type without a body (Fastify rejects it)
+KILLED    api-problem-code — a Problem Details code reaches the caller
+KILLED    api-upload-fails-loudly — a refused upload is an error
+KILLED    admin-single-flight — a single refresh in flight (admin copy)
+KILLED    admin-flight-reset — a later expiry refreshes again (admin copy)
+KILLED    admin-late-401-replays — a late 401 replays, no second refresh (admin copy)
+KILLED    admin-clear-on-dead — a dead session is cleared (admin copy)
+KILLED    admin-title-suffix — an admin page is named with the site (2.4.2)
+KILLED    chat-upsert-adds — a new message is added
+KILLED    chat-upsert-no-revert — an older version never reverts a newer one
+KILLED    chat-receipts-not-mine — my own receipts do not tick my messages
+KILLED    chat-receipts-my-messages — ticks only on my messages
+EQUIVALENT chat-receipts-deleted — a message without a status is left alone
+KILLED    chat-receipts-no-downgrade — a late receipt never downgrades a tick
+KILLED    chat-receipts-read-boundary — the watermark message itself is read
+KILLED    arrivals-settle-once — the baseline never moves once settled
+KILLED    arrivals-strict — the last history message is not an arrival
+KILLED    start-route-provider — a provider starts on their inbox (Decision 65)
+KILLED    start-route-anonymous — no user starts on login
+
+25/25 killed

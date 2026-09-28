@@ -2523,3 +2523,27 @@ le compteur, et il est pose, pas resolu.
 - Le rendu des pages reste couvert par Playwright, pas par Vitest
   (commentaire de `apps/web/vitest.config.mts`).
 - Date : 2026-09-27
+
+## Decision 87 - Tests visuels : references Linux, comparees dans une seule image, en local et en CI
+
+- Contexte : phase 15 de la refonte (`toHaveScreenshot`). Une police ne se
+  rasterise pas au pixel pres de la meme facon sous Windows, macOS et Linux :
+  une reference ne vaut que contre le moteur qui l'a produite. La CI ne
+  lancait aucun test navigateur.
+- Choix (**decide par l'utilisateur le 2026-09-28**, option recommandee) :
+  - un seul jeu de references, **Linux**, dans `tests/browser/visual/` ;
+  - elles ne sont comparees que dans l'image `tests/browser/Dockerfile`
+    (image Playwright officielle, version epinglee), via `pnpm test:visual`
+    en local et le job CI `browser`, qui lance **toute** la suite contre la
+    pile de dev ;
+  - hors de cette image (suite Windows locale), les captures nommees sont
+    ecrites comme avant, sans comparaison ;
+  - aucun pixel different admis (seuil de couleur par defaut de
+    Playwright) : une donnee generee (code OTP, identifiant,
+    nom, heure, contenu d'une liste qui depend de la base) est **masquee**,
+    et sa largeur fixee par `support/visual.css`, applique aux seules
+    comparaisons.
+- Une evolution visuelle voulue regenere ses references
+  (`pnpm test:visual --update-snapshots=changed`) **dans le meme commit**,
+  avec sa raison (`09_DESIGN_SYSTEM_RULE.md` §8).
+- Date : 2026-09-28

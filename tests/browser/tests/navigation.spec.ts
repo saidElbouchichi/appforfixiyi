@@ -11,6 +11,7 @@ import {
   uniquePhone,
 } from "../support/journeys";
 import { expect, test } from "../support/test";
+import { capture } from "../support/visual";
 
 /**
  * Audit 2026-09-21 — navigation between the screens that exist, through the
@@ -80,7 +81,7 @@ test("a provider reaches their inbox from the home, and it is their start screen
 test("a client reaches their requests from the navigation, and the list opens the right screen", async ({ page }) => {
   await loginThroughUi(page, uniquePhone("7"));
   await fillAndSubmitRequest(page);
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
 
   const navbar = page.getByTestId("navbar");
   await expect(navbar.getByRole("link", { name: "Demander" })).toHaveAttribute("aria-current", "page");
@@ -98,7 +99,7 @@ test("a client reaches their requests from the navigation, and the list opens th
   // A detail screen stays under its list, so the user still knows where they are.
   await expect(navbar.getByRole("link", { name: "Mes demandes" })).toHaveAttribute("aria-current", "page");
   await expectInternalLinksResolve(page);
-  await page.screenshot({ path: "screenshots/31-navbar-desktop.png", animations: "disabled" });
+  await capture(page, "31-navbar-desktop");
 });
 
 test("the navigation holds at tablet width and in Arabic reading order", async ({ browser, request }) => {
@@ -111,13 +112,13 @@ test("the navigation holds at tablet width and in Arabic reading order", async (
   // 768px is exactly where the bottom bar gives way to the header's navigation.
   await expect(page.getByTestId("navbar")).toBeVisible();
   await expect(page.getByTestId("bottom-nav")).toBeHidden();
-  await page.screenshot({ path: "screenshots/32-nav-tablet.png", animations: "disabled" });
+  await capture(page, "32-nav-tablet");
 
   await page.evaluate(() => {
     document.documentElement.dir = "rtl";
   });
   await expect(page.getByTestId("navbar")).toBeVisible();
-  await page.screenshot({ path: "screenshots/33-nav-rtl.png", animations: "disabled" });
+  await capture(page, "33-nav-rtl");
   await context.close();
 });
 
@@ -153,7 +154,7 @@ test("a provider on a phone gets the bottom bar, and every entry of it answers",
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
     expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual((barBox?.y ?? 0) + (barBox?.height ?? 0) + 0.5);
   }
-  await page.screenshot({ path: "screenshots/30-bottom-nav-phone.png", animations: "disabled" });
+  await capture(page, "30-bottom-nav-phone");
   await context.close();
 });
 
@@ -190,7 +191,7 @@ test("the unread badge follows real messages, and clears once they are read", as
 
   await loginThroughUi(page, uniquePhone("7"));
   await fillAndSubmitRequest(page);
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
   const requestId = (await page.getByTestId("submitted-request-id").innerText()).trim();
 
   const client = await readBrowserSession(page);

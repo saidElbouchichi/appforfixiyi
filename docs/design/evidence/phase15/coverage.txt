@@ -1,0 +1,784 @@
+$ turbo run test:coverage --concurrency=1 "--force"
+• turbo 2.11.2
+
+   • Packages in scope: @fixiyi/admin, @fixiyi/api, @fixiyi/browser-tests, @fixiyi/config, @fixiyi/contracts, @fixiyi/design-tokens, @fixiyi/eslint-config, @fixiyi/i18n, @fixiyi/shared-utils, @fixiyi/tsconfig, @fixiyi/ui, @fixiyi/web, @fixiyi/worker
+   • Running test:coverage in 13 packages
+   • Remote caching disabled
+
+@fixiyi/shared-utils:test:coverage: cache bypass, force executing 756ac190b69e2eb3
+@fixiyi/shared-utils:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/shared-utils:test:coverage: 
+@fixiyi/shared-utils:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/packages/shared-utils[39m
+@fixiyi/shared-utils:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/shared-utils:test:coverage: 
+@fixiyi/shared-utils:test:coverage:  [32m✓[39m src/geo.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@fixiyi/shared-utils:test:coverage:  [32m✓[39m src/money.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+@fixiyi/shared-utils:test:coverage:  [32m✓[39m src/id.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@fixiyi/shared-utils:test:coverage:  [32m✓[39m src/time.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@fixiyi/shared-utils:test:coverage: 
+@fixiyi/shared-utils:test:coverage: [2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+@fixiyi/shared-utils:test:coverage: [2m      Tests [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+@fixiyi/shared-utils:test:coverage: [2m   Start at [22m 22:34:53
+@fixiyi/shared-utils:test:coverage: [2m   Duration [22m 444ms[2m (transform 43%, import 28%, worker 18%, tests 10%)[22m
+@fixiyi/shared-utils:test:coverage: 
+@fixiyi/shared-utils:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/shared-utils:test:coverage: 
+@fixiyi/shared-utils:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/shared-utils:test:coverage: Statements   : 97.95% ( 48/49 )
+@fixiyi/shared-utils:test:coverage: Branches     : 90% ( 18/20 )
+@fixiyi/shared-utils:test:coverage: Functions    : 100% ( 23/23 )
+@fixiyi/shared-utils:test:coverage: Lines        : 97.91% ( 47/48 )
+@fixiyi/shared-utils:test:coverage: ================================================================================
+@fixiyi/i18n:test:coverage: cache bypass, force executing 36648c80c622c34a
+@fixiyi/i18n:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/i18n:test:coverage: 
+@fixiyi/i18n:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/packages/i18n[39m
+@fixiyi/i18n:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/i18n:test:coverage: 
+@fixiyi/i18n:test:coverage:  [32m✓[39m src/messages.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@fixiyi/i18n:test:coverage: 
+@fixiyi/i18n:test:coverage: [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+@fixiyi/i18n:test:coverage: [2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+@fixiyi/i18n:test:coverage: [2m   Start at [22m 22:34:55
+@fixiyi/i18n:test:coverage: [2m   Duration [22m 340ms[2m (transform 59%, import 24%, worker 13%, tests 4%)[22m
+@fixiyi/i18n:test:coverage: 
+@fixiyi/i18n:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/i18n:test:coverage: 
+@fixiyi/i18n:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/i18n:test:coverage: Statements   : 88.88% ( 8/9 )
+@fixiyi/i18n:test:coverage: Branches     : 100% ( 2/2 )
+@fixiyi/i18n:test:coverage: Functions    : 66.66% ( 2/3 )
+@fixiyi/i18n:test:coverage: Lines        : 88.88% ( 8/9 )
+@fixiyi/i18n:test:coverage: ================================================================================
+@fixiyi/design-tokens:build: cache bypass, force executing 5443621a339e6f91
+@fixiyi/design-tokens:build: $ tsup src/index.ts --format esm,cjs --dts --clean
+@fixiyi/design-tokens:build: [34mCLI[39m Building entry: src/index.ts
+@fixiyi/design-tokens:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@fixiyi/design-tokens:build: [34mCLI[39m tsup v8.5.1
+@fixiyi/design-tokens:build: [34mCLI[39m Target: es2022
+@fixiyi/design-tokens:build: [34mCLI[39m Cleaning output folder
+@fixiyi/design-tokens:build: [34mESM[39m Build start
+@fixiyi/design-tokens:build: [34mCJS[39m Build start
+@fixiyi/design-tokens:build: [32mESM[39m [1mdist\index.js [22m[32m12.34 KB[39m
+@fixiyi/design-tokens:build: [32mESM[39m ⚡️ Build success in 85ms
+@fixiyi/design-tokens:build: [32mCJS[39m [1mdist\index.cjs [22m[32m14.14 KB[39m
+@fixiyi/design-tokens:build: [32mCJS[39m ⚡️ Build success in 86ms
+@fixiyi/design-tokens:build: [34mDTS[39m Build start
+@fixiyi/design-tokens:build: [32mDTS[39m ⚡️ Build success in 982ms
+@fixiyi/design-tokens:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m20.07 KB[39m
+@fixiyi/design-tokens:build: [32mDTS[39m [1mdist\index.d.cts [22m[32m20.07 KB[39m
+@fixiyi/config:build: cache bypass, force executing 53886b65db5fd489
+@fixiyi/config:build: $ tsup src/index.ts --format esm,cjs --dts --clean
+@fixiyi/config:build: [34mCLI[39m Building entry: src/index.ts
+@fixiyi/config:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@fixiyi/config:build: [34mCLI[39m tsup v8.5.1
+@fixiyi/config:build: [34mCLI[39m Target: es2022
+@fixiyi/config:build: [34mCLI[39m Cleaning output folder
+@fixiyi/config:build: [34mESM[39m Build start
+@fixiyi/config:build: [34mCJS[39m Build start
+@fixiyi/config:build: [32mESM[39m [1mdist\index.js [22m[32m5.36 KB[39m
+@fixiyi/config:build: [32mESM[39m ⚡️ Build success in 52ms
+@fixiyi/config:build: [32mCJS[39m [1mdist\index.cjs [22m[32m7.57 KB[39m
+@fixiyi/config:build: [32mCJS[39m ⚡️ Build success in 53ms
+@fixiyi/config:build: [34mDTS[39m Build start
+@fixiyi/config:build: [32mDTS[39m ⚡️ Build success in 1199ms
+@fixiyi/config:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m3.85 KB[39m
+@fixiyi/config:build: [32mDTS[39m [1mdist\index.d.cts [22m[32m3.85 KB[39m
+@fixiyi/config:test:coverage: cache bypass, force executing d54fb0e28061e8b6
+@fixiyi/config:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/packages/config[39m
+@fixiyi/config:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage:  [32m✓[39m src/find-env-file.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mparses a valid environment and applies defaults
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (37) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mcoerces feature flag strings to real booleans, not truthy strings
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: ◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mthrows InvalidEnvironmentError with a readable report when required vars are missing
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mrejects a JWT secret that is too short
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mrejects an OTP secret that is too short
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mproduction secrets (audit 2026-09-21)[2m > [22m[2maccepts strong, distinct secrets
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mproduction secrets (audit 2026-09-21)[2m > [22m[2mrefuses the public placeholder of .env.example in production
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mproduction secrets (audit 2026-09-21)[2m > [22m[2mrefuses the test secrets of .env.test.example in production
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mproduction secrets (audit 2026-09-21)[2m > [22m[2mrefuses a secret shorter than 32 characters in production
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mproduction secrets (audit 2026-09-21)[2m > [22m[2mrefuses the same value for two secrets in production
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mproduction secrets (audit 2026-09-21)[2m > [22m[2mkeeps development permissive: placeholders still boot locally
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mcoerces MIN_PROVIDER_AGE to a number
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [90mstderr[2m | src/load-env.test.ts[2m > [22m[2mloadEnv[2m > [22m[2mnever invents a default for secrets or credentials (04_ENVIRONMENT.md)
+@fixiyi/config:test:coverage: [22m[39m◇ injected env (0) from ..\..\.env
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage:  [32m✓[39m src/load-env.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@fixiyi/config:test:coverage:  [32m✓[39m src/env-usage.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+@fixiyi/config:test:coverage: [2m      Tests [22m [1m[32m21 passed[39m[22m[90m (21)[39m
+@fixiyi/config:test:coverage: [2m   Start at [22m 22:35:02
+@fixiyi/config:test:coverage: [2m   Duration [22m 645ms[2m (import 48%, transform 34%, tests 9%, worker 9%)[22m
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/config:test:coverage: 
+@fixiyi/config:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/config:test:coverage: Statements   : 97.5% ( 39/40 )
+@fixiyi/config:test:coverage: Branches     : 90% ( 18/20 )
+@fixiyi/config:test:coverage: Functions    : 100% ( 8/8 )
+@fixiyi/config:test:coverage: Lines        : 97.36% ( 37/38 )
+@fixiyi/config:test:coverage: ================================================================================
+@fixiyi/contracts:test:coverage: cache bypass, force executing 03e1aad4d9a5d5df
+@fixiyi/contracts:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/contracts:test:coverage: 
+@fixiyi/contracts:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/packages/contracts[39m
+@fixiyi/contracts:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/contracts:test:coverage: 
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/offer.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/verification.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/location.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/user.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/provider.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/common.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/catalog.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/request.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/chat.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/wallet.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/configuration.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/media.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/company.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/auth.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@fixiyi/contracts:test:coverage:  [32m✓[39m src/matching.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@fixiyi/contracts:test:coverage: 
+@fixiyi/contracts:test:coverage: [2m Test Files [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+@fixiyi/contracts:test:coverage: [2m      Tests [22m [1m[32m113 passed[39m[22m[90m (113)[39m
+@fixiyi/contracts:test:coverage: [2m   Start at [22m 22:35:03
+@fixiyi/contracts:test:coverage: [2m   Duration [22m 1.46s[2m (import 54%, transform 30%, worker 8%, tests 7%)[22m
+@fixiyi/contracts:test:coverage: 
+@fixiyi/contracts:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/contracts:test:coverage: 
+@fixiyi/contracts:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/contracts:test:coverage: Statements   : 98.66% ( 148/150 )
+@fixiyi/contracts:test:coverage: Branches     : 100% ( 8/8 )
+@fixiyi/contracts:test:coverage: Functions    : 100% ( 6/6 )
+@fixiyi/contracts:test:coverage: Lines        : 98.66% ( 148/150 )
+@fixiyi/contracts:test:coverage: ================================================================================
+@fixiyi/design-tokens:test:coverage: cache bypass, force executing d92d64533b9dbff3
+@fixiyi/design-tokens:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/design-tokens:test:coverage: 
+@fixiyi/design-tokens:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/packages/design-tokens[39m
+@fixiyi/design-tokens:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/design-tokens:test:coverage: 
+@fixiyi/design-tokens:test:coverage:  [32m✓[39m src/tokens.test.ts [2m([22m[2m59 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+@fixiyi/design-tokens:test:coverage: 
+@fixiyi/design-tokens:test:coverage: [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+@fixiyi/design-tokens:test:coverage: [2m      Tests [22m [1m[32m59 passed[39m[22m[90m (59)[39m
+@fixiyi/design-tokens:test:coverage: [2m   Start at [22m 22:35:06
+@fixiyi/design-tokens:test:coverage: [2m   Duration [22m 453ms[2m (transform 53%, import 25%, tests 13%, worker 9%)[22m
+@fixiyi/design-tokens:test:coverage: 
+@fixiyi/design-tokens:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/design-tokens:test:coverage: 
+@fixiyi/design-tokens:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/design-tokens:test:coverage: Statements   : 100% ( 29/29 )
+@fixiyi/design-tokens:test:coverage: Branches     : 100% ( 0/0 )
+@fixiyi/design-tokens:test:coverage: Functions    : 100% ( 1/1 )
+@fixiyi/design-tokens:test:coverage: Lines        : 100% ( 29/29 )
+@fixiyi/design-tokens:test:coverage: ================================================================================
+@fixiyi/contracts:build: cache bypass, force executing 58cbfeca4d11820e
+@fixiyi/contracts:build: $ tsup src/index.ts --format esm,cjs --dts --clean
+@fixiyi/contracts:build: [34mCLI[39m Building entry: src/index.ts
+@fixiyi/contracts:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@fixiyi/contracts:build: [34mCLI[39m tsup v8.5.1
+@fixiyi/contracts:build: [34mCLI[39m Target: es2022
+@fixiyi/contracts:build: [34mCLI[39m Cleaning output folder
+@fixiyi/contracts:build: [34mESM[39m Build start
+@fixiyi/contracts:build: [34mCJS[39m Build start
+@fixiyi/contracts:build: [32mCJS[39m [1mdist\index.cjs [22m[32m45.97 KB[39m
+@fixiyi/contracts:build: [32mCJS[39m ⚡️ Build success in 72ms
+@fixiyi/contracts:build: [32mESM[39m [1mdist\index.js [22m[32m33.54 KB[39m
+@fixiyi/contracts:build: [32mESM[39m ⚡️ Build success in 73ms
+@fixiyi/contracts:build: [34mDTS[39m Build start
+@fixiyi/contracts:build: [32mDTS[39m ⚡️ Build success in 1690ms
+@fixiyi/contracts:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m74.39 KB[39m
+@fixiyi/contracts:build: [32mDTS[39m [1mdist\index.d.cts [22m[32m74.39 KB[39m
+@fixiyi/shared-utils:build: cache bypass, force executing 133373d423eef4c3
+@fixiyi/shared-utils:build: $ tsup src/index.ts --format esm,cjs --dts --clean
+@fixiyi/shared-utils:build: [34mCLI[39m Building entry: src/index.ts
+@fixiyi/shared-utils:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@fixiyi/shared-utils:build: [34mCLI[39m tsup v8.5.1
+@fixiyi/shared-utils:build: [34mCLI[39m Target: es2022
+@fixiyi/shared-utils:build: [34mCLI[39m Cleaning output folder
+@fixiyi/shared-utils:build: [34mESM[39m Build start
+@fixiyi/shared-utils:build: [34mCJS[39m Build start
+@fixiyi/shared-utils:build: [32mESM[39m [1mdist\index.js [22m[32m3.83 KB[39m
+@fixiyi/shared-utils:build: [32mESM[39m ⚡️ Build success in 47ms
+@fixiyi/shared-utils:build: [32mCJS[39m [1mdist\index.cjs [22m[32m5.50 KB[39m
+@fixiyi/shared-utils:build: [32mCJS[39m ⚡️ Build success in 47ms
+@fixiyi/shared-utils:build: [34mDTS[39m Build start
+@fixiyi/shared-utils:build: [32mDTS[39m ⚡️ Build success in 578ms
+@fixiyi/shared-utils:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m3.88 KB[39m
+@fixiyi/shared-utils:build: [32mDTS[39m [1mdist\index.d.cts [22m[32m3.88 KB[39m
+@fixiyi/ui:build: cache bypass, force executing 75b314376c9a35bc
+@fixiyi/ui:build: $ tsup
+@fixiyi/ui:build: [34mCLI[39m Building entry: src/index.ts
+@fixiyi/ui:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@fixiyi/ui:build: [34mCLI[39m tsup v8.5.1
+@fixiyi/ui:build: [34mCLI[39m Using tsup config: C:\Users\saide\fixiyi\packages\ui\tsup.config.ts
+@fixiyi/ui:build: [34mCLI[39m Target: es2022
+@fixiyi/ui:build: [34mCLI[39m Cleaning output folder
+@fixiyi/ui:build: [34mESM[39m Build start
+@fixiyi/ui:build: [34mCJS[39m Build start
+@fixiyi/ui:build: [32mESM[39m [1mdist\index.js [22m[32m71.32 KB[39m
+@fixiyi/ui:build: [32mESM[39m ⚡️ Build success in 60ms
+@fixiyi/ui:build: [32mCJS[39m [1mdist\index.cjs [22m[32m80.83 KB[39m
+@fixiyi/ui:build: [32mCJS[39m ⚡️ Build success in 61ms
+@fixiyi/ui:build: [34mDTS[39m Build start
+@fixiyi/ui:build: [32mDTS[39m ⚡️ Build success in 2319ms
+@fixiyi/ui:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m45.94 KB[39m
+@fixiyi/ui:build: [32mDTS[39m [1mdist\index.d.cts [22m[32m45.94 KB[39m
+@fixiyi/ui:test:coverage: cache bypass, force executing 8aca70a7894c77f2
+@fixiyi/ui:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/ui:test:coverage: 
+@fixiyi/ui:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/packages/ui[39m
+@fixiyi/ui:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/ui:test:coverage: 
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Chat.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 615[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/IconButton.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 717[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m IconButton [2m(6)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m is announced by its label, not as a bare 'button' (WCAG 4.1.2)[33m 379[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Icon.test.tsx [2m([22m[2m24 tests[22m[2m)[22m[33m 1245[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Icon — accessibility (WCAG 2.2 AA) [2m(4)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m is exposed as a labelled image when it carries meaning on its own[33m 317[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Button.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1035[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Button [2m(10)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m defaults to type=button so it never submits a surrounding form by accident[33m 413[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Layout.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 1171[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m LinkProvider [2m(1)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m renders plain anchors by default, and the app's router link once provided[33m 442[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Modal.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1276[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Modal [2m(8)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m exposes a modal dialog labelled by its own title[33m 405[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Feedback.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1358[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Alert [2m(4)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m announces errors and warnings as alerts, the rest politely, when asked[33m 312[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Controls.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1390[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Checkbox [2m(4)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m is a native checkbox named by its label, toggled by a click on the text[33m 665[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Identity.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1814[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Avatar [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m is one image named after the person and their real status[33m 366[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m RatingInput [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m selects by click and by arrow keys[33m 572[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Filters.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 2406[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Chip [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m is a toggle button announcing its pressed state, with a check when selected[33m 515[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m SearchBar [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m submits the typed query on Enter[33m 405[2mms[22m[39m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m clears the query and returns focus to the field[33m 385[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m FilterBar [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m accumulates filters, and resets them all[33m 602[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Overlays.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 4460[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m BottomSheet [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m is a modal dialog named by its title, taking focus and locking the page scroll[33m 625[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Menu [2m(6)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m closes on Escape and on a click outside[33m 393[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Accordion [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m opens one section at a time by default[33m 350[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m CommandPalette [2m(5)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m filters as you type, announces the count, and shows an empty state[33m 407[2mms[22m[39m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m starts empty again after closing[33m 391[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Badge.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Input.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1026[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Input [2m(9)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m associates the label with the control (clicking the label focuses it)[33m 702[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Card.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 776[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Card [2m(6)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m renders the title at the requested heading level[33m 476[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Loading.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 739[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Loading [2m(3)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m announces the busy state politely with a visible label[33m 586[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/styles.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/ErrorState.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 841[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m ErrorState [2m(4)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m is announced as an alert[33m 603[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/RadioGroup.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1407[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m RadioGroup [2m(9)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m exposes itself as a labelled group (WCAG 1.3.1)[33m 748[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/animations.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/EmptyState.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 682[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m EmptyState [2m(4)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m renders a heading, a message and an action[33m 561[2mms[22m[39m
+@fixiyi/ui:test:coverage:  [32m✓[39m src/components/Select.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 717[2mms[22m[39m
+@fixiyi/ui:test:coverage:    [32m✓[39m Select [2m(9)[22m
+@fixiyi/ui:test:coverage:      [33m[2m✓[22m[39m associates the label with the control (clicking the label focuses it)[33m 551[2mms[22m[39m
+@fixiyi/ui:test:coverage: 
+@fixiyi/ui:test:coverage: [2m Test Files [22m [1m[32m21 passed[39m[22m[90m (21)[39m
+@fixiyi/ui:test:coverage: [2m      Tests [22m [1m[32m235 passed[39m[22m[90m (235)[39m
+@fixiyi/ui:test:coverage: [2m   Start at [22m 22:35:16
+@fixiyi/ui:test:coverage: [2m   Duration [22m 14.24s[2m (environment 60%, tests 18%, setup 13%, import 4%, transform 3%, worker 2%)[22m
+@fixiyi/ui:test:coverage: 
+@fixiyi/ui:test:coverage: [2mEnvironment [22m [33mjsdom was created 21 times[39m[2m · 79.70s total, 60% of tracked time[22m
+@fixiyi/ui:test:coverage: [2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+@fixiyi/ui:test:coverage: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+@fixiyi/ui:test:coverage: 
+@fixiyi/ui:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/ui:test:coverage: 
+@fixiyi/ui:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/ui:test:coverage: Statements   : 93.82% ( 441/470 )
+@fixiyi/ui:test:coverage: Branches     : 88.27% ( 512/580 )
+@fixiyi/ui:test:coverage: Functions    : 92.53% ( 186/201 )
+@fixiyi/ui:test:coverage: Lines        : 95.65% ( 396/414 )
+@fixiyi/ui:test:coverage: ================================================================================
+@fixiyi/worker:test:coverage: cache bypass, force executing cd05cedbf4a2b563
+@fixiyi/worker:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/apps/worker[39m
+@fixiyi/worker:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage: [90mstderr[2m | src/logger.test.ts
+@fixiyi/worker:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage: [90mstderr[2m | test/ping.e2e.test.ts
+@fixiyi/worker:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage:  [32m✓[39m src/logger.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@fixiyi/worker:test:coverage: [90mstderr[2m | test/ping.e2e.test.ts
+@fixiyi/worker:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage:  [32m✓[39m test/ping.e2e.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 126[2mms[22m[39m
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage: [2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+@fixiyi/worker:test:coverage: [2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+@fixiyi/worker:test:coverage: [2m   Start at [22m 22:35:32
+@fixiyi/worker:test:coverage: [2m   Duration [22m 964ms[2m (import 53%, transform 20%, tests 17%, worker 5%, setup 4%)[22m
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/worker:test:coverage: 
+@fixiyi/worker:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/worker:test:coverage: Statements   : 100% ( 23/23 )
+@fixiyi/worker:test:coverage: Branches     : 100% ( 8/8 )
+@fixiyi/worker:test:coverage: Functions    : 100% ( 9/9 )
+@fixiyi/worker:test:coverage: Lines        : 100% ( 23/23 )
+@fixiyi/worker:test:coverage: ================================================================================
+@fixiyi/api:test:coverage: cache bypass, force executing f8732e6b2bf9b841
+@fixiyi/api:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/apps/api[39m
+@fixiyi/api:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/chat-anti-contact.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/chat-anti-contact.e2e.test.ts[2m > [22m[2mChat — access and anti-contact (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/chat-anti-contact.e2e.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 6780[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Chat — access and anti-contact (e2e) [2m(16)[22m
+@fixiyi/api:test:coverage:      [32m✓[39m who may talk [2m(7)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m lets a dispatched provider open the conversation, and counts that as viewing the dispatch[33m 541[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m returns the SAME conversation when the client opens it too — never a duplicate[33m 354[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m refuses a provider the engine never dispatched to this request[33m 369[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m refuses a client pointing at a candidacy of ANOTHER request[33m 570[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m keeps a stranger out of the conversation, its messages and its search[33m 463[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m closes the conversation once the provider declines the dispatch[33m 430[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m a phone number is masked BEFORE acceptance and visible AFTER — the exit criterion [2m(5)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m masks it in the sender's response, in what the other side reads, and in the database itself[33m 411[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m does not expose either side's phone number while protected[33m 366[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m after acceptance: shows each side the other's VERIFIED number and delivers new numbers verbatim[33m 410[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m no way around the detector [2m(4)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m masks a contact detail hidden in an attachment's file name — before it is ever stored[33m 440[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m cannot resurface a masked number through search — the stored text is already masked[33m 328[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m refuses a reaction outside the closed list — it would be a second text channel[33m 341[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/chat-messaging.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/chat-messaging.e2e.test.ts[2m > [22m[2mChat — messaging (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/chat-messaging.e2e.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 7074[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Chat — messaging (e2e) [2m(18)[22m
+@fixiyi/api:test:coverage:      [32m✓[39m sending [2m(3)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m is idempotent — resending the same clientMessageId returns the same message, stored once[33m 367[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m gives every message a strictly increasing seq[33m 442[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m reading — cursor pagination and reconnect catch-up [2m(3)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m pages back through history with `before`, always in chronological order[33m 395[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m returns exactly what was missed with `after` — the catch-up after a dropped connection[33m 315[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m refuses both cursors at once[33m 413[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m replies, reactions, edits, deletions [2m(6)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m refuses a reply to a message of another conversation[33m 726[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m keeps one reaction per user — reacting again replaces it, and it can be removed[33m 341[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m deletes softly: hidden from both sides, but kept in the database for disputes[33m 348[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m refuses deleting someone else's message[33m 343[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m receipts — sent, delivered, read [2m(2)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m moves the sender's ticks from SENT to DELIVERED to READ, and clears the reader's unread count[33m 342[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m never moves a watermark backwards, and never past the last message[33m 301[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m attachments [2m(3)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m sends a photo through the real media pipeline and serves it back through a short-lived link[33m 359[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m refuses attaching a file that is not the sender's own upload to this conversation[33m 450[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m search [2m(1)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m finds messages by text, case-insensitively, and treats the query as text, not as a regex[33m 301[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/chat-realtime.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/chat-realtime.e2e.test.ts[2m > [22m[2mChat — realtime (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/chat-realtime.e2e.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 5788[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Chat — realtime (e2e) [2m(12)[22m
+@fixiyi/api:test:coverage:      [32m✓[39m delivery [2m(5)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m pushes a stored message to the other side, live, masked, with the receiver's own view[33m 363[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m reaches nobody outside the conversation[33m 912[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m pushes edits and deletions as updates carrying a higher version[33m 315[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m does not re-announce a receipt that moved nothing — no event storm from repeated acknowledgements[33m 948[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m typing — ephemeral, and only to the other participant [2m(3)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m relays typing to the other participant[33m 342[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m ignores typing from someone who is not a participant[33m 950[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m drops a malformed typing event instead of crashing the socket[33m 895[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/matching.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/matching.e2e.test.ts[2m > [22m[2mMatching (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/matching.e2e.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 4543[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Matching (e2e) [2m(11)[22m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m dispatches to a small batch, never to every eligible provider[33m 722[2mms[22m[39m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m ranks a closer provider above a farther one[33m 370[2mms[22m[39m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m expands the radius when nobody is eligible nearby[33m 388[2mms[22m[39m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m never dispatches to a provider missing a required skill[33m 409[2mms[22m[39m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m shows a dispatched provider only an approximate location, and only their own dispatch[33m 493[2mms[22m[39m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m supports DIRECT mode: the client picks one provider and nobody else is contacted[33m 307[2mms[22m[39m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m refuses to expose a match to anyone but its client[33m 330[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/catalog.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/catalog.e2e.test.ts[2m > [22m[2mCatalog (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/catalog.e2e.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 4016[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Catalog (e2e) [2m(13)[22m
+@fixiyi/api:test:coverage:      [32m✓[39m Public reads [2m(2)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m GET /catalog/tree returns the seeded hierarchy, skills excluded[33m 706[2mms[22m[39m
+@fixiyi/api:test:coverage:      [32m✓[39m Update / soft delete [2m(5)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m inherits icon and accent colour from the nearest ancestor that has one[33m 698[2mms[22m[39m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m serves the raw values to the back-office, which must know what is inherited[33m 1258[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/public-read-rate-limit.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/public-read-rate-limit.e2e.test.ts[2m > [22m[2mPublic read rate limits (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/public-read-rate-limit.e2e.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2432[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Public read rate limits (e2e) [2m(8)[22m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m answers a provider profile until the budget runs out, then 429s with Retry-After[33m 827[2mms[22m[39m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m gives company profiles their own budget, spent independently[33m 787[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/auth.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/auth.e2e.test.ts[2m > [22m[2mAuth (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/auth.e2e.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 1957[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Auth (e2e) [2m(22)[22m
+@fixiyi/api:test:coverage:      [32m✓[39m Rate limiting [2m(1)[22m
+@fixiyi/api:test:coverage:        [33m[2m✓[22m[39m returns 429 with a Retry-After header once the per-IP OTP-request limit is exceeded[33m 435[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/request.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/request.e2e.test.ts[2m > [22m[2mRequests (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/request.e2e.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 2495[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/provider.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/provider.e2e.test.ts[2m > [22m[2mProviders (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/provider.e2e.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1233[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/verification.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/verification.e2e.test.ts[2m > [22m[2mVerification (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/verification.e2e.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1051[2mms[22m[39m
+@fixiyi/api:test:coverage:    [32m✓[39m Verification (e2e) [2m(2)[22m
+@fixiyi/api:test:coverage:      [33m[2m✓[22m[39m runs a full verification cycle: create case, real MinIO upload, confirm, submit, approve[33m 352[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/company.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/company.e2e.test.ts[2m > [22m[2mCompanies (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/company.e2e.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1065[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | test/health.e2e.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [90mstderr[2m | test/health.e2e.test.ts[2m > [22m[2mHealth (e2e)
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (18) from ..\..\.env
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m test/health.e2e.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 564[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/chat/contact-detection/contact-detection.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/chat/contact-detection/contact-detection.test.ts [2m([22m[2m77 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/matching/ranking.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/matching/ranking.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/token/token.service.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/token/token.service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/common/filters/problem-details.filter.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [31m[Nest] 25372  - [39m28/09/2026 22:36:50 [31m  ERROR[39m [38;5;3m[ProblemDetailsFilter] [39m[31m[01a0e9bc-0c52-763d-9065-f83083f3577b] Internal server error[39m
+@fixiyi/api:test:coverage: Error: connection string contains a password
+@fixiyi/api:test:coverage:     at C:/Users/saide/fixiyi/apps/api/src/common/filters/problem-details.filter.test.ts:72:18
+@fixiyi/api:test:coverage:     at file:///C:/Users/saide/fixiyi/node_modules/.pnpm/vitest@5.0.1_@types+node@22_4928f62ead2537e5174514a2509930dd/node_modules/vitest/dist/chunks/run.C5UmxDPh.js:1628:35
+@fixiyi/api:test:coverage:     at file:///C:/Users/saide/fixiyi/node_modules/.pnpm/vitest@5.0.1_@types+node@22_4928f62ead2537e5174514a2509930dd/node_modules/vitest/dist/chunks/run.C5UmxDPh.js:2783:26
+@fixiyi/api:test:coverage:     at file:///C:/Users/saide/fixiyi/node_modules/.pnpm/vitest@5.0.1_@types+node@22_4928f62ead2537e5174514a2509930dd/node_modules/vitest/dist/chunks/run.C5UmxDPh.js:3319:20
+@fixiyi/api:test:coverage:     at new Promise (<anonymous>)
+@fixiyi/api:test:coverage:     at runWithCancel (file:///C:/Users/saide/fixiyi/node_modules/.pnpm/vitest@5.0.1_@types+node@22_4928f62ead2537e5174514a2509930dd/node_modules/vitest/dist/chunks/run.C5UmxDPh.js:3314:10)
+@fixiyi/api:test:coverage:     at file:///C:/Users/saide/fixiyi/node_modules/.pnpm/vitest@5.0.1_@types+node@22_4928f62ead2537e5174514a2509930dd/node_modules/vitest/dist/chunks/run.C5UmxDPh.js:3299:20
+@fixiyi/api:test:coverage:     at new Promise (<anonymous>)
+@fixiyi/api:test:coverage:     at runWithTimeout (file:///C:/Users/saide/fixiyi/node_modules/.pnpm/vitest@5.0.1_@types+node@22_4928f62ead2537e5174514a2509930dd/node_modules/vitest/dist/chunks/run.C5UmxDPh.js:3257:10)
+@fixiyi/api:test:coverage:     at file:///C:/Users/saide/fixiyi/node_modules/.pnpm/vitest@5.0.1_@types+node@22_4928f62ead2537e5174514a2509930dd/node_modules/vitest/dist/chunks/run.C5UmxDPh.js:3876:64
+@fixiyi/api:test:coverage:  [32m✓[39m src/common/filters/problem-details.filter.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/common/log-levels.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/common/log-levels.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/common/pipes/zod-validation.pipe.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/common/pipes/zod-validation.pipe.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/csrf/csrf.service.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/csrf/csrf.service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/guards/roles.guard.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/guards/roles.guard.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/otp/otp.service.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/otp/otp.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/rate-limit/rate-limit.guard.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/rate-limit/rate-limit.guard.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/infrastructure/storage/storage.module.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/infrastructure/storage/storage.module.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/verification-code.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/verification-code.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/rate-limit/rate-limit.service.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/rate-limit/rate-limit.service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/media/media-signature.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/media/media-signature.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/health/health.service.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/health/health.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/common/rate-limit-coverage.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/common/rate-limit-coverage.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/guards/resource-owner.guard.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/guards/resource-owner.guard.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/auth/csrf/csrf.guard.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/auth/csrf/csrf.guard.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@fixiyi/api:test:coverage: [90mstderr[2m | src/common/http/cookie.util.test.ts
+@fixiyi/api:test:coverage: [22m[39m◇ injected env (19) from ..\..\.env.test.example
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage:  [32m✓[39m src/common/http/cookie.util.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [2m Test Files [22m [1m[32m31 passed[39m[22m[90m (31)[39m
+@fixiyi/api:test:coverage: [2m      Tests [22m [1m[32m315 passed[39m[22m[90m (315)[39m
+@fixiyi/api:test:coverage: [2m   Start at [22m 22:35:34
+@fixiyi/api:test:coverage: [2m   Duration [22m 86.61s[2m (tests 50%, import 46%, transform 3%, worker 1%, setup 1%)[22m
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [2m     Import [22m [33m176 modules were evaluated 1634 times[39m[2m · 35.97s total, 46% of tracked time[22m
+@fixiyi/api:test:coverage: [2m            [22m [2m~32.10s faster with [22m[33misolate: false[39m[2m — shared modules are evaluated once per worker instead of once per file[22m
+@fixiyi/api:test:coverage: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-isolation[22m
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/api:test:coverage: 
+@fixiyi/api:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/api:test:coverage: Statements   : 87.41% ( 1869/2138 )
+@fixiyi/api:test:coverage: Branches     : 75.73% ( 821/1084 )
+@fixiyi/api:test:coverage: Functions    : 93.36% ( 521/558 )
+@fixiyi/api:test:coverage: Lines        : 88.22% ( 1776/2013 )
+@fixiyi/api:test:coverage: ================================================================================
+@fixiyi/web:test:coverage: cache bypass, force executing 88a744bccca7b57e
+@fixiyi/web:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/apps/web[39m
+@fixiyi/web:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/states.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/segment-layout.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/arrivals.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/navigation.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/start-route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/labels.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — requests[2m > [22m[2msends the bearer token on an authenticated call only
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — requests[2m > [22m[2mdeclares a JSON body only when there is one — Fastify refuses an empty JSON body
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — requests[2m > [22m[2mturns a Problem Details answer into an ApiError that keeps its code, title and status
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mrefreshes, then replays the call with the new token, and keeps the signed-in user
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/errors.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mrefreshes, then replays the call with the new token, and keeps the signed-in user
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2msends ONE refresh for calls that expire together: a second would be seen as replay and revoke the session
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2msends ONE refresh for calls that expire together: a second would be seen as replay and revoke the session
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mreplays without a second refresh when a 401 arrives after another call's refresh already rotated the token
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mreplays without a second refresh when a 401 arrives after another call's refresh already rotated the token
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/catalog.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry: the shared refresh does not stick
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry: the shared refresh does not stick
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry: the shared refresh does not stick
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry: the shared refresh does not stick
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mclears a session whose refresh is refused, and reports the 401
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mclears a session whose refresh is refused, and reports the 401
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2mapiFetch — an expired session[2m > [22m[2mnever touches the session on an unauthenticated 401, such as a wrong OTP
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2muploadFile[2m > [22m[2mreports a refused upload instead of pretending it worked
+@fixiyi/web:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-web-auth', the given storage is currently unavailable.
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/api-client.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 182[2mms[22m[39m
+@fixiyi/web:test:coverage:  [32m✓[39m src/lib/use-chat-thread.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [2m Test Files [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+@fixiyi/web:test:coverage: [2m      Tests [22m [1m[32m89 passed[39m[22m[90m (89)[39m
+@fixiyi/web:test:coverage: [2m   Start at [22m 22:37:02
+@fixiyi/web:test:coverage: [2m   Duration [22m 1.36s[2m (transform 44%, import 41%, worker 8%, tests 7%)[22m
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/web:test:coverage: 
+@fixiyi/web:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/web:test:coverage: Statements   : 16.61% ( 162/975 )
+@fixiyi/web:test:coverage: Branches     : 14.74% ( 105/712 )
+@fixiyi/web:test:coverage: Functions    : 11.11% ( 34/306 )
+@fixiyi/web:test:coverage: Lines        : 16.68% ( 147/881 )
+@fixiyi/web:test:coverage: ================================================================================
+@fixiyi/admin:test:coverage: cache bypass, force executing 5b158c5d66fb71bd
+@fixiyi/admin:test:coverage: $ vitest run --coverage --testTimeout=30000
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90mC:/Users/saide/fixiyi/apps/admin[39m
+@fixiyi/admin:test:coverage:       [2mCoverage enabled with [22m[33mv8[39m
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage:  [32m✓[39m src/lib/segment-layout.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2msends ONE refresh for calls that expire together, then replays them all
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2msends ONE refresh for calls that expire together, then replays them all
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mreplays without a second refresh when a 401 arrives after another call's refresh (design phase 15)
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mreplays without a second refresh when a 401 arrives after another call's refresh (design phase 15)
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mrefreshes again on a later expiry
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mclears a session whose refresh is refused
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [90mstderr[2m | src/lib/api-client.test.ts[2m > [22m[2madmin apiFetch — an expired session[2m > [22m[2mclears a session whose refresh is refused
+@fixiyi/admin:test:coverage: [22m[39m[zustand persist middleware] Unable to update item 'fixiyi-admin-auth', the given storage is currently unavailable.
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage:  [32m✓[39m src/lib/api-client.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 157[2mms[22m[39m
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+@fixiyi/admin:test:coverage: [2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+@fixiyi/admin:test:coverage: [2m   Start at [22m 22:37:04
+@fixiyi/admin:test:coverage: [2m   Duration [22m 755ms[2m (transform 33%, tests 31%, import 28%, worker 8%)[22m
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: [34m % [39m[2mCoverage report from [22m[33mv8[39m
+@fixiyi/admin:test:coverage: 
+@fixiyi/admin:test:coverage: =============================== Coverage summary ===============================
+@fixiyi/admin:test:coverage: Statements   : 22.84% ( 45/197 )
+@fixiyi/admin:test:coverage: Branches     : 20% ( 26/130 )
+@fixiyi/admin:test:coverage: Functions    : 16.17% ( 11/68 )
+@fixiyi/admin:test:coverage: Lines        : 23.56% ( 45/191 )
+@fixiyi/admin:test:coverage: ================================================================================
+
+ Tasks:    15 successful, 15 total
+Cached:    0 cached, 15 total
+  Time:    2m13.141s 
+

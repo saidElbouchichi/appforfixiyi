@@ -2,6 +2,16 @@
 
 ## Derniere mise a jour
 
+2026-09-28 - Refonte design : **phase 15 (Tests visuels) TERMINEE — refonte
+Design System V2 terminee** — `docs/design/PHASE_15_REPORT.md`. 34 ecrans
+compares a des references **Linux**, dans une seule image (`pnpm
+test:visual`), en local et dans le nouveau job CI `browser`, qui lance toute
+la suite navigateur (Decision 87, choix de l'utilisateur). Instrument verifie
+par un defaut injecte d'1 px. Deux vrais defauts trouves : « Demande
+envoyee » affichait les enums bruts, et un 401 tardif declenchait un second
+rafraichissement de session (`web` et `admin`) — corrige, test vu rouge,
+mutation 25/25. 58/58 sous Linux et sous Windows.
+
 2026-09-28 - Refonte design : **phase 14 (Nettoyage) TERMINEE** —
 `docs/design/PHASE_14_REPORT.md`. Deux dependances mortes retirees
 (`react-hook-form`, `source-map-support`). **La couverture mentait** : 24
@@ -106,8 +116,7 @@ ecrit (`docs/design/PHASE_7_PLAN.md`), **implementation en attente du GO**.
 ## Phase actuelle
 
 Produit : Phase 6 - Chat - **TERMINEE** (la Phase 7 ne demarre qu'apres la
-refonte design). Refonte Design System V2 : phases 1 a **14 TERMINEES** ;
-reste la phase 15 (tests visuels), enchainee sans arret (Decision 81).
+refonte design). Refonte Design System V2 : **TERMINEE** (phases 1 a 15).
 
 ## Phases terminees
 
@@ -346,19 +355,17 @@ d'abord ou une mutation.
 
 ## Derniere action effectuee
 
-Phase 14 de la refonte design (Nettoyage) : dependances mortes retirees,
-denominateur de couverture corrige (Decision 86), captures Playwright
-protegees, `LICENSES.md`, `09_DESIGN_SYSTEM_RULE.md`,
-`docs/design/PHASE_14_REPORT.md`, gates sans cache et Playwright 58/58.
+Phase 15 de la refonte design (Tests visuels) : references Linux, image de
+la suite navigateur, job CI `browser`, deux defauts corriges, Decision 87,
+`docs/design/PHASE_15_REPORT.md`.
 
 ## Prochaine action exacte
 
-Phase 15 de la refonte (tests visuels), enchainee sans GO intermediaire
-(Decision 81). Deux points de la phase 11 attendent une decision de
-l'utilisateur (voir « Blocages »). Le renforcement ECC est termine ; ce
-qu'il a laisse ouvert est dans « Blocages ». Apres la refonte seulement, la Phase 7 **produit**
-(Offers), qui devra appeler `ConversationService.unlockContact` a
-l'acceptation d'une offre.
+La refonte est terminee : **attendre le GO de l'utilisateur** pour la
+Phase 7 **produit** (Offers), qui devra appeler
+`ConversationService.unlockContact` a l'acceptation d'une offre. Deux points
+de la phase 11 et ce qu'a laisse ouvert le renforcement ECC attendent une
+decision de l'utilisateur (voir « Blocages »).
 
 ## Blocages
 
@@ -422,7 +429,8 @@ du schema ; **pas bloquant pour la phase 7** (decide par l'utilisateur le
   **TERMINEE**
 - [x] une seule voix apres navigation : titres + annonceur Next (Decision 80)
 - [x] phases 12 a 15 de la refonte design, enchainees sans arret (GO recu
-  le 2026-09-27, Decision 81)
+  le 2026-09-27, Decision 81) — **TERMINEES**
+- [x] ou comparer les references visuelles : Linux, local et CI (Decision 87)
 
 ## Prompt de reprise pour la prochaine session
 
@@ -431,24 +439,23 @@ Reprise Fixiyi
 
 Lis dans l'ordre :
 1. docs/PROGRESS.md (ce fichier)
-2. docs/DECISIONS.md (86 = derniere)
-3. docs/design/PHASE_14_REPORT.md et docs/design/PLAN.md
+2. docs/DECISIONS.md (87 = derniere)
+3. docs/design/PHASE_15_REPORT.md et docs/design/PLAN.md
 
 Contexte : deux numerotations coexistent. Produit : phases 0 a 6 terminees,
-la Phase 7 (Offers) attend la FIN de la refonte ; elle devra appeler
+la Phase 7 (Offers) attend le GO de l'utilisateur ; elle devra appeler
 ConversationService.unlockContact a l'acceptation d'une offre. Refonte
-design : phases 1 a 14 terminees (la 14 = nettoyage : couverture honnete,
+design : TERMINEE, phases 1 a 15 (la 15 = tests visuels : references Linux,
+`pnpm test:visual`, job CI `browser`, Decision 87 ; la 14 = nettoyage : couverture honnete,
 Decision 86, `09_DESIGN_SYSTEM_RULE.md` ; la 13 = tests : mutation 23/23,
 ordre inverse ; la 12 = animations : une entree = une
 arrivee, Decision 82 ; la 11 = accessibilite : un titre par
 route lu par l'annonceur de Next, sans focus programme - Decision 80 ;
-contrastes, liste et reflow du chat). 871 tests unitaires, 58 scenarios
-Playwright, gates verts.
+contrastes, liste et reflow du chat). 58 scenarios Playwright (58/58 sous
+Linux avec references, et sous Windows), mutation 25/25, gates verts.
 
-Les phases 12 a 15 de la REFONTE s'enchainent sans GO intermediaire
-(Decision 81) : reprends a la premiere phase dont le rapport n'existe pas
-dans docs/design/. Chaque phase garde son cycle complet, et une decision
-reservee a l'utilisateur reste un arret.
+La refonte est finie : ne rien demarrer sans GO de l'utilisateur (Phase 7
+produit, ou une decision de « Blocages »).
 
 Verifie d'abord que Docker tourne toujours (`docker compose -f
 docker-compose.yml -f docker-compose.dev.yml ps` depuis la racine).

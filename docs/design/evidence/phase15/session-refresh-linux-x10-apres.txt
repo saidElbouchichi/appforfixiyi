@@ -1,0 +1,100 @@
+$ node scripts/visual/run.mjs "tests/session-refresh.spec.ts" "--repeat-each=10"
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.38kB 0.0s done
+#1 DONE 0.1s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 0.8s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+#3 resolve docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32 0.1s done
+#3 CACHED
+
+#4 [internal] load metadata for mcr.microsoft.com/playwright:v1.63.0-noble
+#4 DONE 0.5s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [base 1/2] FROM mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+#6 resolve mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27 0.1s done
+#6 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 18.03kB 0.1s
+#5 transferring context: 184.30kB 0.2s done
+#5 DONE 0.2s
+
+#7 [base 2/2] RUN npm install -g pnpm@12.4.2 turbo@2.11.2
+#7 CACHED
+
+#8 [pruner 1/3] WORKDIR /app
+#8 CACHED
+
+#9 [pruner 2/3] COPY . .
+#9 DONE 0.4s
+
+#10 [pruner 3/3] RUN turbo prune @fixiyi/browser-tests --docker
+#10 1.474 • turbo 2.11.2
+#10 1.830 Generating pruned monorepo for @fixiyi/browser-tests in /app/out
+#10 1.841  - Added @fixiyi/browser-tests
+#10 1.843  - Added @fixiyi/design-tokens
+#10 1.843  - Added @fixiyi/eslint-config
+#10 1.845  - Added @fixiyi/tsconfig
+#10 1.853  - Added @fixiyi/ui
+#10 DONE 2.0s
+
+#11 [runner 4/6] COPY --from=pruner /app/out/full/ .
+#11 CACHED
+
+#12 [runner 5/6] RUN pnpm turbo run build --filter=@fixiyi/browser-tests^...
+#12 CACHED
+
+#13 [runner 2/6] COPY --from=pruner /app/out/json/ .
+#13 CACHED
+
+#14 [runner 3/6] RUN pnpm install --frozen-lockfile
+#14 CACHED
+
+#15 [runner 6/6] WORKDIR /app/tests/browser
+#15 CACHED
+
+#16 exporting to image
+#16 exporting layers 0.0s done
+#16 exporting manifest sha256:30432748ebbfe959e5417e0da41fb42acd158c827fa865500f5d045550d004ca 0.0s done
+#16 exporting config sha256:57d052b96528b6fd923e36202847aecf08341453399cda15bf75fd865cf659f8 0.0s done
+#16 exporting attestation manifest sha256:834fc86b65989f8a011c4a8171ce3606aaf15bb5677156316c3d810fc6abf3f8
+#16 exporting attestation manifest sha256:834fc86b65989f8a011c4a8171ce3606aaf15bb5677156316c3d810fc6abf3f8 0.1s done
+#16 exporting manifest list sha256:70aabd18d24727f6455f8be2e8a82e7158a476b14296013e64604e18fab896d5
+#16 exporting manifest list sha256:70aabd18d24727f6455f8be2e8a82e7158a476b14296013e64604e18fab896d5 0.0s done
+#16 naming to docker.io/library/fixiyi-browser-tests:latest done
+#16 unpacking to docker.io/library/fixiyi-browser-tests:latest
+#16 unpacking to docker.io/library/fixiyi-browser-tests:latest 0.2s done
+#16 DONE 0.7s
+
+Running 20 tests using 1 worker
+
+  ✓   1 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (4.3s)
+  ✓   2 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.0s)
+  ✓   3 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (2.6s)
+  ✓   4 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.3s)
+  ✓   5 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (2.8s)
+  ✓   6 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.1s)
+  ✓   7 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (3.0s)
+  ✓   8 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.3s)
+  ✓   9 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (2.6s)
+  ✓  10 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.3s)
+  ✓  11 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (2.9s)
+  ✓  12 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.3s)
+  ✓  13 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (2.8s)
+  ✓  14 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.5s)
+  ✓  15 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (2.9s)
+  ✓  16 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.7s)
+  ✓  17 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (3.2s)
+  ✓  18 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.3s)
+  ✓  19 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (2.7s)
+  ✓  20 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (2.4s)
+
+  20 passed (1.2m)

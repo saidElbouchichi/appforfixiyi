@@ -96,7 +96,7 @@ test("every screen passes axe, keeps its outline, reflows at 320px and has a tit
   await loginThroughUi(page, uniquePhone("7"));
   await expect(page).toHaveURL(/\/requests\/new$/, { timeout: 20_000 });
   await fillAndSubmitRequest(page);
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
   const requestId = (await page.getByTestId("submitted-request-id").innerText()).trim();
   const client = await readBrowserSession(page);
   const started = await request.post(`${API_URL}/api/v1/requests/${requestId}/match`, {

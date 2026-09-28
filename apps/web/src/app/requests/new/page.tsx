@@ -21,6 +21,7 @@ import { apiFetch, uploadFile } from "../../../lib/api-client";
 import { useAuthHydrated, useAuthStore } from "../../../lib/auth-store";
 import { ancestryOf } from "../../../lib/catalog";
 import { errorMessage } from "../../../lib/errors";
+import { REQUEST_STATUS_LABEL, URGENCY_LABEL } from "../../../lib/labels";
 
 import { LocationCard } from "./location-card";
 import { MediaCard, type PendingMedia } from "./media-card";
@@ -228,12 +229,14 @@ function NewRequestForm(): React.JSX.Element | null {
             {submitted.id}
           </p>
           <p className="mb-3" data-testid="submitted-status">
-            Statut : <Badge variant="success">{submitted.status}</Badge>
+            Statut : <Badge variant="success">{REQUEST_STATUS_LABEL[submitted.status]}</Badge>
           </p>
           <p className="fx-user-text mb-2">Description : {submitted.description}</p>
-          <p className="mb-2">
-            Urgence : <Badge variant={submitted.urgency === "URGENT" ? "warning" : "info"}>{submitted.urgency}</Badge>
-          </p>
+          {submitted.urgency === null ? null : (
+            <p className="mb-2">
+              Urgence : <Badge variant={submitted.urgency === "URGENT" ? "warning" : "info"}>{URGENCY_LABEL[submitted.urgency]}</Badge>
+            </p>
+          )}
           <p data-testid="submitted-media-count">Medias attaches : {submitted.mediaIds.length.toString()}</p>
 
           <div className="mt-6">

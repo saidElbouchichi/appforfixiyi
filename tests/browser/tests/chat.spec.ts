@@ -1,3 +1,4 @@
+import type { Locator, Page } from "@playwright/test";
 
 import {
   API_URL,
@@ -10,6 +11,7 @@ import {
   uniquePhone,
 } from "../support/journeys";
 import { expect, test } from "../support/test";
+import { capture } from "../support/visual";
 
 test.use({ permissions: ["geolocation"], geolocation: CASABLANCA });
 
@@ -23,6 +25,11 @@ test.use({ permissions: ["geolocation"], geolocation: CASABLANCA });
  * service, and a batch of 3 would not reliably include this one. DIRECT is a
  * genuine Phase 5 mode (#14), not a test shortcut.
  */
+/** Generated per run: the name in the title (support/visual.css fixes its width) and each message's time. */
+function generatedInChat(page: Page): Locator[] {
+  return [page.getByTestId("conversation-title"), page.locator(".fx-bubble__meta time")];
+}
+
 test("a client and a provider chat live, and a phone number stays masked", async ({ page, browser, request }) => {
   const providerName = `Chat Pro ${Date.now().toString().slice(-4)}`;
   const provider = await setUpProvider(request, uniquePhone("6"), providerName);
@@ -32,7 +39,7 @@ test("a client and a provider chat live, and a phone number stays masked", async
   await expect(page).toHaveURL(/\/requests\/new$/);
   const description = `Prise en panne, conversation ${providerName}.`;
   await fillAndSubmitRequest(page, { description });
-  await expect(page.getByTestId("submitted-status")).toContainText("REQUESTED", { timeout: 20_000 });
+  await expect(page.getByTestId("submitted-status")).toContainText("Envoyee", { timeout: 20_000 });
   const requestId = (await page.getByTestId("submitted-request-id").innerText()).trim();
 
   const client = await readBrowserSession(page);
@@ -87,8 +94,8 @@ test("a client and a provider chat live, and a phone number stays masked", async
   // --------------------------------------------------------- read receipt
   // The client has the thread on screen, so it acknowledges "read"; the provider's tick turns to READ live.
   await expect(providerPage.getByTestId("message-bubble").last().locator("[data-status='READ']")).toBeVisible({ timeout: 10_000 });
-  await page.screenshot({ path: "screenshots/20-chat-client.png", animations: "disabled" });
-  await providerPage.screenshot({ path: "screenshots/21-chat-provider.png", animations: "disabled" });
+  await capture(page, "20-chat-client", { mask: generatedInChat(page) });
+  await capture(providerPage, "21-chat-provider", { mask: generatedInChat(providerPage) });
 
   // ------------------------------------------------------- reply, both ways
   await page.getByTestId("reply-button").last().click();
@@ -99,7 +106,7 @@ test("a client and a provider chat live, and a phone number stays masked", async
   const reply = providerPage.getByTestId("message-bubble").last();
   await expect(reply).toContainText("je prefere echanger ici", { timeout: 10_000 });
   await expect(reply).toContainText("Bonjour, appelez-moi au [•••] ce soir");
-  await providerPage.screenshot({ path: "screenshots/22-chat-reply.png", animations: "disabled" });
+  await capture(providerPage, "22-chat-reply", { mask: generatedInChat(providerPage) });
 
   // ---------------------------------------- nothing survives a reload
   // The socket is never the source of truth: after a full reload the thread comes back from the database.

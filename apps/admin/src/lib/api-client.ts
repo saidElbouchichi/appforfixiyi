@@ -88,6 +88,7 @@ function refreshSession(): Promise<boolean> {
 
 /** Thin fetch wrapper — Bearer-token auth (not cookies), so this cross-origin call to apps/api needs no CORS-credentials setup. */
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const sentWith = useAuthStore.getState().accessToken;
   let response = await fetch(`${API_URL}${path}`, buildRequest(options));
 
   // The access token lives 15 minutes; the refresh token lives 30 days. Without
@@ -95,7 +96,11 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   // "Invalid or expired access token", and the dead session stayed in
   // localStorage forever because nothing ever cleared it.
   if (response.status === 401 && options.auth === true) {
-    if (await refreshSession()) {
+    // A slow call's 401 can come back after another call's refresh has already
+    // rotated the token: replay with the new one rather than refresh a second time.
+    const current = useAuthStore.getState().accessToken;
+    const alreadyRefreshed = current !== null && current !== sentWith;
+    if (alreadyRefreshed || (await refreshSession())) {
       // Rebuilt, not reused: buildRequest reads the token that refresh just stored.
       response = await fetch(`${API_URL}${path}`, buildRequest(options));
     } else {

@@ -39,8 +39,11 @@ function json(status: number, body?: unknown): Response {
   return new Response(body === undefined ? null : JSON.stringify(body), { status });
 }
 
-/** A fake API: `valid` is the only access token it accepts; `/auth/refresh` rotates to `fresh`. */
-function fakeApi(options: { refreshOk?: boolean; valid?: string } = {}): Call[] {
+/**
+ * A fake API: `valid` is the only access token it accepts; `/auth/refresh` rotates to `fresh`.
+ * `lateFor`: that path answers only after a refresh has had time to finish, like a slow screen call.
+ */
+function fakeApi(options: { refreshOk?: boolean; valid?: string; lateFor?: string } = {}): Call[] {
   const calls: Call[] = [];
   let valid = options.valid ?? "fresh";
   vi.stubGlobal("fetch", async (url: string, init: RequestInit = {}) => {
@@ -53,7 +56,9 @@ function fakeApi(options: { refreshOk?: boolean; valid?: string } = {}): Call[] 
       return json(200, { accessToken: "fresh", refreshToken: "rotated", expiresIn: 900 });
     }
     const auth = (init.headers as Record<string, string> | undefined)?.Authorization;
-    if (auth !== undefined && auth !== `Bearer ${valid}`) return json(401, { code: "UNAUTHORIZED", title: "Invalid or expired access token" });
+    const accepted = auth === undefined || auth === `Bearer ${valid}`;
+    if (options.lateFor !== undefined && url.endsWith(options.lateFor)) await new Promise((resolve) => setTimeout(resolve, 20));
+    if (!accepted) return json(401, { code: "UNAUTHORIZED", title: "Invalid or expired access token" });
     return json(200, { ok: true });
   });
   return calls;
@@ -109,6 +114,15 @@ describe("apiFetch — an expired session", () => {
     const calls = fakeApi();
     const results = await Promise.all([1, 2, 3].map(() => apiFetch("/api/v1/requests/mine", { auth: true })));
     expect(results).toEqual([{ ok: true }, { ok: true }, { ok: true }]);
+    expect(refreshes(calls)).toBe(1);
+  });
+
+  it("replays without a second refresh when a 401 arrives after another call's refresh already rotated the token", async () => {
+    // Design phase 15, seen in the Linux browser run (1 in 5): the slow call was sent with the old
+    // token, its 401 came back once the shared refresh had finished, and it started a refresh of its own.
+    const calls = fakeApi({ lateFor: "/api/v1/conversations" });
+    const results = await Promise.all([apiFetch("/api/v1/requests/mine", { auth: true }), apiFetch("/api/v1/conversations", { auth: true })]);
+    expect(results).toEqual([{ ok: true }, { ok: true }]);
     expect(refreshes(calls)).toBe(1);
   });
 

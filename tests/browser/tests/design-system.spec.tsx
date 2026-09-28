@@ -4,6 +4,7 @@ import { Accordion, AppShell, BottomNavigation, Footer, Header, Logo, Navbar, Pa
 
 import { contrastRatio, renderUi } from "../support/ui-harness";
 import { expect, test } from "../support/test";
+import { capture } from "../support/visual";
 
 /**
  * @fixiyi/ui primitives in a real browser (design phase 4), through the
@@ -51,7 +52,7 @@ test.describe("icons", () => {
     );
     expect(boxes).toHaveLength(ICON_NAMES.length);
     for (const box of boxes) expect(box, box.name ?? "").toMatchObject({ width: 24, height: 24 });
-    await page.screenshot({ path: "screenshots/ds-01-icons.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-01-icons", { fullPage: true });
   });
 
   test("directional glyphs mirror in RTL, others do not", async ({ page }) => {
@@ -100,7 +101,7 @@ test.describe("button", () => {
     for (const [size, height] of Object.entries(BUTTON_SIZES)) {
       expect((await page.getByTestId(`button-size-${size}`).boundingBox())?.height, size).toBe(height);
     }
-    await page.screenshot({ path: "screenshots/ds-02-buttons.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-02-buttons", { fullPage: true });
   });
 
   test("keeps every label readable: measured contrast of each variant", async ({ page }) => {
@@ -156,7 +157,7 @@ test.describe("badges, cards, fields", () => {
     for (const variant of ["neutral", "brand", "info", "success", "warning", "error"]) {
       expect(await textContrast(page, `badge-${variant}`), variant).toBeGreaterThanOrEqual(4.5);
     }
-    await page.screenshot({ path: "screenshots/ds-03-badges-cards-fields.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-03-badges-cards-fields", { fullPage: true });
   });
 
   test("an interactive card follows its primary action from anywhere", async ({ page }) => {
@@ -225,7 +226,7 @@ test.describe("form controls", () => {
     const markColor = await page.locator(".fx-checkbox__mark").first().evaluate((mark) => getComputedStyle(mark).color);
     expect(markColor).toBe("rgb(255, 255, 255)");
     expect(await page.locator(".fx-search__icon").evaluate((icon) => getComputedStyle(icon).color)).toBe("rgb(87, 83, 78)");
-    await page.screenshot({ path: "screenshots/ds-04-controls.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-04-controls", { fullPage: true });
   });
 
   test("slides the switch thumb to the inline end, in LTR and in RTL", async ({ page }) => {
@@ -238,7 +239,7 @@ test.describe("form controls", () => {
       if (dir === "ltr") expect(thumbCentre, dir).toBeGreaterThan(trackCentre);
       else expect(thumbCentre, dir).toBeLessThan(trackCentre);
     }
-    await page.screenshot({ path: "screenshots/ds-05-controls-rtl.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-05-controls-rtl", { fullPage: true });
   });
 });
 
@@ -297,7 +298,7 @@ test.describe("feedback and identity", () => {
     await page.locator(".fx-tooltip__bubble").evaluate((bubble) => {
       bubble.setAttribute("data-open", "true");
     });
-    await page.screenshot({ path: "screenshots/ds-06-feedback-identity.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-06-feedback-identity", { fullPage: true });
   });
 
   test("keeps the horizontal stepper inside a 360px phone", async ({ page }) => {
@@ -333,7 +334,7 @@ test.describe("disclosure and overlays", () => {
         <ErrorState message="Impossible de charger les demandes." onRetry={noop} />
       </div>,
     );
-    await page.screenshot({ path: "screenshots/ds-07-disclosure-states.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-07-disclosure-states", { fullPage: true });
   });
 
   test("render the bottom sheet against the bottom edge, full width on a phone", async ({ page }) => {
@@ -348,7 +349,7 @@ test.describe("disclosure and overlays", () => {
     const sheet = await page.getByTestId("sheet").boundingBox();
     expect(sheet?.width).toBe(390);
     expect((sheet?.y ?? 0) + (sheet?.height ?? 0)).toBeCloseTo(844, 0);
-    await page.screenshot({ path: "screenshots/ds-08-bottom-sheet.png", animations: "disabled" });
+    await capture(page, "ds-08-bottom-sheet");
   });
 
   test("render the modal and the command palette", async ({ page }) => {
@@ -358,7 +359,7 @@ test.describe("disclosure and overlays", () => {
         <p>Cette action est definitive.</p>
       </Modal>,
     );
-    await page.screenshot({ path: "screenshots/ds-09-modal.png", animations: "disabled" });
+    await capture(page, "ds-09-modal");
 
     await renderUi(
       page,
@@ -373,7 +374,7 @@ test.describe("disclosure and overlays", () => {
       />,
       { width: 1024 },
     );
-    await page.screenshot({ path: "screenshots/ds-10-command-palette.png", animations: "disabled" });
+    await capture(page, "ds-10-command-palette");
   });
 });
 
@@ -418,7 +419,7 @@ test.describe("layout", () => {
     expect((legal?.y ?? 0) + (legal?.height ?? 0)).toBeLessThanOrEqual(barTop + 1);
     // A page spans its column, not just its content.
     expect((await page.getByRole("main").boundingBox())?.width).toBeGreaterThan(300);
-    await page.screenshot({ path: "screenshots/ds-11-layout-phone.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-11-layout-phone", { fullPage: true });
   });
 
   test("on a desktop: 64px header with the navbar, no bottom bar", async ({ page }) => {
@@ -426,7 +427,7 @@ test.describe("layout", () => {
     expect((await page.getByTestId("header").boundingBox())?.height).toBe(65);
     await expect(page.locator(".fx-header__nav")).toBeVisible();
     await expect(page.getByTestId("bottom-nav")).toBeHidden();
-    await page.screenshot({ path: "screenshots/ds-12-layout-desktop.png", fullPage: true, animations: "disabled" });
+    await capture(page, "ds-12-layout-desktop", { fullPage: true });
   });
 
   test("the skip link appears on the first Tab and moves focus to the content", async ({ page }) => {
@@ -443,6 +444,6 @@ test.describe("layout", () => {
     await renderUi(page, shell, { dir: "rtl", width: 1024 });
     const logo = await page.getByTestId("header").getByRole("link", { name: "Fixiyi" }).boundingBox();
     expect((logo?.x ?? 0) + (logo?.width ?? 0)).toBeGreaterThan(900);
-    await page.screenshot({ path: "screenshots/ds-13-layout-rtl.png", animations: "disabled" });
+    await capture(page, "ds-13-layout-rtl");
   });
 });

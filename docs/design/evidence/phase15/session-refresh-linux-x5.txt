@@ -1,0 +1,176 @@
+$ node scripts/visual/run.mjs "tests/session-refresh.spec.ts" "--repeat-each=5"
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.38kB 0.1s done
+#1 DONE 0.2s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 1.6s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+#3 resolve docker.io/docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for mcr.microsoft.com/playwright:v1.63.0-noble
+#4 DONE 0.5s
+
+#5 [base 1/2] FROM mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+#5 resolve mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27 0.1s done
+#5 DONE 0.1s
+
+#6 [internal] load build context
+#6 transferring context:
+#6 transferring context: 6.59MB 0.7s done
+#6 DONE 0.7s
+
+#7 [base 2/2] RUN npm install -g pnpm@12.4.2 turbo@2.11.2
+#7 CACHED
+
+#8 [pruner 1/3] WORKDIR /app
+#8 CACHED
+
+#9 [pruner 2/3] COPY . .
+#9 DONE 0.2s
+
+#10 [pruner 3/3] RUN turbo prune @fixiyi/browser-tests --docker
+#10 0.493 • turbo 2.11.2
+#10 0.545 Generating pruned monorepo for @fixiyi/browser-tests in /app/out
+#10 0.615  - Added @fixiyi/browser-tests
+#10 0.623  - Added @fixiyi/design-tokens
+#10 0.626  - Added @fixiyi/eslint-config
+#10 0.628  - Added @fixiyi/tsconfig
+#10 0.641  - Added @fixiyi/ui
+#10 DONE 0.8s
+
+#11 [runner 2/6] COPY --from=pruner /app/out/json/ .
+#11 CACHED
+
+#12 [runner 3/6] RUN pnpm install --frozen-lockfile
+#12 CACHED
+
+#13 [runner 4/6] COPY --from=pruner /app/out/full/ .
+#13 DONE 0.1s
+
+#14 [runner 5/6] RUN pnpm turbo run build --filter=@fixiyi/browser-tests^...
+#14 0.610 • turbo 2.11.2
+#14 0.643 
+#14 0.643    • Packages in scope: @fixiyi/design-tokens, @fixiyi/eslint-config, @fixiyi/tsconfig, @fixiyi/ui
+#14 0.643    • Running build in 4 packages
+#14 0.643    • Remote caching disabled
+#14 0.643 
+#14 0.670 @fixiyi/design-tokens:build: cache miss, executing 5443621a339e6f91
+#14 0.704 @fixiyi/design-tokens:build: $ tsup src/index.ts --format esm,cjs --dts --clean
+#14 1.331 @fixiyi/design-tokens:build: CLI Building entry: src/index.ts
+#14 1.336 @fixiyi/design-tokens:build: CLI Using tsconfig: tsconfig.json
+#14 1.339 @fixiyi/design-tokens:build: CLI tsup v8.5.1
+#14 1.352 @fixiyi/design-tokens:build: CLI Target: es2022
+#14 1.357 @fixiyi/design-tokens:build: CLI Cleaning output folder
+#14 1.368 @fixiyi/design-tokens:build: ESM Build start
+#14 1.368 @fixiyi/design-tokens:build: CJS Build start
+#14 1.411 @fixiyi/design-tokens:build: ESM dist/index.js 12.34 KB
+#14 1.412 @fixiyi/design-tokens:build: ESM ⚡️ Build success in 52ms
+#14 1.412 @fixiyi/design-tokens:build: CJS dist/index.cjs 14.14 KB
+#14 1.412 @fixiyi/design-tokens:build: CJS ⚡️ Build success in 53ms
+#14 1.891 @fixiyi/design-tokens:build: DTS Build start
+#14 3.179 @fixiyi/design-tokens:build: DTS ⚡️ Build success in 1286ms
+#14 3.179 @fixiyi/design-tokens:build: DTS dist/index.d.ts  20.07 KB
+#14 3.179 @fixiyi/design-tokens:build: DTS dist/index.d.cts 20.07 KB
+#14 3.235 @fixiyi/ui:build: cache miss, executing 75b314376c9a35bc
+#14 3.258 @fixiyi/ui:build: $ tsup
+#14 3.816 @fixiyi/ui:build: CLI Building entry: src/index.ts
+#14 3.818 @fixiyi/ui:build: CLI Using tsconfig: tsconfig.json
+#14 3.819 @fixiyi/ui:build: CLI tsup v8.5.1
+#14 3.819 @fixiyi/ui:build: CLI Using tsup config: /app/packages/ui/tsup.config.ts
+#14 3.828 @fixiyi/ui:build: CLI Target: es2022
+#14 3.832 @fixiyi/ui:build: CLI Cleaning output folder
+#14 3.836 @fixiyi/ui:build: ESM Build start
+#14 3.836 @fixiyi/ui:build: CJS Build start
+#14 3.939 @fixiyi/ui:build: ESM dist/index.js 71.32 KB
+#14 3.939 @fixiyi/ui:build: ESM ⚡️ Build success in 102ms
+#14 3.953 @fixiyi/ui:build: CJS dist/index.cjs 80.83 KB
+#14 3.953 @fixiyi/ui:build: CJS ⚡️ Build success in 117ms
+#14 4.349 @fixiyi/ui:build: DTS Build start
+#14 7.867 @fixiyi/ui:build: DTS ⚡️ Build success in 3518ms
+#14 7.867 @fixiyi/ui:build: DTS dist/index.d.ts  45.94 KB
+#14 7.867 @fixiyi/ui:build: DTS dist/index.d.cts 45.94 KB
+#14 8.021 
+#14 8.021  Tasks:    2 successful, 2 total
+#14 8.021 Cached:    0 cached, 2 total
+#14 8.021   Time:    7.41s 
+#14 8.021 
+#14 DONE 8.1s
+
+#15 [runner 6/6] WORKDIR /app/tests/browser
+#15 DONE 0.2s
+
+#16 exporting to image
+#16 exporting layers
+#16 exporting layers 1.0s done
+#16 exporting manifest sha256:75e3ad6137a03cb12af79069bb83af97ac38cf8ff9348d119795fdb263d66e43 0.1s done
+#16 exporting config sha256:77fe4c1530dad3d79725b7b22e2afcdb4dc3e6707433b9c5dce42f68f9bd1898
+#16 exporting config sha256:77fe4c1530dad3d79725b7b22e2afcdb4dc3e6707433b9c5dce42f68f9bd1898 0.1s done
+#16 exporting attestation manifest sha256:14db5fbaf9a5e18949bfa716ada8229e24aba6ff6fcc28b98f0f444846ec5d38
+#16 exporting attestation manifest sha256:14db5fbaf9a5e18949bfa716ada8229e24aba6ff6fcc28b98f0f444846ec5d38 0.2s done
+#16 exporting manifest list sha256:85157d8d557ab0ebf315502622d3186b7f52aed64a1e058c0faee42a852b6df6
+#16 exporting manifest list sha256:85157d8d557ab0ebf315502622d3186b7f52aed64a1e058c0faee42a852b6df6 0.1s done
+#16 naming to docker.io/library/fixiyi-browser-tests:latest 0.0s done
+#16 unpacking to docker.io/library/fixiyi-browser-tests:latest
+#16 unpacking to docker.io/library/fixiyi-browser-tests:latest 0.6s done
+#16 DONE 2.5s
+
+Running 10 tests using 1 worker
+
+  ✓   1 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (4.0s)
+  ✓   2 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (3.5s)
+  ✘   3 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (4.8s)
+  ✓   4 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (5.0s)
+  ✓   5 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (3.8s)
+  ✓   6 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (5.7s)
+  ✓   7 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (6.2s)
+  ✓   8 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (4.7s)
+  ✓   9 [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works (5.4s)
+  ✓  10 [chromium] › tests/session-refresh.spec.ts:94:1 › a session whose refresh token is dead too is cleared and sent back to login (3.3s)
+
+
+  1) [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works 
+
+    Error: exactly one refresh, and it succeeded
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Array [
+        201,
+    +   201,
+      ]
+
+      85 |   await expect(page).toHaveURL(/\/requests\/new$/);
+      86 |
+    > 87 |   expect(refreshCalls, "exactly one refresh, and it succeeded").toEqual([201]);
+         |                                                                 ^
+      88 |
+      89 |   const after = await readAuth(page);
+      90 |   expect(after.state.accessToken, "the rotated access token replaced the expired one").not.toBe(EXPIRED_TOKEN);
+        at /app/tests/browser/tests/session-refresh.spec.ts:87:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/session-refresh-an-expired-20dca--and-the-screen-still-works-chromium-repeat1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/session-refresh-an-expired-20dca--and-the-screen-still-works-chromium-repeat1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/session-refresh-an-expired-20dca--and-the-screen-still-works-chromium-repeat1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/session-refresh-an-expired-20dca--and-the-screen-still-works-chromium-repeat1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/session-refresh.spec.ts:62:1 › an expired access token is refreshed transparently and the screen still works 
+  9 passed (1.1m)
+[ELIFECYCLE] Command failed with exit code 1.

@@ -79,9 +79,17 @@ La regle de methode de la refonte, apprise a ses depens :
 - un test se voit **rouge** avant d'etre cru vert, puis on le **casse
   expres** (`pnpm test:mutation` pour la logique du client).
 
-## 8. Captures de reference
+## 8. Captures de reference (Decision 87)
 
-- Les ecrans ont des captures de reference comparees a chaque passe
-  (phase 15, `toHaveScreenshot`). Une difference visuelle est soit une
-  regression, soit une evolution voulue — et alors la reference est
-  regeneree **dans le meme commit**, avec sa raison.
+- 34 ecrans ont une reference Linux dans `tests/browser/visual/`, comparee
+  par `pnpm test:visual` (image `tests/browser/Dockerfile`) et par le job CI
+  `browser`. Hors de cette image, rien n'est compare : le rendu des polices
+  depend de l'OS.
+- Une capture nommee passe par `capture()` (`tests/browser/support/visual.ts`),
+  jamais par `page.screenshot` directement.
+- Une donnee generee (code, identifiant, nom, heure, liste qui depend de la
+  base) est **masquee**, pas toleree ; si sa largeur deplace la suite, elle
+  est fixee dans `support/visual.css`, qui ne s'applique qu'aux comparaisons.
+- Une difference est soit une regression, soit une evolution voulue — et
+  alors la reference est regeneree (`pnpm test:visual
+  --update-snapshots=changed`) **dans le meme commit**, avec sa raison.
