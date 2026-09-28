@@ -61,6 +61,10 @@ Date : 2026-09-28. Plan : `PHASE_15_PLAN.md`. Preuves :
   le catalogue du seed. Les references ont ete regenerees sur une pile neuve
   (projet Compose separe, volumes de dev intacts : 26 noeuds, 965 demandes
   avant et apres) : seules les 2 de l'accueil changent ; controle 58/58.
+- **Deuxieme CI : 57/58**, `22-chat-reply` : la pastille « 1 » non lu sur
+  « Messages », capturee dans l'instant ou la reponse arrive, avant que le
+  fil ouvert ne l'acquitte. Etat transitoire, pas un defaut : les captures
+  20 et 22 attendent l'ecran stabilise (`nothingUnread`) ; 5/5 repetes.
 - **`@fixiyi/ui` : « Timeout waiting for worker to respond »** pendant des
   gates lancees en parallele de Docker : aucun test en echec, 235/235 seul.
   Contention de la machine (voir §5).

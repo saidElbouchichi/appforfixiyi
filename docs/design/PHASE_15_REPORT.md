@@ -49,6 +49,8 @@ Date : 2026-09-28. Plan : `PHASE_15_PLAN.md`, diagnostic :
   sous Windows. `session-refresh` 10/10 repete sous Linux apres correctif.
 - Premiere CI : 57/58, reference de l'accueil faite sur ma base de dev
   (domaine de test) ; regeneree sur pile neuve, controle 58/58.
+- Deuxieme CI : 57/58, pastille non lu transitoire capturee (chat) ; les
+  captures attendent l'ecran stabilise.
 - Stabilite des references : chaque spec a masques rejoue 2 a 3 fois de
   suite, identique au pixel.
 

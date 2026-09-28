@@ -30,6 +30,14 @@ function generatedInChat(page: Page): Locator[] {
   return [page.getByTestId("conversation-title"), page.locator(".fx-bubble__meta time")];
 }
 
+/**
+ * A message counts as unread for an instant, until the open thread acknowledges it. Captures wait
+ * for that settled screen: the first CI run caught the transient "1" badge on Messages.
+ */
+async function nothingUnread(page: Page): Promise<void> {
+  await expect(page.getByTestId("navbar").getByRole("link", { name: /Messages/ })).not.toContainText("non lu", { timeout: 20_000 });
+}
+
 test("a client and a provider chat live, and a phone number stays masked", async ({ page, browser, request }) => {
   const providerName = `Chat Pro ${Date.now().toString().slice(-4)}`;
   const provider = await setUpProvider(request, uniquePhone("6"), providerName);
@@ -94,6 +102,7 @@ test("a client and a provider chat live, and a phone number stays masked", async
   // --------------------------------------------------------- read receipt
   // The client has the thread on screen, so it acknowledges "read"; the provider's tick turns to READ live.
   await expect(providerPage.getByTestId("message-bubble").last().locator("[data-status='READ']")).toBeVisible({ timeout: 10_000 });
+  await nothingUnread(page);
   await capture(page, "20-chat-client", { mask: generatedInChat(page) });
   await capture(providerPage, "21-chat-provider", { mask: generatedInChat(providerPage) });
 
@@ -106,6 +115,7 @@ test("a client and a provider chat live, and a phone number stays masked", async
   const reply = providerPage.getByTestId("message-bubble").last();
   await expect(reply).toContainText("je prefere echanger ici", { timeout: 10_000 });
   await expect(reply).toContainText("Bonjour, appelez-moi au [•••] ce soir");
+  await nothingUnread(providerPage);
   await capture(providerPage, "22-chat-reply", { mask: generatedInChat(providerPage) });
 
   // ---------------------------------------- nothing survives a reload
